@@ -1,12 +1,11 @@
 ### Next App
-
 ```sh
 
 npx create-next-app@latest home-away
 ```
 
 ```sh
-npm run dev
+npm run dev // testingg aja
 ```
 
 ### Remove Boilerplate
