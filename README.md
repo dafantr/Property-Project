@@ -5,7 +5,7 @@ npx create-next-app@latest home-away
 ```
 
 ```sh
-npm run dev // testingg aja
+npm run dev
 ```
 
 ### Remove Boilerplate
