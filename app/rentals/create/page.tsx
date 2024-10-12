@@ -7,6 +7,8 @@ import CategoriesInput from '@/components/form/CategoriesInput';
 import TextAreaInput from '@/components/form/TextAreaInput';
 import ImageInput from '@/components/form/ImageInput';
 import CountriesInput from '@/components/form/CountriesInput';
+import CounterInput from '@/components/form/CounterInput';
+import AmenitiesInput from '@/components/form/AmenitiesInput';
 
 function CreateProperty() {
     return (
@@ -41,6 +43,13 @@ function CreateProperty() {
                         <CountriesInput />
                         <ImageInput />
                     </div>
+                    <h3 className='text-lg mt-8 mb-4 font-medium'>Accommodation Details</h3>
+                    <CounterInput detail='Guests' />
+                    <CounterInput detail='Bedrooms' />
+                    <CounterInput detail='Beds' />
+                    <CounterInput detail='Baths' />
+                    <h3 className='text-lg mt-10 mb-6 font-medium'>Amenities</h3>
+                    <AmenitiesInput />
                     <SubmitButton text='Create Property' className='mt-12' />
                 </FormContainer>
             </div>
