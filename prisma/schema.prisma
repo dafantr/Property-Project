@@ -27,7 +27,7 @@ model Property {
   tagline     String
   category    String
   image       String
-  country     String
+  city     String
   description String
   price       Int
   guests      Int

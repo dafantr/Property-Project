@@ -88,7 +88,7 @@ export const propertySchema = z.object({
       message: 'description must be between 10 and 1000 words.',
     }
   ),
-  country: z.string(),
+  city: z.string(),
   guests: z.coerce.number().int().min(0, {
     message: 'guest amount must be a positive number.',
   }),
