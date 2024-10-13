@@ -18,7 +18,9 @@ model Profile {
   profileImage String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  properties Property[]
+  properties   Property[]
+  //Favorite     Favorite[]
+  favorites    Favorite[]
 }
 
 model Property {
@@ -27,7 +29,7 @@ model Property {
   tagline     String
   category    String
   image       String
-  city     String
+  city        String
   description String
   price       Int
   guests      Int
@@ -39,5 +41,18 @@ model Property {
   updatedAt   DateTime   @updatedAt
   profile     Profile    @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId   String
+  //Favorite    Favorite[]
+  favorites    Favorite[]
 }
- 
+
+model Favorite {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId String
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+}
