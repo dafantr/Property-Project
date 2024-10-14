@@ -1,50 +1,5 @@
-// import { Label } from '@/components/ui/label';
-// import { formattedCountries } from '@/utils/countries';
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
-
-// const name = 'country';
-// function CountriesInput({ defaultValue }: { defaultValue?: string }) {
-//   return (
-//     <div className='mb-2'>
-//       <Label htmlFor={name} className='capitalize'>
-//         Country
-//       </Label>
-//       <Select
-//         defaultValue={defaultValue || formattedCountries[0].code}
-//         name={name}
-//         required
-//       >
-//         <SelectTrigger id={name}>
-//           <SelectValue />
-//         </SelectTrigger>
-//         <SelectContent>
-//           {formattedCountries.map((item) => {
-//             return (
-//               <SelectItem key={item.code} value={item.code}>
-//                 <span className='flex items-center gap-2'>
-//                   {item.flag} {item.name}
-//                 </span>
-//               </SelectItem>
-//             );
-//           })}
-//         </SelectContent>
-//       </Select>
-//     </div>
-//   );
-// }
-// export default CountriesInput;
-
-
-
-// countriesInput.tsx (now showing cities in Indonesia)
 import { Label } from '@/components/ui/label';
-import { formattedCities } from '@/utils/countries'; // import cities, not countries
+import { formattedCities } from '@/utils/countries';
 import {
   Select,
   SelectContent,
@@ -52,35 +7,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useState } from 'react';
+import PropertyMap from '../properties/PropertyMap';
+const name = 'city';
 
-const name = 'city'; // Change to 'city'
+function CitiesInput() {
+  const [selectedCity, setSelectedCity] = useState(formattedCities[0].code);
 
-function CitiesInput({ defaultValue }: { defaultValue?: string }) {
+  const handleCityChange = (cityCode: string) => {
+    setSelectedCity(cityCode);
+  };
+
   return (
-    <div className='mb-2'>
+    <div className='mb-4'>
       <Label htmlFor={name} className='capitalize'>
         City
       </Label>
       <Select
-        defaultValue={defaultValue || formattedCities[0].code} // Use first city as default
+        defaultValue={selectedCity}
         name={name}
-        required
+        onValueChange={handleCityChange}
       >
         <SelectTrigger id={name}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {formattedCities.map((item) => {
-            return (
-              <SelectItem key={item.code} value={item.code}>
-                <span className='flex items-center gap-2'>
-                  {item.name} ({item.region})
-                </span>
-              </SelectItem>
-            );
-          })}
+          {formattedCities.map((city) => (
+            <SelectItem key={city.code} value={city.code}>
+              <span className='flex items-center gap-2'>
+                {city.name} ({city.region})
+              </span>
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
+
+      {/* Render the PropertyMap based on the selected city */}
+      <PropertyMap cityCode={selectedCity} />
     </div>
   );
 }

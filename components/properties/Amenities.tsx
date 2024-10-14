@@ -1,5 +1,9 @@
 import { Amenity } from "@/utils/amenities";
 import { LuFolderCheck } from "react-icons/lu";
+import { PiShieldCheckFill } from "react-icons/pi";
+import { CiBookmarkCheck } from "react-icons/ci";
+import { FaCheckToSlot } from "react-icons/fa6";
+import { FaHouseCircleCheck } from "react-icons/fa6";
 import Title from "./Title";
 
 function Amenities({ amenities }: { amenities: string }) {
@@ -19,7 +23,7 @@ function Amenities({ amenities }: { amenities: string }) {
           }
           return (
             <div key={amenity.name} className="flex items-center gap-x-4 mb-2 ">
-              <LuFolderCheck className="h-6 w-6 text-primary" />
+              <FaHouseCircleCheck  className="h-6 w-6 text-primary" />
               <span className="font-light text-sm capitalize">
                 {amenity.name}
               </span>

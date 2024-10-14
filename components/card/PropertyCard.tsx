@@ -39,7 +39,7 @@ function PropertyCard({ property }: { property: PropertyCardProps }) {
                         / Night
                     </p>
                     {/* city and flag */}
-                    <CitylagAndName countryCode={city} />
+                    <CitylagAndName cityCode={city} />
                 </div>
             </Link>
             <div className='absolute top-5 right-5 z-5'>
