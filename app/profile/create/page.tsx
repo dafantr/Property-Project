@@ -4,10 +4,17 @@ import FormContainer from "@/components/form/FormContainer";
 import { createProfileAction } from "@/utils/actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+<<<<<<< Updated upstream
 import { use } from "react";
 import { profile } from "console";
 
 async function CreateProfile(){
+=======
+// import { use } from "react";
+// import { profile } from "console";
+
+async function CreateProfile{
+>>>>>>> Stashed changes
   const user = await currentUser();
   if (user?.privateMetadata?.hasProfile) redirect("/");
   return (
