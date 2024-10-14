@@ -1,7 +1,7 @@
-'use client'; // Ensure this is at the top
+'use client'; // Ensure this is at the top of the file
 
 import { Label } from '@/components/ui/label';
-import { formattedCities } from '@/utils/countries'; // import cities, not countries
+import { formattedCities } from '@/utils/countries'; // Import cities, not countries
 import {
   Select,
   SelectContent,
