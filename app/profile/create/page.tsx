@@ -1,3 +1,4 @@
+'use client';
 import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import FormContainer from "@/components/form/FormContainer";
@@ -6,17 +7,6 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { use } from "react";
 import { profile } from "console";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
-
-const DynamicMap = dynamic(
-  () => import('@/components/properties/PropertyMap'),
-  {
-    ssr: false,
-    loading: () => <Skeleton className='h-[400px] w-full' />,
-  }
-);
-return <DynamicMap cityCode={property.country} />;
 
 async function CreateProfile(){
   const user = await currentUser();

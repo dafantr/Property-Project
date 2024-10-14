@@ -1,5 +1,7 @@
+'use client'; // Ensure this is at the top
+
 import { Label } from '@/components/ui/label';
-import { formattedCities } from '@/utils/countries';
+import { formattedCities } from '@/utils/countries'; // import cities, not countries
 import {
   Select,
   SelectContent,
@@ -7,43 +9,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useState } from 'react';
-import PropertyMap from '../properties/PropertyMap';
-const name = 'city';
 
-function CitiesInput() {
-  const [selectedCity, setSelectedCity] = useState(formattedCities[0].code);
+const name = 'city'; // Change to 'city'
 
-  const handleCityChange = (cityCode: string) => {
-    setSelectedCity(cityCode);
-  };
-
+function CitiesInput({ defaultValue }: { defaultValue?: string }) {
   return (
-    <div className='mb-4'>
+    <div className='mb-2'>
       <Label htmlFor={name} className='capitalize'>
         City
       </Label>
       <Select
-        defaultValue={selectedCity}
+        defaultValue={defaultValue || formattedCities[0].code} // Use first city as default
         name={name}
-        onValueChange={handleCityChange}
+        required
       >
         <SelectTrigger id={name}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {formattedCities.map((city) => (
-            <SelectItem key={city.code} value={city.code}>
-              <span className='flex items-center gap-2'>
-                {city.name} ({city.region})
-              </span>
-            </SelectItem>
-          ))}
+          {formattedCities.map((item) => {
+            return (
+              <SelectItem key={item.code} value={item.code}>
+                <span className='flex items-center gap-2'>
+                  {item.name} ({item.region})
+                </span>
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
-
-      {/* Render the PropertyMap based on the selected city */}
-      <PropertyMap cityCode={selectedCity} />
     </div>
   );
 }
