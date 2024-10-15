@@ -2,7 +2,7 @@ import FavoriteToggleButton from "@/components/card/FavoriteToggleButton";
 import PropertyRating from "@/components/card/PropertyRating";
 import Amenities from "@/components/properties/Amenities";
 import BookingCalender from "@/components/properties/booking/BookingCalender";
-import App from "@/components/properties/booking/BookingCalender";
+//import App from "@/components/properties/booking/BookingCalender";
 import BreadCrumbs from "@/components/properties/BreadCrumbs";
 import Description from "@/components/properties/Description";
 import ImageContainer from "@/components/properties/ImageContainer";

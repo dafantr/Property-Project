@@ -1,8 +1,8 @@
 import { Amenity } from "@/utils/amenities";
-import { LuFolderCheck } from "react-icons/lu";
-import { PiShieldCheckFill } from "react-icons/pi";
-import { CiBookmarkCheck } from "react-icons/ci";
-import { FaCheckToSlot } from "react-icons/fa6";
+// import { LuFolderCheck } from "react-icons/lu";
+// import { PiShieldCheckFill } from "react-icons/pi";
+// import { CiBookmarkCheck } from "react-icons/ci";
+// import { FaCheckToSlot } from "react-icons/fa6";
 import { FaHouseCircleCheck } from "react-icons/fa6";
 import Title from "./Title";
 
