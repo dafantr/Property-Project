@@ -5,20 +5,23 @@ import Logo from "./Logo";
 
 function Navbar() {
   return (
-    <nav className="sticky top-0 border-b bg-white z-50">
-
-    <div className="container flex flex-col sm:flex-row 
-    sm:justify-between sm:items-center flex-wrap gap-4 py-8">
-      <Logo />
-      <NavSearch/>
-      <div className="flex gap-4 items-center">
-        <DarkMode />
-        <LinksDropdown />
+    <nav
+      className="sticky top-0 border-b z-50 transition-colors duration-300 
+      bg-white dark:bg-black"
+    >
+      <div
+        className="container flex flex-col sm:flex-row 
+        sm:justify-between sm:items-center flex-wrap gap-4 py-8"
+      >
+        <Logo />
+        <NavSearch />
+        <div className="flex gap-4 items-center">
+          <DarkMode />
+          <LinksDropdown />
+        </div>
       </div>
-    </div>
-        
     </nav>
-  )
+  );
 }
 
 export default Navbar

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 
-export default function App() {
+export default function BookingCalender() {
   const currentDate = new Date();
   const defaultSelected: DateRange = {
     from: undefined,

@@ -1,5 +1,5 @@
 // app/profile/create/page.tsx
-'use client'; // This should be at the top of your client component
+//'use client'; // This should be at the top of your client component
 import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import FormContainer from "@/components/form/FormContainer";
