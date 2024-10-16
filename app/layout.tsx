@@ -9,7 +9,7 @@ import {ClerkProvider} from '@clerk/nextjs';
 const inter = Inter({ subsets: ['latin']})
 
 export const metadata: Metadata = {
-  title: "Property Project",
+  title: "Million Dollar View Villas's",
   description: "The keys to your home",
 };
 

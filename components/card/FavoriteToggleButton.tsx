@@ -11,3 +11,4 @@ async function FavoriteToggleButton({ propertyId }: { propertyId: string }) {
   return <FavoriteToggleForm favoriteId={favoriteId} propertyId={propertyId} />;
 }
 export default FavoriteToggleButton;
+
