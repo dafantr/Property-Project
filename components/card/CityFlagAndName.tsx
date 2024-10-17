@@ -1,4 +1,4 @@
-import { findCityByCode } from '@/utils/countries';
+import { findCityByCode } from '@/utils/cities';
 
 type CityFlagAndNameProps = {
   cityCode: string;

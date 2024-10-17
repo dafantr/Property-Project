@@ -5,7 +5,7 @@ import PropertyRating from './PropertyRating';
 import FavoriteToggleButton from './FavoriteToggleButton';
 import { PropertyCardProps } from '@/utils/types';
 import { formatCurrency } from '@/utils/format';
-import CitylagAndName from './CityFlagAndName';
+import CityFlagAndName from './CityFlagAndName';
 
 function PropertyCard({ property }: { property: PropertyCardProps }) {
     const { name, image, price } = property;
@@ -39,7 +39,7 @@ function PropertyCard({ property }: { property: PropertyCardProps }) {
                         / Night
                     </p>
                     {/* city and flag */}
-                    <CitylagAndName cityCode={city} />
+                    <CityFlagAndName cityCode={city} />
                 </div>
             </Link>
             <div className='absolute top-5 right-5 z-5'>

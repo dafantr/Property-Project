@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { icon, LatLngExpression } from 'leaflet';
-import { findCityByCode } from '@/utils/countries';
+import { findCityByCode } from '@/utils/cities';
 import CityFlagAndName from '../card/CityFlagAndName';
 import Title from './Title';
 
