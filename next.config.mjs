@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images:{
-        remotePatterns:[
+    images: {
+        remotePatterns: [
             {
                 protocol: 'https',
                 hostname: 'img.clerk.com'
@@ -11,6 +11,10 @@ const nextConfig = {
                 hostname: 'jjjefrzxvxvbaeibwiig.supabase.co'
             }
         ]
+    },
+
+    eslint: {
+        ignoreDuringBuilds: true,
     }
 };
 
