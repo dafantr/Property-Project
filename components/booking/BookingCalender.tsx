@@ -24,13 +24,13 @@ function BookingCalendar() {
         today: currentDate,
     });
 
-    const unavailablesDates = generateDisabledDates(blockedPeriods)
+    const unavailableDates = generateDisabledDates(blockedPeriods)
 
 
     useEffect(() => {
         const selectedRage = generateDateRange(range)
         const isDisabledDateIncluded = selectedRage.some((date) => {
-            if (unavailablesDates[date]) {
+            if (unavailableDates[date]) {
                 setRange(defaultSelected)
                 toast({
                     description: 'Selected dates are not available. Try different dates to proceed with your booking.',

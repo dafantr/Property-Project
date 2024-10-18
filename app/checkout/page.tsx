@@ -19,10 +19,10 @@ export default function CheckoutPage() {
 
   const fetchClientSecret = useCallback(async () => {
     const response = await axios.post('/api/payment', {
-      bookingId: bookingId,
+      bookingId,
     });
     return response.data.clientSecret;
-  }, []);
+  }, [bookingId]);
 
   const options = { fetchClientSecret };
 
