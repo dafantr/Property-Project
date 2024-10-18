@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-
+import Stats from '@/components/reservations/Stats';
 async function ReservationsPage() {
     const reservations = await fetchReservations();
 
@@ -22,51 +22,54 @@ async function ReservationsPage() {
     }
 
     return (
-        <div className='mt-16'>
-            <h4 className='mb-4 capitalize'>
-                total reservations : {reservations.length}
-            </h4>
-            <Table>
-                <TableCaption>A list of your recent reservations.</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="bg-orange-500 text-white rounded-tl-lg">Property Name</TableHead>
-                        <TableHead className="bg-orange-500 text-white">City</TableHead>
-                        <TableHead className="bg-orange-500 text-white">Nights</TableHead>
-                        <TableHead className="bg-orange-500 text-white">Total</TableHead>
-                        <TableHead className="bg-orange-500 text-white">Check In</TableHead>
-                        <TableHead className="bg-orange-500 text-white rounded-tr-lg">Check Out</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {reservations.map((item) => {
-                        const { id, orderTotal, totalNights, checkIn, checkOut } = item;
-                        const { id: propertyId, name, city } = item.property;
-                        const startDate = formatDate(checkIn);
-                        const endDate = formatDate(checkOut);
-                        return (
-                            <TableRow key={id}>
-                                <TableCell>
-                                    <Link
-                                        href={`/properties/${propertyId}`}
-                                        className='underline text-muted-foreground tracking-wide'
-                                    >
-                                        {name}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <CityFlagAndName cityCode={city} />
-                                </TableCell>
-                                <TableCell>{totalNights}</TableCell>
-                                <TableCell>{formatCurrency(orderTotal)}</TableCell>
-                                <TableCell>{startDate}</TableCell>
-                                <TableCell>{endDate}</TableCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </div>
+        <>
+            <Stats />
+            <div className='mt-16'>
+                <h4 className='mb-4 capitalize'>
+                    total reservations : {reservations.length}
+                </h4>
+                <Table>
+                    <TableCaption>A list of your recent reservations.</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="bg-orange-500 text-white rounded-tl-lg">Property Name</TableHead>
+                            <TableHead className="bg-orange-500 text-white">City</TableHead>
+                            <TableHead className="bg-orange-500 text-white">Nights</TableHead>
+                            <TableHead className="bg-orange-500 text-white">Total</TableHead>
+                            <TableHead className="bg-orange-500 text-white">Check In</TableHead>
+                            <TableHead className="bg-orange-500 text-white rounded-tr-lg">Check Out</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {reservations.map((item) => {
+                            const { id, orderTotal, totalNights, checkIn, checkOut } = item;
+                            const { id: propertyId, name, city } = item.property;
+                            const startDate = formatDate(checkIn);
+                            const endDate = formatDate(checkOut);
+                            return (
+                                <TableRow key={id}>
+                                    <TableCell>
+                                        <Link
+                                            href={`/properties/${propertyId}`}
+                                            className='underline text-muted-foreground tracking-wide'
+                                        >
+                                            {name}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <CityFlagAndName cityCode={city} />
+                                    </TableCell>
+                                    <TableCell>{totalNights}</TableCell>
+                                    <TableCell>{formatCurrency(orderTotal)}</TableCell>
+                                    <TableCell>{startDate}</TableCell>
+                                    <TableCell>{endDate}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </div>
+        </>
     );
 }
 export default ReservationsPage;
