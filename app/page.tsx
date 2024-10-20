@@ -2,6 +2,8 @@ import CategoriesList from '@/components/home/CategoriesList';
 import PropertiesContainer from '@/components/home/PropertiesContainer';
 import LoadingCards from '@/components/card/LoadingCards';
 import { Suspense } from 'react';
+import FeatureHighlights from '@/components/features/FeatureHighlights';
+
 function HomePage({
   searchParams,
 }: {
@@ -9,6 +11,7 @@ function HomePage({
 }) {
   return (
     <section>
+<FeatureHighlights />
       <CategoriesList
         category={searchParams?.category}
         search={searchParams?.search}
