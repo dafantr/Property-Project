@@ -8,10 +8,10 @@ type Props = {
 function SectionHeading({ heading, paragraph }: Props) {
     return (
         <div>
-            <h1 className='text-2xl sm:text-3xl font-bold mb-2 text-gray-800'>
+            <h1 className='text-2xl sm:text-3xl font-bold mb-2 text-gray-800 dark:text-white'>
                 {heading}
             </h1>
-            <p className='text-sm text-gray-700'>
+            <p className='text-sm text-gray-700 dark:text-gray-300'>
                 {paragraph} {/* Use the paragraph prop here */}
             </p>
         </div>

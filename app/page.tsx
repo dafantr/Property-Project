@@ -1,15 +1,19 @@
+//"use client";
 import CategoriesList from '@/components/home/CategoriesList';
 import PropertiesContainer from '@/components/home/PropertiesContainer';
 import LoadingCards from '@/components/card/LoadingCards';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import FeatureHighlights from '@/components/features/FeatureHighlights';
 import SectionHeading from '@/components/helper/SectionHeading';
+import AOS from 'aos';
+import 'aos/dist/aos.css'; // You can also use <link> for styles
 
 function HomePage({
   searchParams,
 }: {
   searchParams: { category?: string; search?: string };
 }) {
+
   return (
     <section>
       <FeatureHighlights />
