@@ -1,14 +1,14 @@
 // app/profile/create/page.tsx
-//'use client'; // This should be at the top of your client component
+//'use client'; 
 import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import FormContainer from "@/components/form/FormContainer";
-//import CheckUser from "@/components/CheckUser"; // Ensure this import is correct
-import { createProfileAction } from "@/utils/actions"; // Ensure this import is correct
+//import CheckUser from "@/components/CheckUser"; 
+import { createProfileAction } from "@/utils/actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-async function CreateProfile () {
+async function CreateProfile() {
     const user = await currentUser()
     if (user?.privateMetadata?.hasProfile) redirect('/');
     return (

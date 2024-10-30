@@ -1,82 +1,61 @@
-// featurehighlights.tsx
-'use client';
+"use client";
+import React, { useEffect } from 'react';
+import SectionHeading from '../helper/SectionHeading';
 import { featureList } from '@/utils/features';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area'; // Ensure you have your ScrollArea component
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
-function FeaturesHighlights() {
+function FeatureHighlights() {
+
+  useEffect(() => {
+    const initAOS = async () => {
+      await import('aos');
+      AOS.init({
+        duration: 1000,
+        easing: 'ease',
+        once: true,
+        anchorPlacement: 'top-bottom',
+      });
+    };
+
+    initAOS();
+  }, [])
   return (
-    <section style={{ overflow: 'hidden' }}>
-      <h2
-        style={{
-          margin: '2rem auto',
-          fontSize: '1.8rem',
-          fontWeight: 'bold',
-          color: '#333',
-          textAlign: 'center',
-        }}
-      >
-        Million Dollar View Villas Promises
-      </h2>
-      <ScrollArea className="py-6" style={{ overflow: 'hidden' }}>
-        <div className="scrolling-content">
-          {featureList.map((feature) => (
+    <div className="pt-16 pb-16">
+      <div >
+        {/* className="w-[80%] mx-auto" */}
+        <SectionHeading
+          heading="Million Dollar View Villas promises"
+          paragraph=" Discover an extraordinary living experience where luxury meets
+                breathtaking scenery. At Million Dollar View Villas, we offer more
+                than just a place to stay—we provide a home designed for those who
+                seek comfort, style, and unforgettable views."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-10 md:mt-20 gap-8 items-center">
+          {featureList.map((feature, i) => (
             <div
               key={feature.id}
-              style={{
-                backgroundColor: '#fff', // White background
-                padding: '1.5rem',
-                borderRadius: '8px',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
-                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                textAlign: 'center',
-                flex: '0 0 auto', // Prevent flex item from shrinking
-                marginRight: '1.5rem', // Space between items
-              }}
+              className="bg-card text-card-foreground p-6 rounded-lg shadow-md hover:bg-primary hover:text-primary-foreground hover:shadow-lg transition duration-300"
+              data-aos="zoom-in"
+              data-aos-delay={`${i * 150}`}
+              data-aos-anchor-placement='top-center'
             >
               <img
-                src={feature.icon} // Add the icon image
-                alt={feature.title} // Alt text for accessibility
-                style={{
-                  width: '60px', // Increase the size of the icon
-                  height: '60px',
-                  marginBottom: '0.5rem', // Space between icon and text
-                  display: 'block', // Center the icon
-                  marginLeft: 'auto', // Center horizontally
-                  marginRight: 'auto', // Center horizontally
-                }}
+                src={feature.icon}
+                alt={feature.title}
+                className="w-16 h-16 mx-auto mb-4 icon-color"
               />
-              <h3
-                style={{
-                  marginBottom: '0.5rem',
-                  fontSize: '1.2rem', // Decrease the font size
-                  fontWeight: 'normal', // Normal weight
-                  color: '#444',
-                }}
-              >
-                {feature.title}
-              </h3>
+              <h3 className="text-sm text-center">{feature.title}</h3>
             </div>
           ))}
         </div>
-        {/* <ScrollBar orientation="horizontal" /> */}
-      </ScrollArea>
-      <style jsx>{`
-        .scrolling-content {
-          display: inline-flex; // Align items in a row
-          animation: scroll 20s linear infinite; // Adjust the duration to change speed
-        }
-
-        @keyframes scroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-100%);
-          }
-        }
-      `}</style>
-    </section>
+      </div>
+    </div>
   );
 }
 
-export default FeaturesHighlights;
+export default FeatureHighlights;
+
+
+
+

@@ -13,7 +13,6 @@ const markerIcon = icon({
   iconSize: [20, 30],
 });
 
-// Helper component to update the map view dynamically when the city changes
 function ChangeView({ center }: { center: LatLngExpression }) {
   const map = useMap();
   useEffect(() => {
@@ -26,7 +25,7 @@ interface City {
   code: string;
   name: string;
   region: string;
-  location: [number, number]; // Ensure location is always a [number, number] tuple
+  location: [number, number]; 
 }
 
 interface PropertyMapProps {
@@ -34,9 +33,8 @@ interface PropertyMapProps {
 }
 
 function PropertyMap({ cityCode }: PropertyMapProps) {
-  const defaultLocation: LatLngExpression = [-6.200000, 106.816666]; // Jakarta coordinates
+  const defaultLocation: LatLngExpression = [-6.200000, 106.816666]; 
 
-  // Safely get the city location or fallback to the default location
   const city = findCityByCode(cityCode) as City | undefined;
   const location: LatLngExpression = city?.location || defaultLocation;
 

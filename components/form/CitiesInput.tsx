@@ -1,7 +1,7 @@
-'use client'; // Ensure this is at the top of the file
+'use client'; 
 
 import { Label } from '@/components/ui/label';
-import { formattedCities } from '@/utils/cities'; // Import cities, not countries
+import { formattedCities } from '@/utils/cities'; 
 import {
   Select,
   SelectContent,
@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const name = 'city'; // Change to 'city'
+const name = 'city'; 
 
 function CitiesInput({ defaultValue }: { defaultValue?: string }) {
   return (
@@ -19,7 +19,7 @@ function CitiesInput({ defaultValue }: { defaultValue?: string }) {
         City
       </Label>
       <Select
-        defaultValue={defaultValue || formattedCities[0].code} // Use first city as default
+        defaultValue={defaultValue || formattedCities[0].code}
         name={name}
         required
       >

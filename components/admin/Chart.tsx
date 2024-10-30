@@ -25,14 +25,14 @@ function Chart({ data }: ChartPropsType) {
                     <CartesianGrid strokeDasharray='3 3' />
                     <XAxis dataKey='date' />
                     <YAxis allowDecimals={false} />
-                    <Tooltip 
-                        cursor={{ fill: 'transparent' }} // No hover background
+                    <Tooltip
+                        cursor={{ fill: 'transparent' }}
                         contentStyle={{
-                            backgroundColor: '#e0e0e0',  // Light gray background
-                            border: 'none',               // Optional: Remove border
-                            borderRadius: '8px',           // Optional: Add rounded corners
+                            backgroundColor: '#e0e0e0',
+                            border: 'none',
+                            borderRadius: '8px',
                         }}
-                        labelStyle={{ color: '#333' }} // Optional: Darker text for better readability
+                        labelStyle={{ color: '#333' }}
                     />
                     <Bar dataKey='count' fill='#F97215' barSize={75} />
                 </BarChart>

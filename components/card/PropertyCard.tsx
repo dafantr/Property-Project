@@ -27,7 +27,6 @@ function PropertyCard({ property }: { property: PropertyCardProps }) {
                     <h3 className='text-sm font-semibold mt-1'>
                         {name.substring(0, 30)}
                     </h3>
-                    {/* property rating */}
                     <PropertyRating inPage={false} propertyId={propertyId} />
                 </div>
                 <p className='text-sm mt-1 text-muted-foreground '>
@@ -38,12 +37,10 @@ function PropertyCard({ property }: { property: PropertyCardProps }) {
                         <span className='font-semibold'>{formatCurrency(price)} </span>
                         / Night
                     </p>
-                    {/* city and flag */}
                     <CityFlagAndName cityCode={city} />
                 </div>
             </Link>
             <div className='absolute top-5 right-5 z-5'>
-                {/* favorite toggle button */}
                 <FavoriteToggleButton propertyId={propertyId} />
 
             </div>

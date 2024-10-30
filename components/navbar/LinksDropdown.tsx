@@ -44,7 +44,8 @@ function LinksDropdown() {
         </SignedOut>
         <SignedIn>
           {links.map((link) => {
-            if (link.label === 'admin' && !isAdminUser) return null;
+             const isAdminPage = ['admin', 'reservations', 'create property', 'my property'].includes(link.label);
+             if (isAdminPage && !isAdminUser) return null;
             return (
               <DropdownMenuItem key={link.href}>
                 <Link href={link.href} className='capitalize w-full'>
