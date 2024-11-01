@@ -7,6 +7,7 @@ import FeatureHighlights from '@/components/features/FeatureHighlights';
 import SectionHeading from '@/components/helper/SectionHeading';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Hero from '@/components/hero/Hero';
 
 function HomePage({
   searchParams,
@@ -16,6 +17,7 @@ function HomePage({
 
   return (
     <section>
+      <Hero/>
       <FeatureHighlights />
       <SectionHeading
         heading="Property Types"

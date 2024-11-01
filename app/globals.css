@@ -12,7 +12,6 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 20 14.3% 4.1%;
-    /* --foreground: 0 0% 0%; */
     --card: 0 0% 100%;
     --card-foreground: 20 14.3% 4.1%;
     --popover: 0 0% 100%;
@@ -31,13 +30,19 @@
     --input: 20 5.9% 90%;
     --ring: 24.6 95% 53.1%;
     --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 60 9.1% 97.8%;
-    /* --background: 0 0% 10%; 
-    --foreground: 0 0% 100%; */
     --card: 20 14.3% 4.1%;
     --card-foreground: 60 9.1% 97.8%;
     --popover: 20 14.3% 4.1%;
@@ -55,6 +60,14 @@
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 20.5 90.2% 48.2%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -68,24 +81,6 @@
   }
 }
 
-/* .icon-color {
-  filter: var(--icon-filter); 
-  transition: filter 0.3s ease;
-} */
-
-/* .dark .icon-color {
-  --icon-filter: brightness(0) saturate(100%) invert(49%) sepia(83%) saturate(1845%) hue-rotate(8deg) brightness(104%) contrast(101%);
-} */
-
-/* .icon-color:hover {
-  --icon-filter: brightness(0) saturate(100%) invert(61%) sepia(77%) saturate(1884%) hue-rotate(357deg) brightness(99%) contrast(100%);
-} */
-
-/* .icon-color {
-  filter: var(--icon-filter-light);
-  transition: filter 0.3s ease;
-} */
-
 :root {
   --icon-filter-light: brightness(0) saturate(100%) invert(53%) sepia(94%) saturate(694%) hue-rotate(1deg) brightness(103%) contrast(104%);
 }
@@ -95,8 +90,42 @@
   transition: filter 0.3s ease;
 }
 
-/* Dark Mode - Keep the icons orange */
-/* .dark {
-  --icon-filter-light: brightness(0) saturate(100%) invert(67%) sepia(97%) saturate(746%) hue-rotate(358deg) brightness(106%) contrast(101%);
-} */
- 
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: black !important;
+  opacity: 0.8;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  color: hsl(var(--primary)) !important; 
+  opacity: 1;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  color: black !important; 
+}
+
+.swiper-button-next:hover:after,
+.swiper-button-prev:hover:after {
+  color: hsl(var(--primary)) !important; 
+}
+
+/* Override Swiper pagination dots color */
+.swiper-pagination-bullet {
+  background-color: black !important; /* Default color is black */
+  opacity: 0.8; /* Optional: Slightly transparent */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Active pagination dot color */
+.swiper-pagination-bullet-active {
+  background-color: hsl(var(--primary)) !important; /* Active dot color */
+}
+
+
+
+
