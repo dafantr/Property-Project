@@ -19,3 +19,5 @@ npm i react-share
 npm install zustand
 
 npm install recharts
+
+npm install swiper
