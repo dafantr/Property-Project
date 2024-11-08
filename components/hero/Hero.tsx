@@ -10,7 +10,7 @@ import 'swiper/css/effect-fade';
 
 function Hero() {
   return (
-    <div className="relative h-[80vh] w-full max-w-6xl mx-auto">
+    <div className="w-screen h-[80vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
       <Swiper
         modules={[Autoplay, Navigation, Pagination, EffectFade]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
