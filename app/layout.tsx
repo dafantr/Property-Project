@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import {Inter} from "next/font/google";
+import "slick-carousel/slick/slick.css";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 //import { Provider } from "@radix-ui/react-toast";
 import Providers from "./providers";
 import {ClerkProvider} from '@clerk/nextjs';
 import ScrollToTop from "@/components/helper/ScrollToTop";
+
 
 const inter = Inter({ subsets: ['latin']})
 

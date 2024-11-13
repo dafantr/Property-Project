@@ -8,6 +8,7 @@ import SectionHeading from '@/components/helper/SectionHeading';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Hero from '@/components/hero/Hero';
+import TestimonialCard from '@/components/testimonial/TestimonialCard';
 
 function HomePage({
   searchParams,
@@ -37,6 +38,7 @@ function HomePage({
           search={searchParams?.search}
         />
       </Suspense>
+      <TestimonialCard/>
     </section>
   );
 }
