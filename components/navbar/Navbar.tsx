@@ -3,7 +3,7 @@ import LinksDropdown from "./LinksDropdown";
 import DarkMode from "./DarkMode";
 import Logo from "./Logo";
 import SideBar from "./SideBar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import NavMenu from "./NavMenu";
 
 function Navbar() {
   return (
@@ -15,19 +15,20 @@ function Navbar() {
         className="container flex flex-col sm:flex-row 
         sm:justify-between sm:items-center flex-wrap gap-4 py-8"
       >
-
-
         <Logo />
         <NavSearch />
-
-        <div className="flex gap-4 items-center">
-          <DarkMode />
-          <LinksDropdown />
-      
+        <div className="flex flex-col items-center w-full sm:w-auto">
+          <div className="flex items-center gap-4">
+            
+            <DarkMode />
+            <LinksDropdown />
+          </div>
         </div>
+        <NavMenu />
+
       </div>
     </nav>
   );
 }
 
-export default Navbar
+export default Navbar;
