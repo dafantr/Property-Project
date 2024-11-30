@@ -21,3 +21,5 @@ npm install zustand
 npm install recharts
 
 npm install swiper
+
+npm i react-multi-carousel
