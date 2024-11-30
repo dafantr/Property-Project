@@ -3,7 +3,7 @@ import LinksDropdown from "./LinksDropdown";
 import DarkMode from "./DarkMode";
 import Logo from "./Logo";
 import SideBar from "./SideBar";
-import NavMenu from "./NavMenu";
+//import NavMenu from "./NavMenu";
 
 function Navbar() {
   return (
@@ -24,7 +24,7 @@ function Navbar() {
             <LinksDropdown />
           </div>
         </div>
-        <NavMenu />
+        {/* <NavMenu /> */}
 
       </div>
     </nav>

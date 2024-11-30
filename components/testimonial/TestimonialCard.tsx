@@ -6,8 +6,8 @@ const TestimonialCard = () => {
     return (
         <div className='w-screen h-[80vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]'>
 
-            <div className='pt-16 pb-16'>
-                <div className='pt-20 pb-16 bg-black'>
+            <div className='pt-16'>
+                <div className='pt-20 pb-16 bg-[#8B5E3C]'>
                     <div className='w-[80%] mx-auto grid xl:grid-cols-3 items-center gap-20'> {/* Added `grid` class */}
                         <div className='xl:col-span-1 mt-6'>
                             <div className='flex items-center space-x-4'>

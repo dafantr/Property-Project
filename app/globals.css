@@ -130,6 +130,14 @@
   background-color: hsl(var(--primary)) !important; /* Active dot color */
 }
 
+.footer_heading {
+  @apply text-lg text-white font-bold mb-4
+}
+
+.footer_link {
+  @apply text-sm text-white hover:text-orange-500 cursor-pointer text-opacity-60 mb-3 w-fit
+}
+
 
 
 
