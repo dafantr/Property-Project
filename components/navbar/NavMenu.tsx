@@ -1,16 +1,124 @@
-// import React from 'react';
+"use client";
 
-// function NavMenu() {
-//   return (
-//     <div className="flex justify-center py-2 dark:bg-gray-800 w-full">
-//       <ul className="flex gap-6 text-sm font-medium text-gray-700 dark:text-gray-300">
-//         <li><a href="/gallery" className="hover:text-orange-500">Gallery</a></li>
-//         <li><a href="/section2" className="hover:text-orange-500">Section 2</a></li>
-//         <li><a href="/section3" className="hover:text-orange-500">Section 3</a></li>
-//         <li><a href="/section4" className="hover:text-orange-500">Section 4</a></li>
-//       </ul>
-//     </div>
-//   );
-// }
+import { useRouter, usePathname } from "next/navigation"; // Import necessary hooks
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuIndicator,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+    NavigationMenuViewport,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import React from "react";
 
-// export default NavMenu;
+const components: { title: string; href: string; description: string }[] = [
+    {
+        title: "About MDV",
+        href: "#about",
+        description:
+            "Discover our vision, mission, and what makes MDV a luxury villa destination.",
+    },
+    {
+        title: "Gallery",
+        href: "#gallery",
+        description:
+            "Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV.",
+    },
+    {
+        title: "Villas",
+        href: "#villas",
+        description:
+            "Discover our exclusive villa collections, designed for comfort, elegance, and an unforgettable stay.",
+    },
+    {
+        title: "Exclusive Highlights",
+        href: "#highlights",
+        description: "Uncover the unique features and premium amenities that set MDV apart from the rest.",
+    },
+    {
+        title: "Testimony",
+        href: "#testimony",
+        description:
+            "Hear from our valued guests about their memorable experiences at MDV.",
+    },
+    {
+        title: "Contact",
+        href: "#contact",
+        description:
+            "Get in touch with us for bookings, inquiries, or personalized assistance.",
+    },
+];
+
+function NavMenu() {
+    return (
+        <NavigationMenu>
+            <NavigationMenuList>
+                <NavigationMenuItem>
+                    <NavigationMenuTrigger>Overview</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[300px] md:grid-cols-1 lg:w-[400px]">
+                            {components.map((component) => (
+                                <ListItem
+                                    key={component.title}
+                                    title={component.title}
+                                    href={component.href}
+                                >
+                                    {component.description}
+                                </ListItem>
+                            ))}
+                        </ul>
+                    </NavigationMenuContent>
+                </NavigationMenuItem>
+            </NavigationMenuList>
+        </NavigationMenu>
+    );
+}
+
+const ListItem = React.forwardRef<
+    React.ElementRef<"a">,
+    React.ComponentPropsWithoutRef<"a">
+>(({ className, title, href, children, ...props }, ref) => {
+    const router = useRouter();
+    const pathname = usePathname(); // Get the current path
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (pathname !== "/") {
+            // Redirect to the home page with the section hash
+            router.push(`/${href}`);
+        } else {
+            // Scroll to the section if already on the home page
+            const target = document.querySelector(href || "");
+            if (target) {
+                target.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    };
+
+    return (
+        <li>
+            <NavigationMenuLink asChild>
+                <a
+                    ref={ref}
+                    onClick={handleClick}
+                    className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        className
+                    )}
+                    {...props}
+                >
+                    <div className="text-sm font-medium leading-none">{title}</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {children}
+                    </p>
+                </a>
+            </NavigationMenuLink>
+        </li>
+    );
+});
+ListItem.displayName = "ListItem";
+
+export default NavMenu;

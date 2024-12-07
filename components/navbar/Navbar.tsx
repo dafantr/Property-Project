@@ -2,8 +2,7 @@ import NavSearch from "./NavSearch";
 import LinksDropdown from "./LinksDropdown";
 import DarkMode from "./DarkMode";
 import Logo from "./Logo";
-import SideBar from "./SideBar";
-//import NavMenu from "./NavMenu";
+import NavMenu from "./NavMenu";
 
 function Navbar() {
   return (
@@ -15,20 +14,23 @@ function Navbar() {
         className="container flex flex-col sm:flex-row 
         sm:justify-between sm:items-center flex-wrap gap-4 py-8"
       >
-        <Logo />
+        <div className="flex justify-center sm:justify-start w-full sm:w-auto">
+          <Logo />
+        </div>
+
         <NavSearch />
+
         <div className="flex flex-col items-center w-full sm:w-auto">
           <div className="flex items-center gap-4">
-            
+            <NavMenu />
             <DarkMode />
             <LinksDropdown />
           </div>
         </div>
-        {/* <NavMenu /> */}
-
       </div>
     </nav>
   );
 }
 
 export default Navbar;
+

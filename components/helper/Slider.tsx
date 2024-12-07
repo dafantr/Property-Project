@@ -64,7 +64,7 @@ const Slider = () => {
                         image={profileImage || ""}
                         name={firstName}
                         comment={comment}
-                        rating={rating} // You can pass rating if you want to display it
+                        rating={rating}
                     />
                 );
             })}

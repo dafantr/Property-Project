@@ -23,3 +23,6 @@ npm install recharts
 npm install swiper
 
 npm i react-multi-carousel
+
+npx shadcn@latest add navigation-menu
+
