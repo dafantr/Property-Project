@@ -705,3 +705,29 @@ export const fetchReservationStats = async () => {
     amount: totals._sum.orderTotal || 0,
   };
 };
+
+export const fetchFiveStarReviews = async () => {
+  try {
+    const reviews = await db.review.findMany({
+      where: {
+        rating: 5, 
+      },
+      select: {
+        id: true,
+        comment: true,
+        rating: true,
+        profile: {
+          select: {
+            firstName: true,
+            profileImage: true,
+          },
+        },
+      },
+    });
+
+    return reviews;
+  } catch (error) {
+    console.error('Error fetching 5-star reviews:', error);
+    throw new Error('Failed to fetch 5-star reviews');
+  }
+};
