@@ -9,6 +9,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Hero from '@/components/hero/Hero';
 import TestimonialCard from '@/components/testimonial/TestimonialCard';
+import ContactUs from '@/components/contactus/ContactUs';
 
 function HomePage({
   searchParams,
@@ -44,6 +45,9 @@ function HomePage({
       </div>
       <div id="testimony">
         <TestimonialCard />
+      </div>
+      <div id="contact">
+        <ContactUs />
       </div>
     </section>
   );

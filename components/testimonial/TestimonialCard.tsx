@@ -13,14 +13,14 @@ const TestimonialCard = () => {
                                 <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center flex-col">
                                     <BsQuote className="h-6 w-6 text-white" />
                                 </div>
-                                <h1 className="text-xl text-white font-semibold">
+                                <h1 className="heading__mini">
                                     Client Review
                                 </h1>
                             </div>
-                            <h1 className="text-2xl md:text-3xl lg:text-5xl mt-8 font-bold md:leading-[3rem] lg:leading-[3.3rem] xl:leading-[3.6rem] text-white">
+                            <h1 className="heading__primary font-bold">
                                 Chosen by discerning travelers worldwide.
                             </h1>
-                            <p className="text-base text-white text-opacity-50 mt-6">
+                            <p className="text-base text-white text-opacity-50 mt-6 text-justify">
                                 At our villas, we pride ourselves on providing an exceptional
                                 experience that exceeds expectations. Here’s what our guests
                                 have to say about their stay in our exclusive properties, where
