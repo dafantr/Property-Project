@@ -44,31 +44,33 @@ const Slider = () => {
     }
 
     return (
-        <Carousel
-            additionalTransfrom={0}
-            arrows={true}
-            autoPlay={true}
-            autoPlaySpeed={5000}
-            centerMode={false}
-            infinite
-            responsive={responsive}
-            itemClass="item"
-        >
-            {reviews.map((review) => {
-                const { comment, rating } = review;
-                const { firstName, profileImage } = review.profile;
+        <div className='relative z-10'>
+            <Carousel
+                additionalTransfrom={0}
+                arrows={true}
+                autoPlay={true}
+                autoPlaySpeed={3000}
+                centerMode={false}
+                infinite
+                responsive={responsive}
+                itemClass="item"
+            >
+                {reviews.map((review) => {
+                    const { comment, rating } = review;
+                    const { firstName, profileImage } = review.profile;
 
-                return (
-                    <SliderCard
-                        key={review.id}
-                        image={profileImage || ""}
-                        name={firstName}
-                        comment={comment}
-                        rating={rating}
-                    />
-                );
-            })}
-        </Carousel>
+                    return (
+                        <SliderCard
+                            key={review.id}
+                            image={profileImage || ""}
+                            name={firstName}
+                            comment={comment}
+                            rating={rating}
+                        />
+                    );
+                })}
+            </Carousel>
+        </div>
     );
 };
 

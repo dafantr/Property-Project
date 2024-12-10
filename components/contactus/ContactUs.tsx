@@ -3,7 +3,7 @@ import { FaMapMarkerAlt, FaWhatsapp, FaEnvelope, FaClock } from 'react-icons/fa'
 
 const ContactUs = () => {
     return (
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] pt-16 pb-16 bg-white">
+        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] pt-16 pb-16 ">
             <div className="pt-[5rem] pb-[3rem] bg-black text-white">
                 <div className="w-[80%] mx-auto grid grid-cols-1 md:grid-cols-2 gap-[2rem] h-full">
                     {/* Left Column: Text Content */}
