@@ -731,3 +731,74 @@ export const fetchFiveStarReviews = async () => {
     throw new Error('Failed to fetch 5-star reviews');
   }
 };
+
+export const fetchGalleries = async () => {
+  const user = await getAuthUser();
+  const galleries = await db.gallery.findMany({
+    // where: {
+    //   profileId: user.id,
+    // },
+    select: {
+      id: true,
+      title: true,
+      media: true,
+    },
+  });
+
+  const galleriesWithBookingSums = await Promise.all(
+    galleries.map(async (galleries) => {
+      return {
+        ...galleries,
+      };
+    })
+  );
+
+  return galleriesWithBookingSums;
+};
+
+export const createGalleryAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  try {
+    const title = formData.get('title') as String;
+    const file = formData.get('image') as File;
+
+    // const validatedFields = validateWithZodSchema(propertySchema, rawData);
+    const validatedFile = validateWithZodSchema(imageSchema, { image: file });
+    const fullPath = await uploadImage(validatedFile.image);
+
+    await db.gallery.create({
+      data: {
+        title: title,
+        media: fullPath,
+        profileId: user.id,
+      },
+    });
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/gallery');
+};
+
+export async function deleteGaleryAction(prevState: { galeryId: string }) {
+  const { galeryId } = prevState; // `id` corresponds to MongoDB `_id` via Prisma
+
+  const user = await getAuthUser(); // Ensure user is authenticated
+
+  try {
+    await db.gallery.delete({
+      where: {
+        id : galeryId, // Prisma maps `id` to MongoDB `_id`
+      },
+    });
+
+    revalidatePath('/gallery'); // Revalidate gallery page
+    return { message: 'Gallery deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting gallery:', error); // Debug error
+    return renderError(error); // Handle errors gracefully
+  }
+}
+

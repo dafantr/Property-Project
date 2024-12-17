@@ -10,6 +10,7 @@ import 'aos/dist/aos.css';
 import Hero from '@/components/hero/Hero';
 import TestimonialCard from '@/components/testimonial/TestimonialCard';
 import ContactUs from '@/components/contactus/ContactUs';
+import Galleries from '@/components/home/Galleries';
 
 function HomePage({
   searchParams,
@@ -21,6 +22,13 @@ function HomePage({
       <Hero />
       <div id="about">
         <FeatureHighlights />
+      </div>
+      <div id="gallery">
+        <SectionHeading
+          heading="Gallery"
+          paragraph="Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV."
+          />
+        <Galleries />
       </div>
       <div id="villas">
         <SectionHeading

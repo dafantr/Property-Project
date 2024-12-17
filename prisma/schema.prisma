@@ -88,3 +88,12 @@ model Booking {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Gallery {
+  id          String     @id @default(uuid()) @map("_id") 
+  title       String
+  media       String
+  profileId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
