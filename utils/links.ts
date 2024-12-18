@@ -7,6 +7,7 @@ export const groupedLinks = {
   general: <NavLink[]>[
     { href: '/', label: 'home' },
     { href: '/favorites', label: 'favorites' },
+    { href: '/bookings', label: 'bookings' },
     { href: '/reviews', label: 'reviews' },
   ],
   property: <NavLink[]>[
@@ -17,14 +18,9 @@ export const groupedLinks = {
     { href: '/gallery/create', label: 'create gallery' },
     { href: '/gallery', label: 'my gallery' },
   ],
-  // promotions: <NavLink[]>[
-  //   { href: '/promotions/create', label: 'create promotions' },
-  //   { href: '/promotions', label: 'promotions' },
-  // ],
   admin: <NavLink[]>[
     { href: '/reservations', label: 'reservations' },
-    { href: '/bookings', label: 'bookings' },
-    { href: '/admin', label: 'admin' },
+    { href: '/admin', label: 'admin' }
   ],
   profile: <NavLink[]>[
     { href: '/profile', label: 'profile' },

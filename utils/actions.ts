@@ -445,7 +445,7 @@ export const fetchBookings = async () => {
       },
     },
     orderBy: {
-      checkIn: 'asc',
+      createdAt: 'desc',
     },
   });
   return bookings;
@@ -617,6 +617,12 @@ export const fetchReservations = async () => {
     },
 
     include: {
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
       property: {
         select: {
           id: true,
@@ -629,6 +635,7 @@ export const fetchReservations = async () => {
   });
   return reservations;
 };
+
 
 export const fetchStats = async () => {
   await getAdminUser();

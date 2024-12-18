@@ -42,9 +42,7 @@ function LinksDropdown() {
           </DropdownMenuItem>
         </SignedOut>
 
-        {/* Signed In Links */}
         <SignedIn>
-          {/* General Links */}
           {groupedLinks.general.map((link) => (
             <DropdownMenuItem key={link.href}>
               <Link href={link.href} className="capitalize w-full">
@@ -70,23 +68,18 @@ function LinksDropdown() {
 
           {/* Gallery Links */}
           <DropdownMenuSeparator />
-          {groupedLinks.gallery.map((link) => (
-            <DropdownMenuItem key={link.href}>
-              <Link href={link.href} className="capitalize w-full">
-                {link.label}
-              </Link>
-            </DropdownMenuItem>
-          ))}
+          {groupedLinks.gallery.map((link) => {
+            const isAdminPage = ['my gallery', 'create gallery'].includes(link.label);
+            if (isAdminPage && !isAdminUser) return null;
 
-          {/* Promotions Links
-          <DropdownMenuSeparator />
-          {groupedLinks.promotions.map((link) => (
-            <DropdownMenuItem key={link.href}>
-              <Link href={link.href} className="capitalize w-full">
-                {link.label}
-              </Link>
-            </DropdownMenuItem>
-          ))} */}
+            return (
+              <DropdownMenuItem key={link.href}>
+                <Link href={link.href} className="capitalize w-full">
+                  {link.label}
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
 
           {/* Admin Links */}
           {isAdminUser && (
@@ -102,7 +95,7 @@ function LinksDropdown() {
             </>
           )}
 
-          {/* Profile Link */}
+          {/* Profile Links */}
           <DropdownMenuSeparator />
           {groupedLinks.profile.map((link) => (
             <DropdownMenuItem key={link.href}>
@@ -112,6 +105,7 @@ function LinksDropdown() {
             </DropdownMenuItem>
           ))}
 
+          {/* Sign Out */}
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <SignOutLink />

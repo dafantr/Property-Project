@@ -6,7 +6,9 @@ const isAdminRoute = createRouteMatcher([
   '/admin(.*)',
   '/rentals(.*)',
   '/create(.*)',
-  '/reservations(.*)'
+  '/reservations(.*)',
+  '/gallery/create(.*)',
+  '/gallery(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
