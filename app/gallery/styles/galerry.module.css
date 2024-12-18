@@ -1,0 +1,26 @@
+.masonryGrid {
+    display: flex;
+    margin-left: -16px; /* Adjust according to your gap size */
+    width: auto;
+  }
+  
+  .masonryGridColumn {
+    padding-left: 16px; /* Adjust according to your gap size */
+    background-clip: padding-box;
+  }
+  
+  .galleryItem {
+    margin-bottom: 16px; /* Adjust spacing between items */
+  }
+  
+  .galleryImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .galleryImage:hover {
+    transform: scale(1.05);
+}

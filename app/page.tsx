@@ -25,11 +25,13 @@ function HomePage({
       </div>
       <div id="gallery">
         <SectionHeading
-          heading="Gallery"
-          paragraph="Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV."
-          />
+          heading={<h2 className="text-center text-3xl font-bold mb-4">Gallery</h2>}
+          paragraph={<p className="text-center text-gray-600">Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV.</p>}
+        />
         <Galleries />
       </div>
+
+
       <div id="villas">
         <SectionHeading
           heading="Property Types"

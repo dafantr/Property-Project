@@ -44,7 +44,7 @@ function FeatureHighlights() {
           {featureList.map((feature, i) => (
             <div
               key={feature.id}
-              className="bg-card text-card-foreground p-6 rounded-lg shadow-md hover:bg-primary hover:text-primary-foreground hover:shadow-lg transition duration-300"
+              className="bg-card text-card-foreground p-6 rounded-lg shadow-md hover:bg-orange-100 hover:shadow-lg transition duration-300"
               data-aos="zoom-in"
               data-aos-delay={`${i * 150}`}
               data-aos-anchor-placement="top-center"

@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { fetchGalleries } from '@/utils/actions';
 import Masonry from 'react-masonry-css';
-import styles from '../home/styles/Gallery.module.css';
+import styles from '../../../components/home/styles/Gallery.module.css';
 
-const Galleries = () => {
+const GalleriesMore = () => {
     const [galleries, setGalleries] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
 
@@ -22,25 +22,21 @@ const Galleries = () => {
         1100: 3,
         700: 2,
         500: 1,
-    };
+      };
 
     const closeModal = () => setSelectedImage(null);
 
     return (
-        <div className="mt-5 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-                {galleries.slice(0, 8).map((gallery) => (
-                    <img
-                        key={gallery.id}
-                        src={gallery.media}
-                        alt={gallery.title}
-                        className="w-full h-52 object-cover rounded-md shadow-lg cursor-pointer"
-                        onClick={() => setSelectedImage(gallery)}
-                    />
-                ))}
+        <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className={styles.masonryGrid}
+        columnClassName={styles.masonryGridColumn}
+        >
+        {galleries.map((gallery, index) => (
+            <div key={index} className={styles.galleryItem}>
+            <img src={gallery.media} alt={`Gallery image ${index + 1}`} className={styles.galleryImage} onClick={() => setSelectedImage(gallery)}/>
             </div>
-
-            {/* Modal for viewing image */}
+        ))}
             {selectedImage && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
                     <div className="relative">
@@ -61,28 +57,8 @@ const Galleries = () => {
                     </div>
                 </div>
             )}
-
-            <div className="flex justify-end mt-4 px-4">
-                <a
-                    href="/gallery/more"
-                    className="flex items-center text-orange-600 border border-orange-500 py-2 px-6 gap-2 rounded inline-flex hover:bg-orange-100 transition"
-                >
-                    <span>View More</span>
-                    <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                    >
-                        <path d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                    </svg>
-                </a>
-            </div>
-        </div>
+        </Masonry>
     );
 };
 
-export default Galleries;
+export default GalleriesMore;
