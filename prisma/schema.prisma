@@ -64,8 +64,8 @@ model Favorite {
 
 model Review {
   id         String   @id @default(uuid()) @map("_id")
-  profile    Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId  String
+  profile    Profile? @relation(fields: [profileId], references: [clerkId], onDelete: Cascade) // Make Profile optional
+  profileId  String?
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   propertyId String 
   rating     Int

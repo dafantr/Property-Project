@@ -732,7 +732,10 @@ export const fetchFiveStarReviews = async () => {
       },
     });
 
-    return reviews;
+    // Filter out reviews with no profile if needed
+    const filteredReviews = reviews.filter(review => review.profile);
+
+    return filteredReviews;
   } catch (error) {
     console.error('Error fetching 5-star reviews:', error);
     throw new Error('Failed to fetch 5-star reviews');
