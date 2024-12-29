@@ -11,7 +11,9 @@ const GalleriesMore = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchGalleries();
-            setGalleries(data);
+            // Sort galleries by 'createdAt' field (descending order for newest first)
+            const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setGalleries(sortedData);
         };
 
         fetchData();
@@ -22,21 +24,26 @@ const GalleriesMore = () => {
         1100: 3,
         700: 2,
         500: 1,
-      };
+    };
 
     const closeModal = () => setSelectedImage(null);
 
     return (
         <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className={styles.masonryGrid}
-        columnClassName={styles.masonryGridColumn}
+            breakpointCols={breakpointColumnsObj}
+            className={styles.masonryGrid}
+            columnClassName={styles.masonryGridColumn}
         >
-        {galleries.map((gallery, index) => (
-            <div key={index} className={styles.galleryItem}>
-            <img src={gallery.media} alt={`Gallery image ${index + 1}`} className={styles.galleryImage} onClick={() => setSelectedImage(gallery)}/>
-            </div>
-        ))}
+            {galleries.map((gallery, index) => (
+                <div key={index} className={styles.galleryItem}>
+                    <img
+                        src={gallery.media}
+                        alt={`Gallery image ${index + 1}`}
+                        className={styles.galleryImage}
+                        onClick={() => setSelectedImage(gallery)}
+                    />
+                </div>
+            ))}
             {selectedImage && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
                     <div className="relative">

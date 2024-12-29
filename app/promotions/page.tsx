@@ -1,5 +1,5 @@
 import EmptyList from '@/components/home/EmptyList';
-import { fetchGalleries, deleteGaleryAction } from '@/utils/actions';
+import { fetchPromotions, deletePromotionAction } from '@/utils/actions';
 import Link from 'next/link';
 import {
   Table,
@@ -14,36 +14,37 @@ import {
 import FormContainer from '@/components/form/FormContainer';
 import { IconButton } from '@/components/form/Buttons';
 
-async function GaleriesPage() {
-  const galeries = await fetchGalleries();
+async function ExclusiveHighlighPage() {
+  let promotions = await fetchPromotions();
 
-  // Sort galleries by 'createdAt' (or your equivalent date field) in descending order
-  galeries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  // Sort promotions by 'createdAt' in descending order
+  promotions = promotions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  if (galeries.length === 0) {
+  if (promotions.length === 0) {
     return (
       <EmptyList
         heading="No rentals to display."
-        message="Don't hesitate to create a rental."
+        message="Don't hesitate to create an Exclusive Highlight."
       />
     );
   }
 
   return (
     <div className="mt-16">
-      <h4 className="mb-4 capitalize">Total Images : {galeries.length}</h4>
+      <h4 className="mb-4 capitalize">Total Images : {promotions.length}</h4>
       <Table>
-        <TableCaption>A list of all your galleries.</TableCaption>
+        <TableCaption>A list of all your Exclusive Highlight.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="bg-orange-500 text-white rounded-tl-lg">Media</TableHead>
             <TableHead className="bg-orange-500 text-white">Title</TableHead>
+            <TableHead className="bg-orange-500 text-white">Subtitle</TableHead>
             <TableHead className="bg-orange-500 text-white rounded-tr-lg">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {galeries.map((galery) => {
-            const { id, title, media } = galery;
+          {promotions.map((promotion) => {
+            const { id, title, media } = promotion;
             return (
               <TableRow key={id}>
                 <TableCell>
@@ -54,8 +55,12 @@ async function GaleriesPage() {
                   />
                 </TableCell>
                 <TableCell>{title}</TableCell>
-                <TableCell>
-                  <DeleteGalery galeryId={id} />
+                <TableCell>{promotion.subtitle}</TableCell>
+                <TableCell className="flex items-center gap-x-2">
+                  <Link href={`/promotions/${id}/edit`}>
+                    <IconButton actionType="edit" />
+                  </Link>
+                  <DeletePromotion promotionId={id} />
                 </TableCell>
               </TableRow>
             );
@@ -66,13 +71,14 @@ async function GaleriesPage() {
   );
 }
 
-function DeleteGalery({ galeryId }: { galeryId: string }) {
-  const deleteGalery = deleteGaleryAction.bind(null, { galeryId });
+
+function DeletePromotion({ promotionId }: { promotionId: string }) {
+  const deletePromotion = deletePromotionAction.bind(null, { promotionId });
   return (
-    <FormContainer action={deleteGalery}>
-      <IconButton actionType="delete" />
+    <FormContainer action={deletePromotion}>
+      <IconButton actionType='delete' />
     </FormContainer>
   );
 }
 
-export default GaleriesPage;
+export default ExclusiveHighlighPage;

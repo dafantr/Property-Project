@@ -51,6 +51,21 @@ function LinksDropdown() {
             </DropdownMenuItem>
           ))}
 
+           {/* exclusive highlight */}
+           <DropdownMenuSeparator />
+          {groupedLinks.exclusivehighlight.map((link) => {
+            const isAdminPage = ['promotions', 'create promotions'].includes(link.label);
+            if (isAdminPage && !isAdminUser) return null;
+
+            return (
+              <DropdownMenuItem key={link.href}>
+                <Link href={link.href} className="capitalize w-full">
+                  {link.label}
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
+
           {/* Property Links */}
           <DropdownMenuSeparator />
           {groupedLinks.property.map((link) => {
