@@ -18,6 +18,10 @@ function LinksDropdown() {
   const { userId } = auth();
   const isAdminUser = userId === process.env.ADMIN_USER_ID;
 
+  // Check if a section has visible links
+  const hasVisibleLinks = (links, adminOnly = false) =>
+    links.some((link) => !adminOnly || isAdminUser || !['create', 'my'].some((prefix) => link.label.startsWith(prefix)));
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,6 +47,7 @@ function LinksDropdown() {
         </SignedOut>
 
         <SignedIn>
+          {/* General Links */}
           {groupedLinks.general.map((link) => (
             <DropdownMenuItem key={link.href}>
               <Link href={link.href} className="capitalize w-full">
@@ -51,50 +56,62 @@ function LinksDropdown() {
             </DropdownMenuItem>
           ))}
 
-           {/* exclusive highlight */}
-           <DropdownMenuSeparator />
-          {groupedLinks.exclusivehighlight.map((link) => {
-            const isAdminPage = ['promotions', 'create promotions'].includes(link.label);
-            if (isAdminPage && !isAdminUser) return null;
+          {/* Exclusive Highlight */}
+          {hasVisibleLinks(groupedLinks.exclusivehighlight, true) && (
+            <>
+              <DropdownMenuSeparator />
+              {groupedLinks.exclusivehighlight.map((link) => {
+                const isAdminPage = ['my exclusive highlight', 'create exclusive highlight'].includes(link.label);
+                if (isAdminPage && !isAdminUser) return null;
 
-            return (
-              <DropdownMenuItem key={link.href}>
-                <Link href={link.href} className="capitalize w-full">
-                  {link.label}
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
+                return (
+                  <DropdownMenuItem key={link.href}>
+                    <Link href={link.href} className="capitalize w-full">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </>
+          )}
 
           {/* Property Links */}
-          <DropdownMenuSeparator />
-          {groupedLinks.property.map((link) => {
-            const isAdminPage = ['reservations', 'create property', 'my property'].includes(link.label);
-            if (isAdminPage && !isAdminUser) return null;
+          {hasVisibleLinks(groupedLinks.property, true) && (
+            <>
+              <DropdownMenuSeparator />
+              {groupedLinks.property.map((link) => {
+                const isAdminPage = ['reservations', 'create property', 'my property'].includes(link.label);
+                if (isAdminPage && !isAdminUser) return null;
 
-            return (
-              <DropdownMenuItem key={link.href}>
-                <Link href={link.href} className="capitalize w-full">
-                  {link.label}
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
+                return (
+                  <DropdownMenuItem key={link.href}>
+                    <Link href={link.href} className="capitalize w-full">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </>
+          )}
 
           {/* Gallery Links */}
-          <DropdownMenuSeparator />
-          {groupedLinks.gallery.map((link) => {
-            const isAdminPage = ['my gallery', 'create gallery'].includes(link.label);
-            if (isAdminPage && !isAdminUser) return null;
+          {hasVisibleLinks(groupedLinks.gallery, true) && (
+            <>
+              <DropdownMenuSeparator />
+              {groupedLinks.gallery.map((link) => {
+                const isAdminPage = ['my gallery', 'create gallery'].includes(link.label);
+                if (isAdminPage && !isAdminUser) return null;
 
-            return (
-              <DropdownMenuItem key={link.href}>
-                <Link href={link.href} className="capitalize w-full">
-                  {link.label}
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
+                return (
+                  <DropdownMenuItem key={link.href}>
+                    <Link href={link.href} className="capitalize w-full">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </>
+          )}
 
           {/* Admin Links */}
           {isAdminUser && (
@@ -111,14 +128,18 @@ function LinksDropdown() {
           )}
 
           {/* Profile Links */}
-          <DropdownMenuSeparator />
-          {groupedLinks.profile.map((link) => (
-            <DropdownMenuItem key={link.href}>
-              <Link href={link.href} className="capitalize w-full">
-                {link.label}
-              </Link>
-            </DropdownMenuItem>
-          ))}
+          {hasVisibleLinks(groupedLinks.profile) && (
+            <>
+              <DropdownMenuSeparator />
+              {groupedLinks.profile.map((link) => (
+                <DropdownMenuItem key={link.href}>
+                  <Link href={link.href} className="capitalize w-full">
+                    {link.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </>
+          )}
 
           {/* Sign Out */}
           <DropdownMenuSeparator />
