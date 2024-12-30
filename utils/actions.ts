@@ -396,7 +396,7 @@ export const createBookingAction = async (prevState: {
   checkOut: Date;
   referalCode: string;
 }) => {
-
+  
   const user = await getAuthUser()
   await db.booking.deleteMany({
     where: {
@@ -985,4 +985,15 @@ export const updatePromotionImageAction = async (
   } catch (error) {
     return renderError(error);
   }
+};
+
+
+export const validateReferalCode = async (referalCode: string): Promise<boolean> => {
+  const member = await db.member.findFirst({
+    where: {
+      memberId: referalCode,
+    },
+  });
+  if (!member) return false;
+  return true;
 };

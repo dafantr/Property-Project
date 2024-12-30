@@ -4,7 +4,7 @@ type BookingDetails = {
   checkIn: Date;
   checkOut: Date;
   price: number;
-  referalCode: String;
+  referalCode: string;
 };
 
 export const calculateTotals = ({

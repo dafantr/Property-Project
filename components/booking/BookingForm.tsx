@@ -1,16 +1,17 @@
 import { calculateTotals } from '@/utils/calculateTotals';
 import { Card, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useProperty } from '@/utils/store';
 import { formatCurrency } from '@/utils/format';
+import { validateReferalCode } from '@/utils/actions';
 import { useState } from 'react';
 function BookingForm() {
-    const { range, price } = useProperty((state) => state);
-    const [referalCode, setReferalCode] = useState('');
+    const { range, price} = useProperty((state) => state);
+    const [refCode, setReferalCode] = useState('');
     const checkIn = range?.from as Date;
     const checkOut = range?.to as Date;
     let errorMessage = '';
+    let referalCode = '';
     let totals = {
         totalNights: 0,
         subTotal: 0,
@@ -23,7 +24,24 @@ function BookingForm() {
 
   // Handle input change
   const handleReferalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReferalCode(e.target.value);
+    setReferalCode(e.target.value); 
+    console.log(refCode);
+  };
+
+  const handleApplyReferralCode = () => {
+    //validate referalCode
+    validateReferalCode(refCode)
+    .then((isValid) => {
+      if (isValid) {
+        referalCode = refCode;
+        useProperty.setState({ referalCode });
+      } else {
+        console.log('referal code tidak ditemukan')
+      }
+    })
+    .catch((error) => {
+      console.error('Error validating referral code:', error);
+    });
   };
 
     try {
@@ -46,15 +64,24 @@ function BookingForm() {
             <FormRow label='Tax' amount={totals.tax} />
 
             <div className="mt-4 mb-4">
-              <input
-                type="text"
-                id="referalCode"
-                name="referalCode"
-                value={referalCode}
-                onChange={handleReferalCodeChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Enter referal code"
-              />
+                <div className="flex items-center">
+                    <input
+                      type="text"
+                      id="referalCode"
+                      name="referalCode"
+                      value={refCode}
+                      onChange={handleReferalCodeChange}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="Enter referal code"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyReferralCode}
+                      className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                    Apply
+                    </button>
+                </div>
             </div>
 
             {totals.discount !== 0 && (

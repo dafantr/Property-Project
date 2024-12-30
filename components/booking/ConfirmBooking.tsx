@@ -9,8 +9,7 @@ import { useState } from 'react';
 
 function ConfirmBooking() {
     const { userId } = useAuth();
-    const { propertyId, range } = useProperty((state) => state);
-    const [referalCode, setReferalCode] = useState('');
+    const { propertyId, range, referalCode} = useProperty((state) => state);
     const checkIn = range?.from as Date;
     const checkOut = range?.to as Date;
     if (!userId)
