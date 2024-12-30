@@ -168,7 +168,7 @@ model MembershipCommissionTransaction {
 }
 
 model Reward {
-  id           String     @id @default(uuid()) @map("_id")
+  id           String    @id @default(uuid()) @map("_id")
   rewardName   String
   pointReq     Int
   createdAt    DateTime @default(now())
