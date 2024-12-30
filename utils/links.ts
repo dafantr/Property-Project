@@ -18,6 +18,10 @@ export const groupedLinks = {
     { href: '/gallery/create', label: 'create gallery' },
     { href: '/gallery', label: 'my gallery' },
   ],
+  exclusivehighlight: <NavLink[]>[
+    { href: '/promotions/create', label: 'create exclusive highlight' },
+    { href: '/promotions', label: 'my exclusive highlight' },
+  ],
   admin: <NavLink[]>[
     { href: '/reservations', label: 'reservations' },
     { href: '/admin', label: 'admin' }

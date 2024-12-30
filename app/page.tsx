@@ -11,6 +11,8 @@ import Hero from '@/components/hero/Hero';
 import TestimonialCard from '@/components/testimonial/TestimonialCard';
 import ContactUs from '@/components/contactus/ContactUs';
 import Galleries from '@/components/home/Galleries';
+import Promotions from '@/components/home/Promotions';
+import ExclusiveList from '@/components/home/ExclusiveList';
 
 function HomePage({
   searchParams,
@@ -25,13 +27,11 @@ function HomePage({
       </div>
       <div id="gallery">
         <SectionHeading
-          heading={<h2 className="text-center text-3xl font-bold mb-4">Gallery</h2>}
-          paragraph={<p className="text-center text-gray-600">Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV.</p>}
+          heading="Gallery"
+          paragraph="Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV."
         />
         <Galleries />
       </div>
-
-
       <div id="villas">
         <SectionHeading
           heading="Property Types"
@@ -41,7 +41,6 @@ function HomePage({
                    nature or a spacious warehouse with an industrial charm, we have the 
                    perfect stay for you."
         />
-
         <CategoriesList
           category={searchParams?.category}
           search={searchParams?.search}
@@ -52,6 +51,14 @@ function HomePage({
             search={searchParams?.search}
           />
         </Suspense>
+      </div>
+      <div id="highlights" className="mt-10 mb-10">
+        <SectionHeading
+          heading="Exclusive Highlights"
+          paragraph="Discover the exceptional moments and unique offerings that make your experience with us truly unforgettable. From personalized services to once-in-a-lifetime events, explore what sets us apart and elevates your stay to something extraordinary."
+        />
+        <ExclusiveList />
+        <Promotions />
       </div>
       <div id="testimony">
         <TestimonialCard />

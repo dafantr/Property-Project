@@ -760,7 +760,10 @@ export const fetchFiveStarReviews = async () => {
       },
     });
 
-    return reviews;
+    // Filter out reviews with no profile if needed
+    const filteredReviews = reviews.filter(review => review.profile);
+
+    return filteredReviews;
   } catch (error) {
     console.error('Error fetching 5-star reviews:', error);
     throw new Error('Failed to fetch 5-star reviews');
@@ -777,6 +780,7 @@ export const fetchGalleries = async () => {
       id: true,
       title: true,
       media: true,
+      createdAt: true
     },
   });
 
@@ -837,3 +841,148 @@ export async function deleteGaleryAction(prevState: { galeryId: string }) {
   }
 }
 
+export const fetchPromotions = async () => {
+  const user = await getAuthUser();
+  const promotions = await db.promotion.findMany({
+    // where: {
+    //   profileId: user.id,
+    // },
+    select: {
+      id: true,
+      title: true,
+      subtitle: true,
+      description: true,
+      media: true,
+      createdAt: true
+    },
+  });
+
+  const promotionsWithBookingSums = await Promise.all(
+    promotions.map(async (promotions) => {
+      return {
+        ...promotions,
+      };
+    })
+  );
+
+  return promotionsWithBookingSums;
+};
+
+export const createPromotionAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  try {
+    const title = formData.get('title') as String;
+    const subtitle = formData.get('subtitle') as String;
+    const description = formData.get('description') as String;
+    const file = formData.get('image') as File;
+
+    // const validatedFields = validateWithZodSchema(propertySchema, rawData);
+    const validatedFile = validateWithZodSchema(imageSchema, { image: file });
+    const fullPath = await uploadImage(validatedFile.image);
+
+    await db.promotion.create({
+      data: {
+        title: title,
+        subtitle: subtitle,
+        description: description,
+        media: fullPath,
+        profileId: user.id,
+      },
+    });
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/promotions');
+};
+
+export async function deletePromotionAction(prevState: { promotionId: string }) {
+  const { promotionId } = prevState; // `id` corresponds to MongoDB `_id` via Prisma
+
+  const user = await getAuthUser(); // Ensure user is authenticated
+
+  try {
+    await db.promotion.delete({
+      where: {
+        id : promotionId, // Prisma maps `id` to MongoDB `_id`
+      },
+    });
+
+    revalidatePath('/promotions'); // Revalidate gallery page
+    return { message: 'Promotion deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting promotion:', error); // Debug error
+    return renderError(error); // Handle errors gracefully
+  }
+}
+
+
+export const fetchPromotionDetails = async (promotionId: string) => {
+  const user = await getAuthUser();
+
+  return db.promotion.findUnique({
+    where: {
+      id: promotionId,
+      profileId: user.id,
+    },
+  });
+};
+
+export const updatePromotionAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  const promotionId = formData.get('id') as string;
+
+  try {
+    const rawData = Object.fromEntries(formData);
+    const validatedFields = validateWithZodSchema(promotionSchema, rawData);
+    await db.promotion.update({
+      where: {
+        id: promotionId,
+        profileId: user.id,
+      },
+      data: {
+        ...validatedFields,
+      },
+    });
+
+    revalidatePath(`/promotions/${promotionId}/edit`);
+    // revalidatePath('/promotions'); // Revalidate gallery page
+    return { message: 'Update Successful' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+
+export const updatePromotionImageAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  const promotionId = formData.get('id') as string;
+
+  try {
+    const image = formData.get('image') as File;
+    const validatedFields = validateWithZodSchema(imageSchema, { image });
+    const fullPath = await uploadImage(validatedFields.image);
+
+    await db.promotion.update({
+      where: {
+        id: promotionId,
+        profileId: user.id,
+      },
+      data: {
+        media: fullPath,
+      },
+    });
+    revalidatePath(`/promotions/${promotionId}/edit`);
+    return { message: 'Promotion Image Updated Successful' };
+  } catch (error) {
+    return renderError(error);
+  }
+};

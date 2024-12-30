@@ -11,25 +11,20 @@ const Galleries = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchGalleries();
-            setGalleries(data);
+            // Assuming the galleries have a 'createdAt' field to sort by
+            const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setGalleries(sortedData);
         };
 
         fetchData();
     }, []); // Empty dependency array ensures this runs once on mount
 
-    const breakpointColumnsObj = {
-        default: 4,
-        1100: 3,
-        700: 2,
-        500: 1,
-    };
-
     const closeModal = () => setSelectedImage(null);
 
     return (
         <div className="mt-5 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-                {galleries.slice(0, 8).map((gallery) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+                {galleries.slice(0, 4).map((gallery) => (
                     <img
                         key={gallery.id}
                         src={gallery.media}
