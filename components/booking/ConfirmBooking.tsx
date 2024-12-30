@@ -5,10 +5,12 @@ import { useProperty } from '@/utils/store';
 import FormContainer from '@/components/form/FormContainer';
 import { SubmitButton } from '@/components/form/Buttons';
 import { createBookingAction } from '@/utils/actions';
+import { useState } from 'react';
 
 function ConfirmBooking() {
     const { userId } = useAuth();
     const { propertyId, range } = useProperty((state) => state);
+    const [referalCode, setReferalCode] = useState('');
     const checkIn = range?.from as Date;
     const checkOut = range?.to as Date;
     if (!userId)
@@ -24,6 +26,7 @@ function ConfirmBooking() {
         propertyId,
         checkIn,
         checkOut,
+        referalCode
     });
     return (
         <section>

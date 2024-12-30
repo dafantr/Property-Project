@@ -394,6 +394,7 @@ export const createBookingAction = async (prevState: {
   propertyId: string;
   checkIn: Date;
   checkOut: Date;
+  referalCode: string;
 }) => {
 
   const user = await getAuthUser()
@@ -404,15 +405,15 @@ export const createBookingAction = async (prevState: {
     },
   });
   let bookingId: null | string = null;
-  const { propertyId, checkIn, checkOut } = prevState
+  const { propertyId, checkIn, checkOut, referalCode } = prevState
   const property = await db.property.findUnique({
     where: { id: propertyId }, select: { price: true },
   });
   if (!property) {
     return { message: 'Property not found' }
   }
-  const { orderTotal, totalNights } = calculateTotals({
-    checkIn, checkOut, price: property.price
+  const { orderTotal, totalNights, discount } = calculateTotals({
+    checkIn, checkOut, price: property.price, referalCode
   });
 
   try {
@@ -422,6 +423,33 @@ export const createBookingAction = async (prevState: {
       }
     })
     bookingId = booking.id;
+
+    //hitung commission
+    let commission = 0;
+    if (referalCode && referalCode.trim() !== '') {
+      commission = orderTotal * 0.1
+
+      //buat bookingCommissionTransaction dengan referal
+      const bookingTrans = await db.bookingCommissionTransaction.create({
+        data:{
+          profileId : user.id,
+          bookingId : booking.id,
+          commission : commission,
+          referalCode : referalCode
+        }
+      })
+    } else {
+      //buat bookingCommissionTransaction dengan referal
+      const bookingTrans = await db.bookingCommissionTransaction.create({
+        data:{
+          profileId : user.id,
+          bookingId : booking.id
+        }
+      })
+    }
+    
+
+    
   } catch (error) {
     return renderError(error);
   }
