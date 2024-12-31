@@ -439,7 +439,7 @@ export const createBookingAction = async (prevState: {
         }
       })
     } else {
-      //buat bookingCommissionTransaction dengan referal
+      //buat bookingCommissionTransaction tanpa referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
         data:{
           profileId : user.id,

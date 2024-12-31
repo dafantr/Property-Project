@@ -4,38 +4,38 @@ import { Separator } from '@/components/ui/separator';
 import { useProperty } from '@/utils/store';
 import { formatCurrency } from '@/utils/format';
 import { validateReferalCode } from '@/utils/actions';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 function BookingForm() {
     const { range, price} = useProperty((state) => state);
-    const [refCode, setReferalCode] = useState('');
+    const [isReferralValid, setIsReferralValid] = useState(false);
+    const [refCode, setRefCode] = useState('');
+    const [referalCode, setReferalCode] = useState('');
     const checkIn = range?.from as Date;
     const checkOut = range?.to as Date;
     let errorMessage = '';
-    let referalCode = '';
-    let totals = {
-        totalNights: 0,
-        subTotal: 0,
-        cleaning: 0,
-        service: 0,
-        tax: 0,
-        discount: 0,
-        orderTotal: 0,
-    };
+    const [totals, setTotals] = useState ({
+      totalNights: 0,
+      subTotal: 0,
+      cleaning: 0,
+      service: 0,
+      tax: 0,
+      discount: 0,
+      orderTotal: 0,
+    });
 
-  // Handle input change
-  const handleReferalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReferalCode(e.target.value); 
-    console.log(refCode);
-  };
 
   const handleApplyReferralCode = () => {
     //validate referalCode
     validateReferalCode(refCode)
     .then((isValid) => {
       if (isValid) {
-        referalCode = refCode;
-        useProperty.setState({ referalCode });
+        setIsReferralValid(true);
+        useProperty.setState({ referalCode : refCode});
+        setReferalCode(refCode);
       } else {
+        setIsReferralValid(false);
+        useProperty.setState({ referalCode : ''});
+        setReferalCode('');
         console.log('referal code tidak ditemukan')
       }
     })
@@ -44,16 +44,19 @@ function BookingForm() {
     });
   };
 
+  useEffect(() => {
     try {
-        totals = calculateTotals({
+        const newTotals = calculateTotals({
             checkIn,
             checkOut,
             price,
             referalCode,
         });
+        setTotals(newTotals);
     } catch (error) {
         errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
     }
+  }, [checkIn, checkOut, price, referalCode]);
 
     return (
         <Card className='p-8 mb-4'>
@@ -70,7 +73,7 @@ function BookingForm() {
                       id="referalCode"
                       name="referalCode"
                       value={refCode}
-                      onChange={handleReferalCodeChange}
+                      onChange={(e) => setRefCode(e.target.value)}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       placeholder="Enter referal code"
                     />
@@ -84,9 +87,7 @@ function BookingForm() {
                 </div>
             </div>
 
-            {totals.discount !== 0 && (
-            <FormRow label='Discount' amount={totals.discount} />
-            )}
+            {isReferralValid && <FormRow label="Discount" amount={totals.discount} />}
             <Separator className='mt-4' />
             <CardTitle className='mt-8'>
                 <FormRow label='Booking Total' amount={totals.orderTotal} />
