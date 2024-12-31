@@ -1,7 +1,7 @@
 datasource db {
   //provider  = "postgres"
-  provider  = "mongodb"
-  url       = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
   //directUrl = env("DIRECT_URL")
 }
 
@@ -29,14 +29,14 @@ model Profile {
   //Favorite     Favorite[]
   favorites    Favorite[]
   reviews      Review[]
-  bookings Booking[]
+  bookings     Booking[]
   bookingCommissionTransactions BookingCommissionTransaction[]
   membershipCommissionTransactions MembershipCommissionTransaction[]
   pointTransactions PointTransaction[]
 }
 
 model Property {
-  id          String     @id @default(uuid()) @map("_id") 
+  id          String     @id @default(uuid()) @map("_id")
   name        String
   tagline     String
   category    String
@@ -56,11 +56,11 @@ model Property {
   //Favorite    Favorite[]
   favorites   Favorite[]
   reviews     Review[]
-  bookings Booking[]
+  bookings    Booking[]
 }
 
 model Favorite {
-  id        String   @id @default(uuid()) @map("_id") 
+  id        String   @id @default(uuid()) @map("_id")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -68,13 +68,13 @@ model Favorite {
   profileId String
 
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  propertyId String 
+  propertyId String
 }
 
 model Review {
   id         String   @id @default(uuid()) @map("_id")
-  profile    Profile? @relation(fields: [profileId], references: [clerkId], onDelete: Cascade) // Make Profile optional
-  profileId  String?
+  profile    Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId  String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   propertyId String 
   rating     Int
@@ -84,40 +84,40 @@ model Review {
 }
 
 model Booking {
-  id        String   @id @default(uuid()) @map("_id") 
-  profile   Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId String
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  propertyId String 
-  orderTotal     Int
-  totalNights    Int
-  checkIn   DateTime
-  checkOut  DateTime
-  paymentStatus Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid()) @map("_id")
+  profile       Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId     String
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId    String
+  orderTotal    Int
+  totalNights   Int
+  checkIn       DateTime
+  checkOut      DateTime
+  paymentStatus Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   bookingCommissionTransactions BookingCommissionTransaction[]
 }
 
 model Gallery {
-  id          String     @id @default(uuid()) @map("_id") 
-  title       String
-  media       String
-  profileId   String
+  id        String   @id @default(uuid()) @map("_id")
+  title     String
+  media     String
+  profileId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Promotion {
-  id          String     @id @default(uuid()) @map("_id") 
+  id          String   @id @default(uuid()) @map("_id")
   title       String
   subtitle    String
   //category    String
   description String
   profileId   String
   media       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Tier {
