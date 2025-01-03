@@ -984,6 +984,110 @@ export const updatePromotionImageAction = async (
   }
 };
 
+// MEMBERSHIP
+export const createMemberAction = async (
+  prevState: {
+    birthDate: Date;
+    citizen: string;
+  },
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  const { birthDate, citizen } = prevState;
+  
+  console.log(formData);
+  console.log(birthDate + " = " + citizen);
+  
+  try {
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const email = formData.get('email') as string;
+    const citizenship = citizen;
+    const dob = birthDate.toDateString;
+    const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
+    const gender = formData.get('gender') as string;
+    const bankName = formData.get('bankName') as string;
+    const bankAccNum = formData.get('bankAccNum') as string;
+    const bankAccName = formData.get('bankAccName') as string;
+    const referalCode = formData.get('referalCode') as string; //parentId
+
+    const tier = await fetchTier('Tier 1');
+    const memberId = await generateUniqueMemberId();
+
+    // await db.member.create({
+    //   data: {
+    //     memberId: '',
+    //     profileId: user.id,
+    //     parentId: referalCode,
+    //     tierId: tier?.id == null? '' : tier.id
+    //   },
+    // });
+
+    // await db.profile.update({
+    //   where: {
+    //     clerkId: user.id,
+    //   },
+    //   data: {
+    //     firstName: firstName,
+    //     lastName: lastName,
+    //     email: email,
+    //     citizen: citizen,
+    //     dob: dob,
+    //     phone: phone,
+    //     address: address,
+    //     gender: gender,
+    //     bankName: bankName,
+    //     bankAccNum: bankAccNum,
+    //     bankAccName: bankAccName
+    //   },
+    // });
+
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/promotions');
+};
+
+const generateUniqueMemberId = async () => {
+  
+  return '';
+}
+
+export const updateMemberAction = async (
+  prevState: any,
+  profileId: string,
+  formData: FormData
+): Promise<{ message: string }> => {
+  try {
+    // const rawData = Object.fromEntries(formData);
+    // const validatedFields = validateWithZodSchema(profileSchema, rawData);
+
+    const member = await fetchMember(profileId);
+
+    await db.member.update({
+      where: {
+        id: member?.id,
+      },
+      // data: validatedFields,
+      data : {
+
+      }
+    });
+    revalidatePath('/profile');
+    return { message: 'Profile updated successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const fetchMember = async ( profileId: string) => {
+  return await db.member.findFirst({
+    where: {
+      profileId : profileId,
+    },
+  });
+};
 
 export const validateReferalCode = async (referalCode: string): Promise<boolean> => {
   const member = await db.member.findFirst({
@@ -994,3 +1098,12 @@ export const validateReferalCode = async (referalCode: string): Promise<boolean>
   if (!member) return false;
   return true;
 };
+
+export const fetchTier = async (tierName: string) => {
+  return await db.tier.findFirst({
+    where: {
+      tierName: tierName,
+    },
+  });
+};
+// END MEMBERSHIP

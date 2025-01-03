@@ -17,6 +17,8 @@ model Profile {
   username     String
   email        String
   profileImage String
+  dob          String?
+  citizen      String?
   phone        String?
   address      String?
   gender       String?
@@ -30,6 +32,7 @@ model Profile {
   favorites    Favorite[]
   reviews      Review[]
   bookings     Booking[]
+  members      Member[]
   bookingCommissionTransactions BookingCommissionTransaction[]
   membershipCommissionTransactions MembershipCommissionTransaction[]
   pointTransactions PointTransaction[]
@@ -131,6 +134,8 @@ model Tier {
 
 model Member {
   id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId    String
   memberId     String
   parentId     String?
   point        Int     @default(0)
@@ -144,7 +149,7 @@ model Member {
 
 model BookingCommissionTransaction {
   id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   booking      Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   bookingId    String
