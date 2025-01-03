@@ -14,17 +14,12 @@ import { customSelectStyles } from "./styles/styles";
 export default function CreateMemberForm({ profile, citizenshipOptions }) {
 
     const [birthDate, setBirthDate] = useState<Date | null>(null);
-    const [citizen, setSelectedCitizen] = useState<String | null>(null);
+    const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null> (null);
+    const [refCode, setRefCode] = useState<string>('');
 
-    const handleCitizenChange = (selectedOption: any) => {
-        setSelectedCitizen(selectedOption);
-        console.log(citizen);
-
-      };
-    
-      const handleDateChange = (date: Date | null) => {
-        setBirthDate(date);
-        console.log(birthDate)
+    type CitizenshipOption = {
+        value: string;
+        label: string;
       };
 
     return (
@@ -33,20 +28,27 @@ export default function CreateMemberForm({ profile, citizenshipOptions }) {
                 Register for MDV Membership
             </h1>
             <div className="border p-8 rounded-md">
-                <FormContainer action={createMemberAction} >
-                        <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <FormContainer action={async (prevState: any, formData: FormData) => {
+                    formData.append('citizen', citizen?.value || '');
+                    formData.append('birthDate', birthDate ? birthDate.toISOString() : '');
+                    formData.set('referalCode', refCode);
+
+                    // Pass the updated formData to the action
+                    return createMemberAction(prevState, formData);
+                }}>
+                        <div className="grid md:grid-cols-1 gap-4 mt-4">
                             <FormInput type="text" name="firstName" defaultValue={profile.firstName} label="First Name" />
                             <FormInput type="text" name="lastName" defaultValue={profile.lastName} label="Last Name" />
                             <FormInput type="text" name="email" defaultValue={profile.email} label="Email Address" />
                             
-                            <div className="form-group">
+                            <div className="form-group mb-2">
                                 <label htmlFor="citizen" className="block mb-2 text-sm font-medium">
                                     Citizen
                                 </label>
                                 <Select
                                     id="citizen"
                                     options={citizenshipOptions}
-                                    onChange={handleCitizenChange}
+                                    onChange={(option) => setSelectedCitizen(option)}
                                     placeholder="Select your citizenship"
                                     className="w-full"
                                     styles={customSelectStyles}
@@ -54,14 +56,14 @@ export default function CreateMemberForm({ profile, citizenshipOptions }) {
                                 />
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group mb-2">
                                 <label htmlFor="birthDate" className="block mb-2 text-sm font-medium">
                                     Date of Birth
                                 </label>
                                 <DatePicker
                                     id="birthDate"
                                     selected={birthDate}
-                                    onChange={handleDateChange}
+                                    onChange={(date) => setBirthDate(date)}
                                     maxDate={new Date()} // Prevents selecting future dates
                                     showYearDropdown
                                     scrollableYearDropdown
@@ -73,9 +75,9 @@ export default function CreateMemberForm({ profile, citizenshipOptions }) {
                                 />
                             </div>
 
-                            <FormInput type="tel" name="phone" label="Phone Number" required={true}/>
-                            <FormInput type="text" name="address" label="Address" required={true}/>
-                            <div className="form-group" >
+                            <FormInput type="tel" name="phone" label="Phone Number"/>
+                            <FormInput type="text" name="address" label="Address"/>
+                            <div className="form-group mb-2" >
                                 <label htmlFor="gender" className="block mb-2 text-sm font-medium">
                                     Gender
                                 </label>
@@ -91,10 +93,20 @@ export default function CreateMemberForm({ profile, citizenshipOptions }) {
                                     <option value="other">Other</option>
                                 </select>
                             </div>
-                            <FormInput type="text" name="bankName" label="Bank Name" required={true}/>
-                            <FormInput type="text" name="bankAccNum" label="Bank Account Number" required={true}/>
-                            <FormInput type="text" name="bankAccName" label="Bank Account Name"  required={true}/>
-                            <FormInput type="text" name="referalCode" label="Referal Code (Optional)" required={false} />
+                            <FormInput type="text" name="bankName" label="Bank Name"/>
+                            <FormInput type="text" name="bankAccNum" label="Bank Account Number"/>
+                            <FormInput type="text" name="bankAccName" label="Bank Account Name"/>
+                            <div className="mb-2">
+                                <input
+                                    type="text"
+                                    id="referalCode"
+                                    name="referalCode"
+                                    value={refCode}
+                                    onChange={(e) => setRefCode(e.target.value)}
+                                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 md:text-md"
+                                    placeholder="Enter referal code (Optional)"
+                                />
+                            </div>
                         </div>
                         <SubmitButton text="Register Now" className="mt-8" />
                 </FormContainer>

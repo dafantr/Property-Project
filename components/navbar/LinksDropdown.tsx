@@ -13,8 +13,8 @@ import { groupedLinks } from '@/utils/links';
 import SignOutLink from './SignOutLink';
 import { SignedOut, SignedIn, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
-import { fetchMember, fetchProfile } from '@/utils/actions';
-
+import { fetchMember, fetchProfile } from "@/utils/actions";
+import { GetServerSideProps } from "next";
 
 function LinksDropdown({ member }: { member: any }) {
   const { userId } = auth();
@@ -174,12 +174,13 @@ function LinksDropdown({ member }: { member: any }) {
   );
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const profile = await fetchProfile(); // Your async fetchProfile function
-  const member = await fetchMember(profile.id);
+  const member = await fetchMember(profile.id, undefined);
+  console.log('TESTTTTTTT')
   return {
     props: {
-      member: member || null, // Pass the profile data as props
+      member: member, // Pass the profile data as props
     },
   };
 };

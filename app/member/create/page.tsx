@@ -21,7 +21,7 @@ async function fetchCitizenshipOptions() {
 
 async function CreateMember() {
     const profile = await fetchProfile();
-    const member = await fetchMember(profile.id);
+    const member = await fetchMember(profile.id, undefined);
 
     const citizenshipOptions = await fetchCitizenshipOptions();
 

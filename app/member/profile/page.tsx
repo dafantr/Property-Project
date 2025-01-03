@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 
 async function ProfilePage() {
   const profile = await fetchProfile();
-  const member = await fetchMember(profile.id);
+  const member = await fetchMember(profile.id, undefined);
 
   if(!member) redirect ("/member/create");
   return (
