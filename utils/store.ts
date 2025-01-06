@@ -7,6 +7,7 @@ type PropertyState = {
   price: number;
   bookings: Booking[];
   range: DateRange | undefined;
+  referalCode: string;
 };
 
 export const useProperty = create<PropertyState>(() => {
@@ -15,5 +16,6 @@ export const useProperty = create<PropertyState>(() => {
     price: 0,
     bookings: [],
     range: undefined,
+    referalCode: ''
   };
 });

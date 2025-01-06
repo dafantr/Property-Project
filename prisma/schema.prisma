@@ -17,6 +17,14 @@ model Profile {
   username     String
   email        String
   profileImage String
+  dob          String?
+  citizen      String?
+  phone        String?
+  address      String?
+  gender       String?
+  bankName     String?
+  bankAccNum   String?
+  bankAccName  String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   properties   Property[]
@@ -24,6 +32,10 @@ model Profile {
   favorites    Favorite[]
   reviews      Review[]
   bookings     Booking[]
+  members      Member[]
+  bookingCommissionTransactions BookingCommissionTransaction[]
+  membershipCommissionTransactions MembershipCommissionTransaction[]
+  pointTransactions PointTransaction[]
 }
 
 model Property {
@@ -87,6 +99,7 @@ model Booking {
   paymentStatus Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  bookingCommissionTransactions BookingCommissionTransaction[]
 }
 
 model Gallery {
@@ -108,4 +121,72 @@ model Promotion {
   media       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Tier {
+  id           String     @id @default(uuid()) @map("_id")
+  tierName     String
+  commission   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  members      Member[]
+}
+
+model Member {
+  id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId    String
+  memberId     String
+  parentId     String?
+  point        Int     @default(0)
+  commission   Float     @default(0)
+  tier         Tier     @relation(fields: [tierId], references: [id], onDelete: Cascade)
+  tierId       String
+  isActive     Int     @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BookingCommissionTransaction {
+  id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId    String
+  booking      Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId    String
+  commission   Float     @default(0)
+  referalCode  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MembershipCommissionTransaction {
+  id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profileId    String
+  commission   Float     @default(0)
+  closerId     String
+  closerCommission Float  @default(0)
+  referalCode  String?
+  paymentStatus Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Reward {
+  id           String    @id @default(uuid()) @map("_id")
+  rewardName   String
+  pointReq     Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  pointTransactions PointTransaction[]
+}
+
+model PointTransaction {
+  id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profileId    String
+  reward       Reward     @relation(fields: [rewardId], references: [id])
+  rewardId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
