@@ -6,14 +6,14 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 
-export default function MembershipNavbar() {
+export default function DashboardNavbar() {
 	const pathname = usePathname();
 	const isDashboard = pathname?.startsWith("/dashboard");
 	const { theme, setTheme } = useTheme();
 
 	return (
 		isDashboard && (
-			<nav className="px-8 py-4 flex items-center justify-between bg-white dark:bg-black shadow-sm sticky top-0 z-50 transition-colors duration-300">
+			<nav className="px-8 py-4 flex items-center justify-center bg-white dark:bg-black shadow-sm sticky top-0 z-50 transition-colors duration-300">
 				<div className="flex items-center space-x-8 overflow-x-auto max-w-[calc(100vw-200px)] no-scrollbar">
 					<Link
 						href="/dashboard"
