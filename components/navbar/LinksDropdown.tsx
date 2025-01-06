@@ -15,9 +15,10 @@ import { SignedOut, SignedIn, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { fetchProfile, fetchMember } from "@/utils/actions";
 
-function LinksDropdown() {
+async function LinksDropdown() {
 	const { userId } = auth();
-	const isAdminUser = userId === process.env.ADMIN_USER_ID;
+	const profile = await fetchProfile();
+	const isMember = await fetchMember(profile.id);
 
 	// Check if a section has visible links
 	const hasVisibleLinks = (links, adminOnly = false) =>
@@ -28,13 +29,8 @@ function LinksDropdown() {
 				!["create", "my"].some((prefix) => link.label.startsWith(prefix))
 		);
 
-	const MemberData = async () => {
-		const profile = await fetchProfile();
-    const isMember = await fetchMember(profile.id);
+	const isAdminUser = userId === process.env.ADMIN_USER_ID;
 
-		return isMember;
-  };
-  MemberData();
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -171,12 +167,14 @@ function LinksDropdown() {
 								const isMemberPage = ["member profile", "dashboard"].includes(
 									link.label
 								);
+
 								const isNonMemberPage = ["exclusive member"].includes(
 									link.label
 								);
 
-								if (isMemberPage && !MemberData) return null;
-								if (isNonMemberPage && MemberData !== null) return null;
+								if (isMemberPage && !isMember) return null;
+								if (isNonMemberPage && isMember) return null;
+
 								return (
 									<DropdownMenuItem key={link.href}>
 										<Link href={link.href} className="capitalize w-full">
