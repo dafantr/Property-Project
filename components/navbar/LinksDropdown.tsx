@@ -21,9 +21,9 @@ async function LinksDropdown() {
 	const isMember = await fetchMember(profile.id);
 
 	// Check if a section has visible links
-	const hasVisibleLinks = (links, adminOnly = false) =>
+	const hasVisibleLinks = (links: any[], adminOnly = false) =>
 		links.some(
-			(link) =>
+			(link: any) =>
 				!adminOnly ||
 				isAdminUser ||
 				!["create", "my"].some((prefix) => link.label.startsWith(prefix))
