@@ -24,7 +24,7 @@ function Navbar() {
           <div className="flex items-center gap-4">
             <NavMenu />
             <DarkMode />
-            <LinksDropdown member={undefined} />
+            <LinksDropdown/>
           </div>
         </div>
       </div>

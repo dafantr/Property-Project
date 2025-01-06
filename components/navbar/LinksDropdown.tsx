@@ -13,14 +13,12 @@ import { groupedLinks } from '@/utils/links';
 import SignOutLink from './SignOutLink';
 import { SignedOut, SignedIn, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
-import { fetchMember, fetchProfile } from "@/utils/actions";
-import { GetServerSideProps } from "next";
 
-function LinksDropdown({ member }: { member: any }) {
+function LinksDropdown() {
   const { userId } = auth();
   const isAdminUser = userId === process.env.ADMIN_USER_ID;
 
-  // Check if a section has visible links
+    // Check if a section has visible links
   const hasVisibleLinks = (links, adminOnly = false) =>
     links.some((link) => !adminOnly || isAdminUser || !['create', 'my'].some((prefix) => link.label.startsWith(prefix)));
 
@@ -150,8 +148,8 @@ function LinksDropdown({ member }: { member: any }) {
               {groupedLinks.member.map((link) => {
                 const isMemberPage = ['member profile'].includes(link.label);
                 const isNonMemberPage = ['exclusive member'].includes(link.label);
-                if (isMemberPage && !member) return null;
-                if (isNonMemberPage && member) return null;
+                if (isMemberPage) return null;
+                if (isNonMemberPage) return null;
                 return(
                 <DropdownMenuItem key={link.href}>
                   <Link href={link.href} className="capitalize w-full">
@@ -173,16 +171,5 @@ function LinksDropdown({ member }: { member: any }) {
     </DropdownMenu>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const profile = await fetchProfile(); // Your async fetchProfile function
-  const member = await fetchMember(profile.id, undefined);
-  console.log('TESTTTTTTT')
-  return {
-    props: {
-      member: member, // Pass the profile data as props
-    },
-  };
-};
 
 export default LinksDropdown;
