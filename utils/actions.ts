@@ -1115,6 +1115,8 @@ export const updateMemberCommission = async ( memberId : string, commission : an
   try {
     const member = await fetchMember(undefined, memberId);
 
+    if(!member) throw new Error ("Member Not Found!");
+
     if (type == 'booking'){
       await db.member.update({
         where: {
