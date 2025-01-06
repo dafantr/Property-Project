@@ -17,8 +17,14 @@ import { fetchProfile, fetchMember } from "@/utils/actions";
 
 async function LinksDropdown() {
 	const { userId } = auth();
-	const profile = await fetchProfile();
-	const isMember = await fetchMember(profile.id);
+	let profile = null;
+	let isMember = null;
+
+	if (userId) {
+		profile = await fetchProfile();
+
+		isMember = await fetchMember(profile.clerkId);
+	}
 
 	// Check if a section has visible links
 	const hasVisibleLinks = (links: any[], adminOnly = false) =>
