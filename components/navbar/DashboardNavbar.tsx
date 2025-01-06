@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
 
 export default function DashboardNavbar() {
 	const pathname = usePathname();
-	const isDashboard = pathname?.startsWith("/dashboard");
-	const { theme, setTheme } = useTheme();
+	const isDashboard = pathname?.startsWith("/member/dashboard");
 
 	return (
 		isDashboard && (
@@ -47,7 +44,7 @@ export default function DashboardNavbar() {
 					</Link>
 					<Link
 						href="/dashboard/rewards"
-							className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/rewards")
 									? "text-blue-600 dark:text-blue-400 font-semibold"
@@ -57,7 +54,7 @@ export default function DashboardNavbar() {
 					</Link>
 					<Link
 						href="/dashboard/downline"
-							className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/downline")
 									? "text-blue-600 dark:text-blue-400 font-semibold"
@@ -67,7 +64,7 @@ export default function DashboardNavbar() {
 					</Link>
 					<Link
 						href="/dashboard/contact"
-							className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/contact")
 									? "text-blue-600 dark:text-blue-400 font-semibold"
@@ -76,7 +73,6 @@ export default function DashboardNavbar() {
 						Contact
 					</Link>
 				</div>
-
 			</nav>
 		)
 	);

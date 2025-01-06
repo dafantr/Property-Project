@@ -16,8 +16,8 @@ async function fetchCitizenshipOptions() {
 	const data = await response.json();
 
 	// The API returns { data: [ { iso2: "AF", country: "Afghanistan", ... }, ... ] }
-	return data.data.map((item: { iso2: string, country: string }) => ({
-		value: item.iso2,    // Using iso2 code (e.g., "AF", "AL")
+	return data.data.map((item: { country: string }) => ({
+		value: item.country, // Using iso2 code (e.g., "AF", "AL")
 		label: item.country, // Using country name (e.g., "Afghanistan", "Albania")
 	}));
 }
