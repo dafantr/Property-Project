@@ -404,13 +404,18 @@ export const createBookingAction = async (prevState: {
       paymentStatus: false,
     },
   });
+
   let bookingId: null | string = null;
   const { propertyId, checkIn, checkOut, referalCode } = prevState
   const property = await db.property.findUnique({
     where: { id: propertyId }, select: { price: true },
   });
+  
   if (!property) {
     return { message: 'Property not found' }
+  }
+  if(!await validateReferalCode(referalCode)){
+    return { message: 'Referal code not valid' };
   }
   const { orderTotal, totalNights, discount } = calculateTotals({
     checkIn, checkOut, price: property.price, referalCode
@@ -438,8 +443,11 @@ export const createBookingAction = async (prevState: {
           referalCode : referalCode
         }
       })
+
+      await updateMemberCommission(referalCode, commission, 'booking');
+
     } else {
-      //buat bookingCommissionTransaction dengan referal
+      //buat bookingCommissionTransaction tanpa referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
         data:{
           profileId : user.id,
@@ -760,10 +768,7 @@ export const fetchFiveStarReviews = async () => {
       },
     });
 
-    // Filter out reviews with no profile if needed
-    const filteredReviews = reviews.filter(review => review.profile);
-
-    return filteredReviews;
+    return reviews;
   } catch (error) {
     console.error('Error fetching 5-star reviews:', error);
     throw new Error('Failed to fetch 5-star reviews');
@@ -987,6 +992,114 @@ export const updatePromotionImageAction = async (
   }
 };
 
+// MEMBERSHIP
+export const createMemberAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  
+  try {
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const email = formData.get('email') as string;
+    const citizen = formData.get('citizen') as string;
+    const dob = formData.get('dateBirth') as string;;
+    const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
+    const gender = formData.get('gender') as string;
+    const bankName = formData.get('bankName') as string;
+    const bankAccNum = formData.get('bankAccNum') as string;
+    const bankAccName = formData.get('bankAccName') as string;
+    const referalCode = formData.get('referalCode') as string; //parentId
+
+    const tier = await fetchTier('Tier 1');
+    const memberId = await generateUniqueMemberId();
+
+    // cek referalCode
+    if(referalCode && !await validateReferalCode(referalCode)){
+      throw new Error("Invalid referral code");
+    }
+
+    // cek if member already exist
+    if(await fetchMember(user.id)){
+      throw new Error("Member already exist");
+    }
+
+    await db.member.create({
+      data: {
+        memberId: '',
+        profileId: user.id,
+        parentId: referalCode,
+        tierId: tier?.id == null? '' : tier.id
+      },
+    });
+
+    await db.profile.update({
+      where: {
+        clerkId: user.id,
+      },
+      data: {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        citizen: citizen,
+        dob: dob,
+        phone: phone,
+        address: address,
+        gender: gender,
+        bankName: bankName,
+        bankAccNum: bankAccNum,
+        bankAccName: bankAccName
+      },
+    });
+
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/promotions');
+};
+
+const generateUniqueMemberId = async () => {
+  
+  return '';
+}
+
+export const updateMemberAction = async (
+  prevState: any,
+  profileId: string,
+  formData: FormData
+): Promise<{ message: string }> => {
+  try {
+    // const rawData = Object.fromEntries(formData);
+    // const validatedFields = validateWithZodSchema(profileSchema, rawData);
+
+    const member = await fetchMember(profileId);
+
+    await db.member.update({
+      where: {
+        id: member?.id,
+      },
+      // data: validatedFields,
+      data : {
+
+      }
+    });
+    revalidatePath('/profile');
+    return { message: 'Profile updated successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const fetchMember = async ( profileId?: string, memberId?: string) => {
+  return await db.member.findFirst({
+    where: {
+      profileId : profileId,
+      memberId : memberId
+    },
+  });
+};
 
 export const validateReferalCode = async (referalCode: string): Promise<boolean> => {
   const member = await db.member.findFirst({
@@ -994,6 +1107,44 @@ export const validateReferalCode = async (referalCode: string): Promise<boolean>
       memberId: referalCode,
     },
   });
-  if (!member) return false;
+  if (!member || referalCode == '') return false;
   return true;
 };
+
+export const updateMemberCommission = async ( memberId : string, commission : any, type : string) => {
+  try {
+    const member = await fetchMember(undefined, memberId);
+
+    if (type == 'booking'){
+      await db.member.update({
+        where: {
+          id: member.id,
+        },
+        data : {
+          commission: member.commission + commission,
+        }
+      });
+    } else {
+      await db.member.update({
+        where: {
+          id: member.id,
+        },
+        data : {
+          commission: member.commission + commission,
+          point: member.point + 1
+        }
+      });
+    }
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const fetchTier = async (tierName: string) => {
+  return await db.tier.findFirst({
+    where: {
+      tierName: tierName,
+    },
+  });
+};
+// END MEMBERSHIP

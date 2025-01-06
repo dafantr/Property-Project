@@ -22,7 +22,6 @@ function FormInput(props: FormInputProps) {
                 type={type}
                 defaultValue={defaultValue}
                 placeholder={placeholder}
-                required
             />
         </div>
     )

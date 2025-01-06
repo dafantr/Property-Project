@@ -20,19 +20,16 @@ function Navbar() {
 
 				<NavSearch />
 
-				<div className="flex flex-col items-center w-full sm:w-auto">
-					<div className="flex items-center gap-4">
-						<NavMenu />
-						<DarkMode />
-						<LinksDropdown />
-					</div>
-				</div>
-			</div>
-			<div className="flex items-center justify-center">
-				<DashboardNavbar />
-			</div>
-		</nav>
-	);
+        <div className="flex flex-col items-center w-full sm:w-auto">
+          <div className="flex items-center gap-4">
+            <NavMenu />
+            <DarkMode />
+            <LinksDropdown member={undefined} />
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 }
 
 export default Navbar;
