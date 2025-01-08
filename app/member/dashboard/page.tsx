@@ -11,7 +11,6 @@ export default async function DashboardPage() {
 	}
 
 	const member = await fetchMember(profile?.clerkId);
-	console.log("Test" , member);
 
 	if (member === null) {
 		redirect('/member/create');

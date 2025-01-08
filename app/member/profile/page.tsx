@@ -18,7 +18,6 @@ async function ProfilePage() {
 
   if(member === null) redirect ("/member/create");
 
-  console.log(member);
   return (
     <section>
       <h1 className="text-2xl font-semibold mb-8 capitalize">Member Profile</h1>
