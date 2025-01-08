@@ -23,7 +23,9 @@ async function LinksDropdown() {
 	if (userId) {
 		profile = await fetchProfile();
 
-		isMember = await fetchMember(profile.clerkId);
+		if (profile) {
+			isMember = await fetchMember(profile.clerkId);
+		}
 	}
 
 	// Check if a section has visible links
@@ -178,8 +180,8 @@ async function LinksDropdown() {
 									link.label
 								);
 
-								if (isMemberPage && !isMember) return null;
-								if (isNonMemberPage && isMember) return null;
+								if (isMemberPage && isMember === null) return null;
+								if (isNonMemberPage && isMember !== null) return null;
 
 								return (
 									<DropdownMenuItem key={link.href}>

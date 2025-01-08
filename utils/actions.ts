@@ -11,13 +11,13 @@ import { calculateTotals } from './calculateTotals';
 import { formatDate } from './format';
 
 const getAuthUser = async () => {
-  const user = await currentUser()
-  if (!user) {
-    throw new Error('You must be logged in to access this route');
-  }
-  if (!user.privateMetadata.hasProfile) redirect('/profile/create');
-  return user;
-}
+    const user = await currentUser()
+    if (!user) {
+    return redirect('/');
+    }
+    if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+    return user;
+    }
 
 const getAdminUser = async () => {
   const user = await getAuthUser();
@@ -66,26 +66,26 @@ export const createProfileAction = async (
 export const fetchProfileImage = async () => {
   const user = await currentUser()
   if (!user) return null
-  const profile = await db.profile.findUnique({
+    const profile = await db.profile.findUnique({
     where: {
       clerkId: user.id,
     },
     select: {
       profileImage: true,
     },
-  });
+    });
   return profile?.profileImage;
 };
 
 export const fetchProfile = async () => {
-  const user = await getAuthUser();
-  const profile = await db.profile.findUnique({
+    const user = await getAuthUser();
+    const profile = await db.profile.findUnique({
     where: {
       clerkId: user.id,
     },
-  });
-  if (!profile) redirect('/profile/create');
-  return profile;
+    });
+  if (!profile) return null;
+    return profile;
 };
 
 export const updateProfileAction = async (
@@ -998,6 +998,7 @@ export const createMemberAction = async (
   formData: FormData
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
+  console.log(formData);
   
   try {
     const firstName = formData.get('firstName') as string;
@@ -1028,7 +1029,7 @@ export const createMemberAction = async (
 
     await db.member.create({
       data: {
-        memberId: '',
+        memberId: memberId,
         profileId: user.id,
         parentId: referalCode,
         tierId: tier?.id == null? '' : tier.id
@@ -1061,13 +1062,47 @@ export const createMemberAction = async (
 };
 
 const generateUniqueMemberId = async () => {
-  
-  return '';
+  // Generate and verify uniqueness
+  let code = generateCode();
+  let isUnique = false;
+  let maxAttempts = 10; // Prevent infinite loops
+
+  while (!isUnique && maxAttempts > 0) {
+    // Check if code exists in database
+    const existingMember = await db.member.findFirst({
+      where: { memberId: code }
+    });
+
+    if (!existingMember) {
+      isUnique = true;
+    } else {
+      code = generateCode();
+      maxAttempts--;
+    }
+  }
+
+  if (!isUnique) {
+    throw new Error('Failed to generate unique member ID, Please try again');
+  }
+
+  return code;
 }
+
+const generateCode = () => {
+  // Characters to use for generating the code (alphanumeric)
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  
+  let result = '';
+  // Generate 6 characters
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
+};
 
 export const updateMemberAction = async (
   prevState: any,
-  profileId: string,
   formData: FormData
 ): Promise<{ message: string }> => {
   try {
@@ -1150,3 +1185,17 @@ export const fetchTier = async (tierName: string) => {
   });
 };
 // END MEMBERSHIP
+
+// First, create a fetch function in your actions.ts
+export const fetchRewards = async () => {
+  try {
+    const rewards = await db.reward.findMany({
+    });
+    return rewards;
+  } catch (error) {
+    console.error('Error fetching rewards:', error);
+    return null;
+  }
+};
+
+

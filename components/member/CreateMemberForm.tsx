@@ -9,7 +9,6 @@ import { createMemberAction } from "@/utils/actions";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { customSelectStyles } from "./styles/styles";
 import { useTheme } from "next-themes";
 
 type CitizenshipOption = {
@@ -19,7 +18,7 @@ type CitizenshipOption = {
 
 interface CreateMemberFormProps {
 	profile: {
-		id?: string;
+		id: string;
 		firstName: string;
 		lastName: string;
 		email: string;
@@ -89,6 +88,7 @@ export default function CreateMemberForm({
 							"birthDate",
 							birthDate ? birthDate.toISOString() : ""
 						);
+						console.log(birthDate?.toISOString());
 						formData.set("referalCode", refCode);
 
 						// Pass the updated formData to the action
