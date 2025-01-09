@@ -1,4 +1,4 @@
-import { Users, Gift, Network, RefreshCcw, Copy, Share2 } from "lucide-react";
+import { Copy, Share2 } from "lucide-react";
 import { fetchProfile, fetchMember, fetchRewards } from "@/utils/actions";
 import { redirect } from "next/navigation";
 
@@ -16,6 +16,10 @@ export default async function DashboardPage() {
 		redirect('/member/create');
 	}
 	
+	function handleRedeem(reward: any): void {
+		console.log(reward);
+	}
+
 	return (
 		<div className="grid grid-cols-2 gap-6">
 			{/* Profile Information Card */}
@@ -107,7 +111,7 @@ export default async function DashboardPage() {
 						{member.point >= reward.pointReq ? (
 						<button 
 							className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
-							onClick={() => handleRedeem(reward.id)}
+							onClick={() => handleRedeem(reward)}
 						>
 							Redeem
 						</button>

@@ -806,7 +806,7 @@ export const createGalleryAction = async (
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
   try {
-    const title = formData.get('title') as String;
+    const title = formData.get('title') as string;
     const file = formData.get('image') as File;
 
     // const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -879,9 +879,9 @@ export const createPromotionAction = async (
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
   try {
-    const title = formData.get('title') as String;
-    const subtitle = formData.get('subtitle') as String;
-    const description = formData.get('description') as String;
+    const title = formData.get('title') as string;
+    const subtitle = formData.get('subtitle') as string;
+    const description = formData.get('description') as string;
     const file = formData.get('image') as File;
 
     // const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -1108,19 +1108,33 @@ export const updateMemberAction = async (
   try {
     // const rawData = Object.fromEntries(formData);
     // const validatedFields = validateWithZodSchema(profileSchema, rawData);
+    const memberId = formData.get('memberId') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
+    const gender = formData.get('gender') as string;
+    const bankName = formData.get('bankName') as string;
+    const bankAccNum = formData.get('bankAccNum') as string;
+    const bankAccName = formData.get('bankAccName') as string;
 
-    const member = await fetchMember(profileId);
+    const member = await fetchMember(undefined,memberId);
 
-    await db.member.update({
+    await db.profile.update({
       where: {
         id: member?.id,
       },
       // data: validatedFields,
       data : {
-
+        email: email,
+        phone: phone,
+        address: address,
+        gender: gender,
+        bankName: bankName,
+        bankAccNum: bankAccNum,
+        bankAccName: bankAccName
       }
     });
-    revalidatePath('/profile');
+    revalidatePath('/member/dashboard');
     return { message: 'Profile updated successfully' };
   } catch (error) {
     return renderError(error);
@@ -1194,7 +1208,7 @@ export const fetchRewards = async () => {
     return rewards;
   } catch (error) {
     console.error('Error fetching rewards:', error);
-    return null;
+    return renderError(error);
   }
 };
 

@@ -6,7 +6,16 @@ import { usePathname } from "next/navigation";
 
 export default function DashboardNavbar() {
 	const pathname = usePathname();
-	const isMemberPage = pathname?.startsWith("/member/dashboard" || "/member/profile" || "/member/referrals" || "/member/rewards" || "/member/downline" || "/member/contact");
+	const memberPaths = [
+		"/member/dashboard",
+		"/member/profile",
+		"/member/referrals",
+		"/member/rewards",
+		"/member/downline",
+		"/member/contact"
+	];
+
+	const isMemberPage = memberPaths.some(path => pathname?.startsWith(path));
 
 	return (
 		isMemberPage && (

@@ -5,7 +5,7 @@ import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import FormContainer from "@/components/form/FormContainer";
 import Select from "react-select";
-import { createMemberAction } from "@/utils/actions";
+import { updateMemberAction } from "@/utils/actions";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -16,23 +16,41 @@ type CitizenshipOption = {
 	label: string;
 };
 
-interface CreateMemberFormProps {
+interface UpdateMemberFormProps {
 	profile: {
 		id: string;
 		firstName: string;
 		lastName: string;
 		email: string;
+        citizen?: string | null;
+        birthDate?: Date | null;
+        phone?: string | null;
+        address?: string | null;
+        gender?: string | null;
+        bankName?: string | null;
+        bankAccNum?: string | null;
+        bankAccName?: string | null;
 	};
+
+    member: {
+        id: string;
+        memberId: string;
+        isActive: number;
+    };
+
 	citizenshipOptions: CitizenshipOption[];
 }
 
-export default function CreateMemberForm({
+export default function UpdateMemberForm({
 	profile,
+	member,
 	citizenshipOptions,
-}: CreateMemberFormProps) {
+}: UpdateMemberFormProps) {
 	const { theme } = useTheme();
 
-	const [birthDate, setBirthDate] = useState<Date | null>(null);
+	const [birthDate, setBirthDate] = useState<Date | null>(
+        profile?.birthDate ? new Date(profile.birthDate) : null
+    );
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
@@ -42,7 +60,7 @@ export default function CreateMemberForm({
 		input: "dark:bg-black dark:border-gray-700 dark:text-white",
 		label: "dark:text-white",
 		select: {
-			control: (base: any) => ({
+			control: (base: any) => ({   
 				...base,
 				backgroundColor: theme === "dark" ? "#000" : base.backgroundColor,
 				borderColor: theme === "dark" ? "#374151" : base.borderColor,
@@ -64,7 +82,7 @@ export default function CreateMemberForm({
 						: base.backgroundColor,
 				color: theme === "dark" ? "#fff" : "#000",
 			}),
-			singleValue: (base: any) => ({
+			singleValue: (base: any ) => ({
 				...base,
 				color: theme === "dark" ? "#fff" : "#000",
 			}),
@@ -77,8 +95,8 @@ export default function CreateMemberForm({
 
 	return (
 		<section className="max-w-3xl mx-auto p-4">
-			<h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
-				Register for MDV Membership
+			<h1 className="text-3xl font-bold mb-8 dark:text-white">
+				Member Profile
 			</h1>
 			<div className="border dark:border-gray-700 p-8 rounded-lg shadow-lg bg-white dark:bg-black">
 				<FormContainer
@@ -90,34 +108,36 @@ export default function CreateMemberForm({
 						);
 						console.log(birthDate?.toISOString());
 						formData.set("referalCode", refCode);
-
 						// Pass the updated formData to the action
-						return createMemberAction(prevState, formData);
+						return updateMemberAction(prevState, formData);
 					}}>
-					<div className="grid gap-6">
+					<div className="grid md:grid-cols-2 gap-4 mt-4">
 						<FormInput
 							type="text"
-							name="firstName"
-							defaultValue={profile.firstName}
-							label="First Name"
+							name="memberId"
+							defaultValue={member.memberId}
+							label="Member ID"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							disabled
 						/>
 						<FormInput
 							type="text"
-							name="lastName"
-							defaultValue={profile.lastName}
-							label="Last Name"
+							name="membershipStatus"
+							defaultValue={member.isActive ? "Active" : "Inactive"}
+							label="Membership Status"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							disabled
 						/>
 						<FormInput
 							type="text"
-							name="email"
-							defaultValue={profile.email}
-							label="Email Address"
+							name="fullName"
+							defaultValue={profile.firstName + " " + profile.lastName}
+							label="Full Name"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							disabled
 						/>
 
 						<div className="form-group">
@@ -132,6 +152,7 @@ export default function CreateMemberForm({
 								onChange={(option) => setSelectedCitizen(option)}
 								placeholder="Select your citizenship"
 								className="w-full"
+								defaultValue={citizenshipOptions.find(option => option.value === profile.citizen)}
 								styles={darkModeStyles.select}
 								required
 							/>
@@ -160,13 +181,6 @@ export default function CreateMemberForm({
 
 						<FormInput
 							type="tel"
-							name="phone"
-							label="Phone Number"
-							className={`${darkModeStyles.input} transition-colors`}
-							labelClassName={darkModeStyles.label}
-						/>
-						<FormInput
-							type="text"
 							name="address"
 							label="Address"
 							className={`${darkModeStyles.input} transition-colors`}
@@ -182,6 +196,7 @@ export default function CreateMemberForm({
 								id="gender"
 								name="gender"
 								className={`w-full px-4 py-2 rounded-lg border dark:bg-black dark:border-gray-700 dark:text-white`}
+                                defaultValue={profile.gender || ''}
 								required>
 								<option value="">Select Gender</option>
 								<option value="male">Male</option>
@@ -189,6 +204,20 @@ export default function CreateMemberForm({
 								<option value="other">Other</option>
 							</select>
 						</div>
+                        <FormInput
+							type="text"
+							name="email"
+							label="Email"
+							className={`${darkModeStyles.input} transition-colors`}
+							labelClassName={darkModeStyles.label}
+						/>
+                        						<FormInput
+							type="text"
+							name="phoneNumber"
+							label="Phone Number"
+							className={`${darkModeStyles.input} transition-colors`}
+							labelClassName={darkModeStyles.label}
+						/>
 						<FormInput
 							type="text"
 							name="bankName"
@@ -210,20 +239,9 @@ export default function CreateMemberForm({
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
-						<div className="form-group">
-							<input
-								type="text"
-								id="referalCode"
-								name="referalCode"
-								value={refCode}
-								onChange={(e) => setRefCode(e.target.value)}
-								className={`w-full px-4 py-2 rounded-lg ${darkModeStyles.input}`}
-								placeholder="Enter referral code (Optional)"
-							/>
-						</div>
 					</div>
 					<SubmitButton
-						text="Register Now"
+						text="Apply Changes"
 						className="mt-8 w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg transition-colors"
 					/>
 				</FormContainer>
