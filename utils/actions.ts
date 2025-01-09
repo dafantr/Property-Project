@@ -15,7 +15,7 @@ const getAuthUser = async () => {
     if (!user) {
     return redirect('/');
     }
-    if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+    // if (!user.privateMetadata.hasProfile) redirect('/profile/create');
     return user;
     }
 
@@ -63,30 +63,30 @@ export const createProfileAction = async (
 };
 
 
-export const fetchProfileImage = async () => {
-  const user = await currentUser()
-  if (!user) return null
-    const profile = await db.profile.findUnique({
-    where: {
-      clerkId: user.id,
-    },
-    select: {
-      profileImage: true,
-    },
-    });
-  return profile?.profileImage;
-};
+// export const fetchProfileImage = async () => {
+//   const user = await currentUser()
+//   if (!user) return null
+//     const profile = await db.profile.findUnique({
+//     where: {
+//       clerkId: user.id,
+//     },
+//     select: {
+//       profileImage: true,
+//     },
+//     });
+//   return profile?.profileImage;
+// };
 
-export const fetchProfile = async () => {
-    const user = await getAuthUser();
-    const profile = await db.profile.findUnique({
-    where: {
-      clerkId: user.id,
-    },
-    });
-  if (!profile) return null;
-    return profile;
-};
+// export const fetchProfile = async () => {
+//     const user = await getAuthUser();
+//     const profile = await db.profile.findUnique({
+//     where: {
+//       clerkId: user.id,
+//     },
+//     });
+//   if (!profile) return null;
+//     return profile;
+// };
 
 export const updateProfileAction = async (
   prevState: any,
@@ -1005,7 +1005,7 @@ export const createMemberAction = async (
     const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const citizen = formData.get('citizen') as string;
-    const dob = formData.get('dateBirth') as string;;
+    const dob = formData.get('dateBirth') as string;
     const phone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const gender = formData.get('gender') as string;
@@ -1108,6 +1108,8 @@ export const updateMemberAction = async (
   try {
     // const rawData = Object.fromEntries(formData);
     // const validatedFields = validateWithZodSchema(profileSchema, rawData);
+    console.log(formData);
+
     const memberId = formData.get('memberId') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
@@ -1119,21 +1121,21 @@ export const updateMemberAction = async (
 
     const member = await fetchMember(undefined,memberId);
 
-    await db.profile.update({
-      where: {
-        id: member?.id,
-      },
-      // data: validatedFields,
-      data : {
-        email: email,
-        phone: phone,
-        address: address,
-        gender: gender,
-        bankName: bankName,
-        bankAccNum: bankAccNum,
-        bankAccName: bankAccName
-      }
-    });
+    // await db.profile.update({
+    //   where: {
+    //     id: member?.id,
+    //   },
+    //   // data: validatedFields,
+    //   data : {
+    //     email: email,
+    //     phone: phone,
+    //     address: address,
+    //     gender: gender,
+    //     bankName: bankName,
+    //     bankAccNum: bankAccNum,
+    //     bankAccName: bankAccName
+    //   }
+    // });
     revalidatePath('/member/dashboard');
     return { message: 'Profile updated successfully' };
   } catch (error) {
@@ -1212,4 +1214,47 @@ export const fetchRewards = async () => {
   }
 };
 
+//dummy method
+export const fetchProfile = async () => {
+  const profile = {
+    id: '2b4a7df0-66c5-4249-b39a-7a104d9c81c4',
+    clerkId: 'user_2rOhiEISnbBqTDgqMSXKByf5BAW',
+    firstName: 'test1',
+    lastName: 'test',
+    username: 'testing',
+    email: 'isaacgavinc@gmail.com',
+    profileImage: 'https://jjjefrzxvxvbaeibwiig.supabase.co/storage/v1/object/public/Property-Project/1735820574581-Screenshot%202024-11-12%20183507.png',
+    citizen: 'AL',
+    dob: null,
+    phone: '085159640550',
+    address: 'Apartment Belmont Residence, Meruya, Kebon Jeruk.',
+    gender: 'male',
+    bankName: 'BCA',
+    bankAccNum: '234234234234',
+    bankAccName: 'Test',
+  }
+if (!profile) return null;
+  return profile;
+};
 
+//dummy method
+export const fetchProfileImage = async () => {
+  const profile = {
+    id: '2b4a7df0-66c5-4249-b39a-7a104d9c81c4',
+    clerkId: 'user_2rOhiEISnbBqTDgqMSXKByf5BAW',
+    firstName: 'test1',
+    lastName: 'test',
+    username: 'testing',
+    email: 'isaacgavinc@gmail.com',
+    profileImage: 'https://jjjefrzxvxvbaeibwiig.supabase.co/storage/v1/object/public/Property-Project/1735820574581-Screenshot%202024-11-12%20183507.png',
+    citizen: 'AL',
+    dob: null,
+    phone: '085159640550',
+    address: 'Apartment Belmont Residence, Meruya, Kebon Jeruk.',
+    gender: 'male',
+    bankName: 'BCA',
+    bankAccNum: '234234234234',
+    bankAccName: 'Test',
+  }
+  return profile?.profileImage;
+};

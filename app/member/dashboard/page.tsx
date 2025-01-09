@@ -105,7 +105,7 @@ export default async function DashboardPage() {
 				<h3 className="font-semibold mb-2 dark:text-white">Available Rewards</h3>
 				<div className="grid grid-cols-3 gap-4">
 					{rewards?.map((reward) => (
-					<div key={reward.id} className="text-center dark:text-gray-300">
+					<div key={reward.id} className="text-center p-3 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
 						<p className="font-semibold">{reward.rewardName}</p>
 						<p className="text-sm mb-2">{reward.pointReq} points</p>
 						{member.point >= reward.pointReq ? (

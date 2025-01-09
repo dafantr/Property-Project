@@ -54,7 +54,6 @@ export default function UpdateMemberForm({
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
-	const [refCode, setRefCode] = useState<string>("");
 
 	const darkModeStyles = {
 		input: "dark:bg-black dark:border-gray-700 dark:text-white",
@@ -107,7 +106,6 @@ export default function UpdateMemberForm({
 							birthDate ? birthDate.toISOString() : ""
 						);
 						console.log(birthDate?.toISOString());
-						formData.set("referalCode", refCode);
 						// Pass the updated formData to the action
 						return updateMemberAction(prevState, formData);
 					}}>
@@ -211,7 +209,7 @@ export default function UpdateMemberForm({
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
-                        						<FormInput
+                        <FormInput
 							type="text"
 							name="phoneNumber"
 							label="Phone Number"
