@@ -33,7 +33,7 @@ export const groupedLinks = {
     { href: '/member/create', label: 'exclusive member' },
     { href: '/member/dashboard', label: 'dashboard' },
     { href: '/member/profile', label: 'member profile' },
-    { href: '/member/referrals', label: 'referrals' },
+    { href: '/member/referrals', label: 'referrals & commissions' },
     { href: '/member/rewards', label: 'rewards' },
     { href: '/member/downline', label: 'downline' },
     { href: '/member/contact', label: 'contact' },

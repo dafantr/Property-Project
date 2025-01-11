@@ -8,12 +8,18 @@ import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import ImageInputContainer from "@/components/form/ImageInputContainer";
 import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 //import { profile } from "console";
 
 async function ProfilePage() {
+  const user = await currentUser();
   const profile= await fetchProfile();
 
-  if (!profile) {
+  if (!user?.privateMetadata.hasProfile) {
+    redirect('/profile/create');
+  }
+
+  if (profile === null) {
     redirect('/profile/create');
   }
 

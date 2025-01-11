@@ -172,9 +172,14 @@ async function LinksDropdown() {
 						<>
 							<DropdownMenuSeparator />
 							{groupedLinks.member.map((link) => {
-								const isMemberPage = ["member profile", "dashboard"].includes(
-									link.label
-								);
+								const isMemberPage = [
+									"member profile",
+									"dashboard",
+									"referrals & commissions",
+									"rewards",
+									"downline",
+									"contact",
+								].includes(link.label);
 
 								const isNonMemberPage = ["exclusive member"].includes(
 									link.label

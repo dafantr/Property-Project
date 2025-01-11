@@ -5,38 +5,41 @@ import FormInput from "@/components/form/FormInput";
 import { SubmitButton } from "@/components/form/Buttons";
 import FormContainer from "@/components/form/FormContainer";
 import Select from "react-select";
-import { createMemberAction } from "@/utils/actions";
-import React, { useState } from "react";
+import { createMemberAction, validateReferalCode } from "@/utils/actions";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "next-themes";
+import { CitizenshipOption, CreateMemberFormProps, RegistrationDetails } from "@/utils/types";
+import { Card, CardTitle } from "../ui/card";
+import { formatCurrency } from "@/utils/format";
+import { Separator } from '@/components/ui/separator';
+import { useProperty } from "@/utils/store";
+import { calculateRegistrationFee } from "@/utils/calculateTotals";
 
-type CitizenshipOption = {
-	value: string;
-	label: string;
-};
 
-interface CreateMemberFormProps {
-	profile: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-	};
-	citizenshipOptions: CitizenshipOption[];
-}
 
 export default function CreateMemberForm({
 	profile,
 	citizenshipOptions,
 }: CreateMemberFormProps) {
-	const { theme } = useTheme();
+	let errorMessage = '';
 
+	const { theme } = useTheme();
 	const [birthDate, setBirthDate] = useState<Date | null>(null);
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
-	const [refCode, setRefCode] = useState<string>("");
+	const [isReferralValid, setIsReferralValid] = useState(false);
+	const [refCode, setRefCode] = useState('');
+    const [referalCode, setReferalCode] = useState('');
+
+	const [totals, setTotals] = useState<RegistrationDetails>({
+		subTotal: 0,
+		tax: 0,
+		discount: 0,
+		orderTotal: 0,
+	  });
 
 	const darkModeStyles = {
 		input: "dark:bg-black dark:border-gray-700 dark:text-white",
@@ -75,6 +78,37 @@ export default function CreateMemberForm({
 		},
 	};
 
+	const handleApplyReferralCode = () => {
+		//validate referalCode
+		validateReferalCode(refCode)
+		.then((isValid) => {
+		  if (isValid) {
+			setIsReferralValid(true);
+			useProperty.setState({ referalCode : refCode});
+			setReferalCode(refCode);
+		  } else {
+			setIsReferralValid(false);
+			useProperty.setState({ referalCode : ''});
+			setReferalCode('');
+			throw new Error('Invalid referral code');
+		  }
+		})
+		.catch((error) => {
+		  console.error('Error validating referral code:', error);
+		});
+	  };
+
+	useEffect(() => {
+		try {
+			const newTotals = calculateRegistrationFee(
+				referalCode,
+			);
+			setTotals(newTotals);
+		} catch (error) {
+			errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
+		}
+	}, [referalCode]);
+
 	return (
 		<section className="max-w-3xl mx-auto p-4">
 			<h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
@@ -86,9 +120,8 @@ export default function CreateMemberForm({
 						formData.append("citizen", citizen?.value || "");
 						formData.append(
 							"birthDate",
-							birthDate ? birthDate.toISOString() : ""
+							birthDate ? birthDate.toLocaleDateString('en-CA') : ""
 						);
-						console.log(birthDate?.toISOString());
 						formData.set("referalCode", refCode);
 
 						// Pass the updated formData to the action
@@ -210,17 +243,38 @@ export default function CreateMemberForm({
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
-						<div className="form-group">
-							<input
-								type="text"
-								id="referalCode"
-								name="referalCode"
-								value={refCode}
-								onChange={(e) => setRefCode(e.target.value)}
-								className={`w-full px-4 py-2 rounded-lg ${darkModeStyles.input}`}
-								placeholder="Enter referral code (Optional)"
-							/>
-						</div>
+						<Card className='p-8 mb-4'>
+							<CardTitle className='mb-8'>Registration Fee Summary </CardTitle>
+							<FormRow label='Registration Fee' amount={totals.subTotal} />
+							<FormRow label='Tax' amount={totals.tax} />
+
+							<div className="mt-4 mb-4">
+								<div className="flex items-center">
+									<input
+									type="text"
+									id="referalCode"
+									name="referalCode"
+									value={refCode}
+									onChange={(e) => setRefCode(e.target.value)}
+									className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+									placeholder="Enter referal code"
+									/>
+									<button
+									type="button"
+									onClick={handleApplyReferralCode}
+									className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+									>
+									Apply
+									</button>
+								</div>
+							</div>
+
+							{isReferralValid && <FormRow label="Discount" amount={totals.discount} />}
+							<Separator className='mt-4' />
+							<CardTitle className='mt-8'>
+								<FormRow label='Booking Total' amount={totals.orderTotal} />
+							</CardTitle>
+						</Card>
 					</div>
 					<SubmitButton
 						text="Register Now"
@@ -230,4 +284,13 @@ export default function CreateMemberForm({
 			</div>
 		</section>
 	);
+}
+
+function FormRow({ label, amount }: { label: string; amount: number }) {
+    return (
+        <p className='flex justify-between text-sm mb-2'>
+            <span>{label}</span>
+            <span>{formatCurrency(amount)}</span>
+        </p>
+    );
 }

@@ -1,5 +1,4 @@
-import { Copy, Share2 } from "lucide-react";
-import { fetchProfile, fetchMember, fetchRewards } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchBookingCommissionTransaction } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import ReferralCommission from "@/components/member/ReferralCommission";
 
@@ -13,8 +12,10 @@ export default async function ReferralComPage() {
 	if (member === null) {
 		redirect('/member/create');
 	}
-	
+
+	const bookingCommissionDetails = await fetchBookingCommissionTransaction(member.memberId);
+
 	return (
-		<ReferralCommission member={member} />
+		<ReferralCommission member={member} bookingCommissionDetails={bookingCommissionDetails} />
 	);
 }

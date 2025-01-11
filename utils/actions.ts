@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { uploadImage } from './supabase';
 import { calculateTotals } from './calculateTotals';
 import { formatDate } from './format';
+import { RegistrationDetails } from './types';
 
 const getAuthUser = async () => {
     const user = await currentUser()
@@ -63,30 +64,27 @@ export const createProfileAction = async (
 };
 
 
-// export const fetchProfileImage = async () => {
-//   const user = await currentUser()
-//   if (!user) return null
-//     const profile = await db.profile.findUnique({
-//     where: {
-//       clerkId: user.id,
-//     },
-//     select: {
-//       profileImage: true,
-//     },
-//     });
-//   return profile?.profileImage;
-// };
+export const fetchProfileImage = async () => {
+  const user = await currentUser()
+  if (!user) return null
+    const profile = await db.profile.findUnique({
+    where: {
+      clerkId: user.id,
+    }
+    });
+  return profile?.profileImage;
+};
 
-// export const fetchProfile = async () => {
-//     const user = await getAuthUser();
-//     const profile = await db.profile.findUnique({
-//     where: {
-//       clerkId: user.id,
-//     },
-//     });
-//   if (!profile) return null;
-//     return profile;
-// };
+export const fetchProfile = async () => {
+    const user = await getAuthUser();
+    const profile = await db.profile.findUnique({
+    where: {
+      clerkId: user.id,
+    },
+    });
+  if (!profile) return null;
+    return profile;
+};
 
 export const updateProfileAction = async (
   prevState: any,
@@ -396,35 +394,41 @@ export const createBookingAction = async (prevState: {
   checkOut: Date;
   referalCode: string;
 }) => {
-  
-  const user = await getAuthUser()
-  await db.booking.deleteMany({
-    where: {
-      profileId: user.id,
-      paymentStatus: false,
-    },
-  });
 
   let bookingId: null | string = null;
-  const { propertyId, checkIn, checkOut, referalCode } = prevState
-  const property = await db.property.findUnique({
-    where: { id: propertyId }, select: { price: true },
-  });
-  
-  if (!property) {
-    return { message: 'Property not found' }
-  }
-  if(!await validateReferalCode(referalCode)){
-    return { message: 'Referal code not valid' };
-  }
-  const { orderTotal, totalNights, discount } = calculateTotals({
-    checkIn, checkOut, price: property.price, referalCode
-  });
 
   try {
+    const profile = await fetchProfile();
+
+    if (!profile) {
+      return renderError('Profile not found');
+    }
+
+    await db.booking.deleteMany({
+      where: {
+        profileId: profile?.clerkId,
+        paymentStatus: false,
+      },
+    });
+
+    const { propertyId, checkIn, checkOut, referalCode } = prevState
+    const property = await db.property.findUnique({
+      where: { id: propertyId }, select: { price: true },
+    });
+    
+    if (!property) {
+      return { message: 'Property not found' }
+    }
+    if(!await validateReferalCode(referalCode)){
+      return { message: 'Referal code not valid' };
+    }
+    const { orderTotal, totalNights, discount } = calculateTotals({
+      checkIn, checkOut, price: property.price, referalCode
+    });
+
     const booking = await db.booking.create({
       data: {
-        checkIn, checkOut, orderTotal, totalNights, profileId: user.id, propertyId
+        checkIn, checkOut, orderTotal, totalNights, profileId: profile?.clerkId, propertyId
       }
     })
     bookingId = booking.id;
@@ -437,7 +441,7 @@ export const createBookingAction = async (prevState: {
       //buat bookingCommissionTransaction dengan referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
         data:{
-          profileId : user.id,
+          profileId : profile?.clerkId,
           bookingId : booking.id,
           commission : commission,
           referalCode : referalCode
@@ -450,14 +454,11 @@ export const createBookingAction = async (prevState: {
       //buat bookingCommissionTransaction tanpa referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
         data:{
-          profileId : user.id,
+          profileId : profile?.clerkId,
           bookingId : booking.id
         }
       })
     }
-    
-
-    
   } catch (error) {
     return renderError(error);
   }
@@ -465,10 +466,10 @@ export const createBookingAction = async (prevState: {
 };
 
 export const fetchBookings = async () => {
-  const user = await getAuthUser();
+  const profile = await fetchProfile();
   const bookings = await db.booking.findMany({
     where: {
-      profileId: user.id,
+      profileId: profile?.clerkId,
       paymentStatus: true,
     },
     include: {
@@ -997,15 +998,17 @@ export const createMemberAction = async (
   prevState: any,
   formData: FormData
 ): Promise<{ message: string }> => {
-  const user = await getAuthUser();
-  console.log(formData);
-  
+  const profile = await fetchProfile();
+
+  if (!profile) {
+    return renderError('Profile not found');
+  }
+
   try {
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const citizen = formData.get('citizen') as string;
-    const dob = formData.get('dateBirth') as string;
     const phone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const gender = formData.get('gender') as string;
@@ -1013,24 +1016,26 @@ export const createMemberAction = async (
     const bankAccNum = formData.get('bankAccNum') as string;
     const bankAccName = formData.get('bankAccName') as string;
     const referalCode = formData.get('referalCode') as string; //parentId
+    const dob = formData.get('birthDate') as string;
+    const formattedDate = dob.slice(0, 10);
 
-    const tier = await fetchTier('Tier 1');
+    const tier = await fetchTierByName('Tier 1');
     const memberId = await generateUniqueMemberId();
 
     // cek referalCode
-    if(referalCode && !await validateReferalCode(referalCode)){
+    if(referalCode.length > 0 && !await validateReferalCode(referalCode)){
       throw new Error("Invalid referral code");
     }
 
     // cek if member already exist
-    if(await fetchMember(user.id)){
+    if(await fetchMember(profile?.clerkId)){
       throw new Error("Member already exist");
     }
 
     await db.member.create({
       data: {
         memberId: memberId,
-        profileId: user.id,
+        profileId: profile?.clerkId,
         parentId: referalCode,
         tierId: tier?.id == null? '' : tier.id
       },
@@ -1038,14 +1043,14 @@ export const createMemberAction = async (
 
     await db.profile.update({
       where: {
-        clerkId: user.id,
+        clerkId: profile?.clerkId,
       },
       data: {
         firstName: firstName,
         lastName: lastName,
         email: email,
         citizen: citizen,
-        dob: dob,
+        dob: formattedDate,
         phone: phone,
         address: address,
         gender: gender,
@@ -1055,6 +1060,9 @@ export const createMemberAction = async (
       },
     });
 
+    if(referalCode.length > 0){
+      await createMembershipCommissionTransaction(referalCode, profile?.clerkId);
+    }
   } catch (error) {
     return renderError(error);
   }
@@ -1108,34 +1116,37 @@ export const updateMemberAction = async (
   try {
     // const rawData = Object.fromEntries(formData);
     // const validatedFields = validateWithZodSchema(profileSchema, rawData);
-    console.log(formData);
-
+    
     const memberId = formData.get('memberId') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
     const address = formData.get('address') as string;
+    const citizen = formData.get('citizen') as string;
     const gender = formData.get('gender') as string;
     const bankName = formData.get('bankName') as string;
     const bankAccNum = formData.get('bankAccNum') as string;
     const bankAccName = formData.get('bankAccName') as string;
+    const dob = formData.get('birthDate') as string;
+    const formattedDate = dob.slice(0, 10);
 
     const member = await fetchMember(undefined,memberId);
-
-    // await db.profile.update({
-    //   where: {
-    //     id: member?.id,
-    //   },
-    //   // data: validatedFields,
-    //   data : {
-    //     email: email,
-    //     phone: phone,
-    //     address: address,
-    //     gender: gender,
-    //     bankName: bankName,
-    //     bankAccNum: bankAccNum,
-    //     bankAccName: bankAccName
-    //   }
-    // });
+    await db.profile.update({
+      where: {
+        clerkId: member?.profileId,
+      },
+      // data: validatedFields,
+      data : {
+        email: email,
+        phone: phone,
+        address: address,
+        dob: formattedDate,
+        citizen: citizen,
+        gender: gender,
+        bankName: bankName,
+        bankAccNum: bankAccNum,
+        bankAccName: bankAccName
+      }
+    });
     revalidatePath('/member/dashboard');
     return { message: 'Profile updated successfully' };
   } catch (error) {
@@ -1153,11 +1164,19 @@ export const fetchMember = async ( profileId?: string, memberId?: string) => {
 };
 
 export const validateReferalCode = async (referalCode: string): Promise<boolean> => {
+  const profile = await fetchProfile();
+
   const member = await db.member.findFirst({
     where: {
       memberId: referalCode,
     },
   });
+
+  // if(member != null){
+  //   if(member.profileId == profile?.clerkId){
+  //     return false;
+  //   }
+  // }
   if (!member || referalCode == '') return false;
   return true;
 };
@@ -1193,14 +1212,57 @@ export const updateMemberCommission = async ( memberId : string, commission : an
   }
 };
 
-export const fetchTier = async (tierName: string) => {
+export const fetchTierByName = async (tierName: string) => {
   return await db.tier.findFirst({
     where: {
       tierName: tierName,
     },
   });
 };
+
+export const fetchTierById = async ( id: string) => {
+  return await db.tier.findUnique({
+    where: {
+      id: id,
+    },
+  });
+};
+
+export const fetchDownline = async (memberId: string) => {
+  return await db.member.findMany({
+    where: {
+      parentId: memberId,
+    },
+  });
+};
 // END MEMBERSHIP
+
+export const fetchBookingCommissionTransaction = async (referalCode: string) => {
+  return await db.bookingCommissionTransaction.findMany({
+    where: {
+      referalCode: referalCode
+    },
+    select: {
+      id: true,
+      profileId: true,
+      bookingId: true,
+      referalCode: true,
+      commission: true,
+      createdAt: true,
+      booking: {
+        select: {
+          paymentStatus: true,
+        }
+      },
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+        }
+      }
+    },
+  });
+};
 
 // First, create a fetch function in your actions.ts
 export const fetchRewards = async () => {
@@ -1210,51 +1272,31 @@ export const fetchRewards = async () => {
     return rewards;
   } catch (error) {
     console.error('Error fetching rewards:', error);
-    return renderError(error);
+    return { message: 'Error fetching rewards' };
   }
 };
 
-//dummy method
-export const fetchProfile = async () => {
-  const profile = {
-    id: '2b4a7df0-66c5-4249-b39a-7a104d9c81c4',
-    clerkId: 'user_2rOhiEISnbBqTDgqMSXKByf5BAW',
-    firstName: 'test1',
-    lastName: 'test',
-    username: 'testing',
-    email: 'isaacgavinc@gmail.com',
-    profileImage: 'https://jjjefrzxvxvbaeibwiig.supabase.co/storage/v1/object/public/Property-Project/1735820574581-Screenshot%202024-11-12%20183507.png',
-    citizen: 'AL',
-    dob: null,
-    phone: '085159640550',
-    address: 'Apartment Belmont Residence, Meruya, Kebon Jeruk.',
-    gender: 'male',
-    bankName: 'BCA',
-    bankAccNum: '234234234234',
-    bankAccName: 'Test',
-  }
-if (!profile) return null;
-  return profile;
-};
 
-//dummy method
-export const fetchProfileImage = async () => {
-  const profile = {
-    id: '2b4a7df0-66c5-4249-b39a-7a104d9c81c4',
-    clerkId: 'user_2rOhiEISnbBqTDgqMSXKByf5BAW',
-    firstName: 'test1',
-    lastName: 'test',
-    username: 'testing',
-    email: 'isaacgavinc@gmail.com',
-    profileImage: 'https://jjjefrzxvxvbaeibwiig.supabase.co/storage/v1/object/public/Property-Project/1735820574581-Screenshot%202024-11-12%20183507.png',
-    citizen: 'AL',
-    dob: null,
-    phone: '085159640550',
-    address: 'Apartment Belmont Residence, Meruya, Kebon Jeruk.',
-    gender: 'male',
-    bankName: 'BCA',
-    bankAccNum: '234234234234',
-    bankAccName: 'Test',
-  }
-  return profile?.profileImage;
-};
+export const createMembershipCommissionTransaction = async (referalCode: string, clerkId: string) => {
+
+  let commission = 0;
+
+  commission = await calculateCommission();
+
+  await db.membershipCommissionTransaction.create({
+    data: {
+      profileId: clerkId,
+      commission: 100,
+      closerId: referalCode,
+      closerCommission: 100,
+      referalCode: referalCode,
+      paymentStatus: false,
+    },
+  });
+}
+
+function calculateCommission(): number {
+  
+}
+
+

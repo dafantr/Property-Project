@@ -23,7 +23,6 @@ function BookingForm() {
       orderTotal: 0,
     });
 
-
   const handleApplyReferralCode = () => {
     //validate referalCode
     validateReferalCode(refCode)
@@ -36,7 +35,7 @@ function BookingForm() {
         setIsReferralValid(false);
         useProperty.setState({ referalCode : ''});
         setReferalCode('');
-        console.log('referal code tidak ditemukan')
+        throw new Error('Invalid referral code');
       }
     })
     .catch((error) => {

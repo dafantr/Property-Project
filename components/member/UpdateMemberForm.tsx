@@ -10,36 +10,8 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "next-themes";
-
-type CitizenshipOption = {
-	value: string;
-	label: string;
-};
-
-interface UpdateMemberFormProps {
-	profile: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-        citizen?: string | null;
-        birthDate?: Date | null;
-        phone?: string | null;
-        address?: string | null;
-        gender?: string | null;
-        bankName?: string | null;
-        bankAccNum?: string | null;
-        bankAccName?: string | null;
-	};
-
-    member: {
-        id: string;
-        memberId: string;
-        isActive: number;
-    };
-
-	citizenshipOptions: CitizenshipOption[];
-}
+import { parse } from "date-fns";
+import { CitizenshipOption, UpdateMemberFormProps } from "@/utils/types";
 
 export default function UpdateMemberForm({
 	profile,
@@ -49,39 +21,47 @@ export default function UpdateMemberForm({
 	const { theme } = useTheme();
 
 	const [birthDate, setBirthDate] = useState<Date | null>(
-        profile?.birthDate ? new Date(profile.birthDate) : null
+		profile.dob ? parse(profile.dob, 'yyyy-MM-dd', new Date()) : null
     );
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
 
 	const darkModeStyles = {
-		input: "dark:bg-black dark:border-gray-700 dark:text-white",
-		label: "dark:text-white",
+		input: "dark:bg-zinc-800 dark:border-zinc-700 dark:text-white",
+		inputReadOnly: "bg-gray-50 dark:bg-zinc-900 cursor-not-allowed opacity-75",
+		label: "dark:text-gray-300",
 		select: {
 			control: (base: any) => ({   
 				...base,
-				backgroundColor: theme === "dark" ? "#000" : base.backgroundColor,
-				borderColor: theme === "dark" ? "#374151" : base.borderColor,
+				backgroundColor: theme === "dark" ? "#18181b" : base.backgroundColor, // zinc-900
+				borderColor: theme === "dark" ? "#3f3f46" : base.borderColor, // zinc-700
 				color: theme === "dark" ? "#fff" : base.color,
+				"&:hover": {
+					borderColor: theme === "dark" ? "#C4A777" : base.borderColor
+				}
 			}),
 			menu: (base: any) => ({
 				...base,
-				backgroundColor: theme === "dark" ? "#000" : base.backgroundColor,
+				backgroundColor: theme === "dark" ? "#18181b" : base.backgroundColor, // zinc-900
 			}),
 			option: (base: any, state: any) => ({
 				...base,
 				backgroundColor:
 					theme === "dark"
 						? state.isFocused
-							? "#1a1a1a"
-							: "#000"
+							? "#27272a" // zinc-800
+							: "#18181b" // zinc-900
 						: state.isFocused
-						? "#f3f4f6"
+						? "#f4f4f5" // zinc-100
 						: base.backgroundColor,
 				color: theme === "dark" ? "#fff" : "#000",
+				"&:hover": {
+					backgroundColor: theme === "dark" ? "#C4A777" : "#f4f4f5",
+					color: theme === "dark" ? "#fff" : "#000"
+				}
 			}),
-			singleValue: (base: any ) => ({
+			singleValue: (base: any) => ({
 				...base,
 				color: theme === "dark" ? "#fff" : "#000",
 			}),
@@ -91,21 +71,19 @@ export default function UpdateMemberForm({
 			}),
 		},
 	};
-
 	return (
 		<section className="max-w-3xl mx-auto p-4">
+			<div className="border dark:border-zinc-700 p-8 rounded-lg shadow-lg bg-white dark:bg-zinc-800">
 			<h1 className="text-3xl font-bold mb-8 dark:text-white">
 				Member Profile
 			</h1>
-			<div className="border dark:border-gray-700 p-8 rounded-lg shadow-lg bg-white dark:bg-black">
 				<FormContainer
 					action={async (prevState: any, formData: FormData) => {
 						formData.append("citizen", citizen?.value || "");
 						formData.append(
 							"birthDate",
-							birthDate ? birthDate.toISOString() : ""
+							birthDate ? birthDate.toLocaleDateString('en-CA') : ""
 						);
-						console.log(birthDate?.toISOString());
 						// Pass the updated formData to the action
 						return updateMemberAction(prevState, formData);
 					}}>
@@ -115,27 +93,27 @@ export default function UpdateMemberForm({
 							name="memberId"
 							defaultValue={member.memberId}
 							label="Member ID"
-							className={`${darkModeStyles.input} transition-colors`}
+							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
 							labelClassName={darkModeStyles.label}
-							disabled
+							readonly
 						/>
 						<FormInput
 							type="text"
 							name="membershipStatus"
 							defaultValue={member.isActive ? "Active" : "Inactive"}
 							label="Membership Status"
-							className={`${darkModeStyles.input} transition-colors`}
+							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
 							labelClassName={darkModeStyles.label}
-							disabled
+							readonly
 						/>
 						<FormInput
 							type="text"
 							name="fullName"
 							defaultValue={profile.firstName + " " + profile.lastName}
 							label="Full Name"
-							className={`${darkModeStyles.input} transition-colors`}
+							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
 							labelClassName={darkModeStyles.label}
-							disabled
+							readonly
 						/>
 
 						<div className="form-group">
@@ -149,7 +127,7 @@ export default function UpdateMemberForm({
 								options={citizenshipOptions}
 								onChange={(option) => setSelectedCitizen(option)}
 								placeholder="Select your citizenship"
-								className="w-full"
+								className="w-full dark:bg-zinc-800 dark:border-zinc-700"
 								defaultValue={citizenshipOptions.find(option => option.value === profile.citizen)}
 								styles={darkModeStyles.select}
 								required
@@ -171,8 +149,8 @@ export default function UpdateMemberForm({
 								scrollableYearDropdown
 								yearDropdownItemNumber={100}
 								dateFormat="yyyy-MM-dd"
-								placeholderText="Select your birth date"
-								className={`w-full px-4 py-2 rounded-lg border dark:bg-black dark:border-gray-700 dark:text-white dark:placeholder-gray-400`}
+								placeholderText="SeleNct your birth date"
+								className={`w-full px-4 py-2 rounded-lg border dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:placeholder-gray-400`}
 								required
 							/>
 						</div>
@@ -181,6 +159,7 @@ export default function UpdateMemberForm({
 							type="tel"
 							name="address"
 							label="Address"
+							defaultValue={profile.address || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -193,7 +172,7 @@ export default function UpdateMemberForm({
 							<select
 								id="gender"
 								name="gender"
-								className={`w-full px-4 py-2 rounded-lg border dark:bg-black dark:border-gray-700 dark:text-white`}
+								className={`w-full px-4 py-2 rounded-lg border dark:bg-zinc-800 dark:border-zinc-700 dark:text-white`}
                                 defaultValue={profile.gender || ''}
 								required>
 								<option value="">Select Gender</option>
@@ -206,13 +185,15 @@ export default function UpdateMemberForm({
 							type="text"
 							name="email"
 							label="Email"
+							defaultValue={profile.email || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
                         <FormInput
 							type="text"
-							name="phoneNumber"
+							name="phone"
 							label="Phone Number"
+							defaultValue={profile.phone || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -220,6 +201,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankName"
 							label="Bank Name"
+							defaultValue={profile.bankName || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -227,6 +209,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankAccNum"
 							label="Bank Account Number"
+							defaultValue={profile.bankAccNum || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -234,13 +217,14 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankAccName"
 							label="Bank Account Name"
+							defaultValue={profile.bankAccName || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
 					</div>
 					<SubmitButton
 						text="Apply Changes"
-						className="mt-8 w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg transition-colors"
+						className="mt-8 w-full bg-[#C4A777] hover:bg-[#B39665] text-white py-3 rounded-lg transition-colors"
 					/>
 				</FormContainer>
 			</div>

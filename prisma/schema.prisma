@@ -161,7 +161,7 @@ model BookingCommissionTransaction {
 
 model MembershipCommissionTransaction {
   id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   commission   Float     @default(0)
   closerId     String
