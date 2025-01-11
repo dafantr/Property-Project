@@ -1,6 +1,6 @@
 'use server';
 
-import { createReviewSchema, imageSchema, profileSchema, propertySchema, validateWithZodSchema } from './schemas';
+import { createReviewSchema, imageSchema, profileSchema, promotionSchema, propertySchema, validateWithZodSchema } from './schemas';
 import db from './db';
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -22,7 +22,9 @@ const getAuthUser = async () => {
 
 const getAdminUser = async () => {
   const user = await getAuthUser();
-  if (user.id !== process.env.ADMIN_USER_ID) redirect('/');
+  if (user.id !== process.env.ADMIN_USER_ID) {
+    redirect('/');
+  }
   return user;
 };
 
@@ -777,11 +779,7 @@ export const fetchFiveStarReviews = async () => {
 };
 
 export const fetchGalleries = async () => {
-  const user = await getAuthUser();
   const galleries = await db.gallery.findMany({
-    // where: {
-    //   profileId: user.id,
-    // },
     select: {
       id: true,
       title: true,
@@ -848,15 +846,12 @@ export async function deleteGaleryAction(prevState: { galeryId: string }) {
 }
 
 export const fetchPromotions = async () => {
-  const user = await getAuthUser();
   const promotions = await db.promotion.findMany({
-    // where: {
-    //   profileId: user.id,
-    // },
     select: {
       id: true,
       title: true,
       subtitle: true,
+      category: true,
       description: true,
       media: true,
       createdAt: true
@@ -880,9 +875,10 @@ export const createPromotionAction = async (
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
   try {
-    const title = formData.get('title') as string;
-    const subtitle = formData.get('subtitle') as string;
-    const description = formData.get('description') as string;
+    const title = formData.get('title') as String;
+    const subtitle = formData.get('subtitle') as String;
+    const category = formData.get('exclusive') as String;
+    const description = formData.get('description') as String;
     const file = formData.get('image') as File;
 
     // const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -894,6 +890,7 @@ export const createPromotionAction = async (
         title: title,
         subtitle: subtitle,
         description: description,
+        category: category,
         media: fullPath,
         profileId: user.id,
       },
@@ -905,33 +902,37 @@ export const createPromotionAction = async (
 };
 
 export async function deletePromotionAction(prevState: { promotionId: string }) {
-  const { promotionId } = prevState; // `id` corresponds to MongoDB `_id` via Prisma
-
-  const user = await getAuthUser(); // Ensure user is authenticated
-
   try {
+    await getAdminUser(); // This will redirect if not admin
+
     await db.promotion.delete({
       where: {
-        id : promotionId, // Prisma maps `id` to MongoDB `_id`
+        id: prevState.promotionId,
       },
     });
 
-    revalidatePath('/promotions'); // Revalidate gallery page
-    return { message: 'Promotion deleted successfully' };
+    revalidatePath('/promotions');
+    redirect('/promotions');
   } catch (error) {
-    console.error('Error deleting promotion:', error); // Debug error
-    return renderError(error); // Handle errors gracefully
+    return renderError(error);
   }
 }
 
+export async function fetchPromotionDetails(promotionId: string) {
+  const user = await getAdminUser();
+  
+  const promotion = await db.promotion.findUnique({
+    where: {
+      id: promotionId,
+    },
+  });
+  return promotion;
+};
 
-export const fetchPromotionDetails = async (promotionId: string) => {
-  const user = await getAuthUser();
-
+export const fetchPromotionDetailsPublic = async (promotionId: string) => {
   return db.promotion.findUnique({
     where: {
       id: promotionId,
-      profileId: user.id,
     },
   });
 };
@@ -944,8 +945,11 @@ export const updatePromotionAction = async (
   const promotionId = formData.get('id') as string;
 
   try {
+    //console.log("FormData received:", Object.fromEntries(formData));
     const rawData = Object.fromEntries(formData);
+    //console.log("test raw data : ", rawData);
     const validatedFields = validateWithZodSchema(promotionSchema, rawData);
+    //console.log("Validated fields:", validatedFields);
     await db.promotion.update({
       where: {
         id: promotionId,
@@ -957,7 +961,6 @@ export const updatePromotionAction = async (
     });
 
     revalidatePath(`/promotions/${promotionId}/edit`);
-    // revalidatePath('/promotions'); // Revalidate gallery page
     return { message: 'Update Successful' };
   } catch (error) {
     return renderError(error);
@@ -1299,4 +1302,4 @@ function calculateCommission(): number {
   
 }
 
-
+export { getAdminUser };

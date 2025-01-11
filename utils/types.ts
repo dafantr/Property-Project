@@ -25,6 +25,14 @@ export type PropertyCardProps = {
     checkOut: Date;
   };
 
+  export type ExclusiveCardProps = {
+    image: string;
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+  };
+
   export type tier = {
     id: string;
     tierName: string;

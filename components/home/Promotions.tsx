@@ -3,20 +3,31 @@ import { useState, useEffect } from 'react';
 import { fetchPromotions } from '@/utils/actions';
 import Link from 'next/link';
 import Image from 'next/image';
+import { exclusiveCategories } from '@/utils/exclusiveCategories';
 
-const Promotions = () => {
+const Promotions = ({ exclusiveCategory }: { exclusiveCategory?: string }) => {
     const [promotions, setPromotions] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
+            // Fetch all promotions first
             const data = await fetchPromotions();
+
+            // If a category is provided, filter promotions by category
+            const filteredPromotions = exclusiveCategory
+                ? data.filter((promotion) => promotion.category === exclusiveCategory)
+                : data;
+
             // Sort promotions by 'createdAt' field (newest first)
-            const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const sortedData = filteredPromotions.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+
             setPromotions(sortedData);
         };
 
         fetchData();
-    }, []); // Empty dependency array ensures this runs once on mount
+    }, [exclusiveCategory]); // Re-fetch promotions whenever the exclusiveCategory changes
 
     return (
         <div className="mt-5 mb-5">

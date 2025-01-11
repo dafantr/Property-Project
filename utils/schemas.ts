@@ -109,3 +109,32 @@ export const createReviewSchema = z.object({
   rating: z.coerce.number().int().min(1).max(5),
   comment: z.string().min(10).max(1000),
 });
+
+export const promotionSchema = z.object({
+  title: z
+    .string()
+    .min(2, {
+      message: 'name must be at least 2 characters.',
+    })
+    .max(50, {
+      message: 'name must be less than 50 characters.',
+    }),
+  category: z.string(),
+  subtitle: z
+    .string()
+    .min(2, {
+      message: 'name must be at least 2 characters.',
+    })
+    .max(100, {
+      message: 'name must be less than 100 characters.',
+    }),
+  description: z.string().refine(
+    (description) => {
+      const wordCount = description.split(' ').length;
+      return wordCount >= 10 && wordCount <= 1000;
+    },
+    {
+      message: 'description must be between 10 and 1000 words.',
+    }
+  )
+});

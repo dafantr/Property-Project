@@ -39,14 +39,15 @@ async function ExclusiveHighlighPage() {
             <TableHead className="bg-orange-500 text-white rounded-tl-lg">Media</TableHead>
             <TableHead className="bg-orange-500 text-white">Title</TableHead>
             <TableHead className="bg-orange-500 text-white">Subtitle</TableHead>
+            <TableHead className="bg-orange-500 text-white">Category</TableHead>
             <TableHead className="bg-orange-500 text-white rounded-tr-lg">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {promotions.map((promotion) => {
-            const { id, title, media } = promotion;
+            const { id: id, title, media } = promotion;
             return (
-              <TableRow key={id}>
+              <TableRow key={promotion.id}>
                 <TableCell>
                   <img
                     src={media}
@@ -54,13 +55,14 @@ async function ExclusiveHighlighPage() {
                     style={{ width: '200px', height: '200px', objectFit: 'cover' }}
                   />
                 </TableCell>
-                <TableCell>{title}</TableCell>
+                <TableCell>{promotion.title}</TableCell>
                 <TableCell>{promotion.subtitle}</TableCell>
+                <TableCell>{promotion.category}</TableCell>
                 <TableCell className="flex items-center gap-x-2">
-                  <Link href={`/promotions/${id}/edit`}>
+                  <Link href={`/promotions/${promotion.id}/edit`}>
                     <IconButton actionType="edit" />
                   </Link>
-                  <DeletePromotion promotionId={id} />
+                  <DeletePromotion promotionId={promotion.id} />
                 </TableCell>
               </TableRow>
             );
@@ -71,13 +73,12 @@ async function ExclusiveHighlighPage() {
   );
 }
 
-
 function DeletePromotion({ promotionId }: { promotionId: string }) {
   const deletePromotion = deletePromotionAction.bind(null, { promotionId });
   return (
-    <FormContainer action={deletePromotion}>
-      <IconButton actionType='delete' />
-    </FormContainer>
+    <form action={deletePromotion}>
+      <IconButton type="submit" actionType="delete" />
+    </form>
   );
 }
 
