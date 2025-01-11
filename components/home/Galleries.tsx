@@ -1,8 +1,6 @@
 'use client'; // Required for client-side rendering
 import { useState, useEffect } from 'react';
 import { fetchGalleries } from '@/utils/actions';
-import Masonry from 'react-masonry-css';
-import styles from '../home/styles/Gallery.module.css';
 
 const Galleries = () => {
     const [galleries, setGalleries] = useState([]);
@@ -11,52 +9,73 @@ const Galleries = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchGalleries();
-            // Assuming the galleries have a 'createdAt' field to sort by
             const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             setGalleries(sortedData);
         };
 
         fetchData();
-    }, []); // Empty dependency array ensures this runs once on mount
+    }, []);
 
     const closeModal = () => setSelectedImage(null);
+
+    // Function to handle background click (close modal)
+    const handleBackgroundClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            closeModal();
+        }
+    };
 
     return (
         <div className="mt-5 mb-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
                 {galleries.slice(0, 4).map((gallery) => (
-                    <img
-                        key={gallery.id}
-                        src={gallery.media}
-                        alt={gallery.title}
-                        className="w-full h-52 object-cover rounded-md shadow-lg cursor-pointer"
-                        onClick={() => setSelectedImage(gallery)}
-                    />
+                    <div className="group">
+                        <img
+                            key={gallery.id}
+                            src={gallery.media}
+                            alt={gallery.title}
+                            className="w-full h-52 object-cover rounded-md shadow-lg cursor-pointer transform group-hover:scale-110 transition-transform duration-500"
+                            onClick={() => setSelectedImage(gallery)}
+                        />
+                    </div>
+
                 ))}
             </div>
 
             {/* Modal for viewing image */}
             {selectedImage && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+                    onClick={handleBackgroundClick} // Handle background click
+                >
+                    {/* Image Container */}
                     <div className="relative">
-                        {/* Close button */}
+                        {/* Close Button (X) */}
                         <button
                             onClick={closeModal}
-                            className="absolute top-2 right-2 text-white bg-red-500 rounded-full p-2 hover:bg-red-600"
+                            className="absolute top-0 right-0 text-white hover:text-gray-300 text-3xl font-bold"
+                            style={{ cursor: 'pointer' }}
                         >
-                            &times;
+                            ✕
                         </button>
 
-                        {/* Image */}
-                        <img
-                            src={selectedImage.media}
-                            alt={selectedImage.title}
-                            className="max-w-full max-h-screen rounded-lg"
-                        />
+                        {/* Display Image in Original Size */}
+                        <div className="flex justify-center">
+                            <img
+                                src={selectedImage.media}
+                                alt={selectedImage.title}
+                                className="rounded-lg"
+                                style={{
+                                    maxWidth: '90%',
+                                    maxHeight: '90%',
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
 
+            {/* View More button */}
             <div className="flex justify-end mt-4 px-4">
                 <a
                     href="/gallery/more"

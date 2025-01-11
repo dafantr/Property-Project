@@ -44,23 +44,38 @@ const GalleriesMore = () => {
                     />
                 </div>
             ))}
+
+            {/* Modal for Viewing Image */}
             {selectedImage && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-                    <div className="relative">
-                        {/* Close button */}
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+                    onClick={closeModal}  // Close modal when clicking on the background
+                >
+                    <div
+                        className="relative"
+                        onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside the modal
+                    >
+                        {/* Close Button (X) */}
                         <button
                             onClick={closeModal}
-                            className="absolute top-2 right-2 text-white bg-red-500 rounded-full p-2 hover:bg-red-600"
+                            className="absolute top-0 right-0 text-white hover:text-gray-300 text-3xl font-bold"
+                            style={{ cursor: 'pointer', marginRight: '10px', marginTop: '10px' }}
                         >
-                            &times;
+                            ✕
                         </button>
 
                         {/* Image */}
-                        <img
-                            src={selectedImage.media}
-                            alt={selectedImage.title}
-                            className="max-w-full max-h-screen rounded-lg"
-                        />
+                        <div className="flex justify-center">
+                            <img
+                                src={selectedImage.media}
+                                alt={selectedImage.title}
+                                className="rounded-lg"
+                                style={{
+                                    maxWidth: '90%',
+                                    maxHeight: '90%',
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}

@@ -10,15 +10,27 @@ import { BiBookOpen } from 'react-icons/bi';
 
 type ExclusiveCategory = {
   label: CategoryLabel;
+  url: PromotionURL;
   icon: IconType;
 };
+
+export type PromotionURL =
+  | 'promotions'
+  | 'dining'
+  | 'exclusive-services'
+  | 'exclusive-offers'
+  | 'romantic-events'
+  | 'experiences'
+  | 'festive'
+  | 'blog';
+
 
 export type CategoryLabel =
   | 'promotions'
   | 'dining'
-  | 'exclusive services'
-  | 'exclusive offers'
-  | 'romantic events'
+  | 'exclusive-services'
+  | 'exclusive-offers'
+  | 'romantic-events'
   | 'experiences'
   | 'festive'
   | 'blog';
@@ -26,34 +38,42 @@ export type CategoryLabel =
 export const exclusiveCategories: ExclusiveCategory[] = [
   {
     label: 'promotions',
+    url: 'promotions',
     icon: FiTag,
   },
   {
-    label: 'dining',
+    label: 'dining', 
+    url: 'dining',
     icon: MdRestaurantMenu,
   },
   {
-    label: 'exclusive services',
+    label: 'exclusive-services',
+    url: 'exclusive-services',
     icon: FaConciergeBell,
   },
   {
-    label: 'exclusive offers',
+    label: 'exclusive-offers',
+    url: 'exclusive-offers',
     icon: RiCoupon3Line,
   },
   {
-    label: 'romantic events',
+    label: 'romantic-events',
+    url: 'romantic-events',
     icon: AiOutlineHeart,
   },
   {
     label: 'experiences',
+    url: 'experiences',
     icon: IoIosGlobe,
   },
   {
     label: 'festive',
+    url: 'festive',
     icon: GiPartyPopper,
   },
   {
     label: 'blog',
+    url: 'blog',
     icon: BiBookOpen,
   },
 ];

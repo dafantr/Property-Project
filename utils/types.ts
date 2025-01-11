@@ -22,3 +22,11 @@ export type PropertyCardProps = {
     checkIn: Date;
     checkOut: Date;
   };
+
+  export type ExclusiveCardProps = {
+    image: string;
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+  };

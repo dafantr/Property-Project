@@ -13,11 +13,12 @@ import ContactUs from '@/components/contactus/ContactUs';
 import Galleries from '@/components/home/Galleries';
 import Promotions from '@/components/home/Promotions';
 import ExclusiveList from '@/components/home/ExclusiveList';
+import ExclusiveContainer from '@/components/home/ExclusiveContainer';
 
 function HomePage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string };
+  searchParams: { category?: string; search?: string; exclusive?: string; };
 }) {
   return (
     <section>
@@ -57,8 +58,12 @@ function HomePage({
           heading="Exclusive Highlights"
           paragraph="Discover the exceptional moments and unique offerings that make your experience with us truly unforgettable. From personalized services to once-in-a-lifetime events, explore what sets us apart and elevates your stay to something extraordinary."
         />
-        <ExclusiveList />
-        <Promotions />
+        <ExclusiveList
+          exclusive={searchParams?.exclusive}
+        />
+        <ExclusiveContainer
+          exclusive={searchParams?.exclusive}
+        />
       </div>
       <div id="testimony">
         <TestimonialCard />

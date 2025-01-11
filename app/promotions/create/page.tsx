@@ -4,7 +4,7 @@ import FormContainer from '@/components/form/FormContainer';
 import { createPromotionAction } from '@/utils/actions';
 import { SubmitButton } from '@/components/form/Buttons';
 import ImageInput from '@/components/form/ImageInput';
-//import ExlucisveTypeInput from '@/components/form/ExlucisveTypeInput';
+import ExlucisveTypeInput from '@/components/form/ExlucisveTypeInput';
 function CreatePromotionPage() {
   return (
     <section>
@@ -32,7 +32,7 @@ function CreatePromotionPage() {
               name='description'
               labelText='Description (10 - 1000 words)'
             />
-            {/* <ExlucisveTypeInput /> */}
+            <ExlucisveTypeInput />
             <ImageInput />
           </div>
           <SubmitButton text='create Exclusive Highlight' className='mt-5' />

@@ -102,7 +102,7 @@ model Promotion {
   id          String   @id @default(uuid()) @map("_id")
   title       String
   subtitle    String
-  //category    String
+  category    String
   description String
   profileId   String
   media       String

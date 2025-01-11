@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/select';
 import { exclusiveCategories } from '@/utils/exclusiveCategories';
 
-const name = 'category';
+const name = 'exclusive';
 function ExlusiveTypeInput({ defaultValue }: { defaultValue?: string }) {
   return (
     <div className='mb-2'>
@@ -26,7 +26,7 @@ function ExlusiveTypeInput({ defaultValue }: { defaultValue?: string }) {
         <SelectContent>
           {exclusiveCategories.map((item) => {
             return (
-              <SelectItem key={item.label} value={item.label}>
+              <SelectItem key={item.url} value={item.url}>
                 <span className='flex items-center gap-2'>
                   <item.icon /> {item.label}
                 </span>
