@@ -32,7 +32,7 @@ async function ProfilePage() {
 
   const member = await fetchMember(profile.clerkId);
 
-  if(member === null) redirect ("/member/create");
+  if(member === null || member.isActive === 0) redirect ("/member/create");
 
   const citizenshipOptions = await fetchCitizenshipOptions();
 

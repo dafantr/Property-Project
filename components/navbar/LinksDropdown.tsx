@@ -185,8 +185,16 @@ async function LinksDropdown() {
 									link.label
 								);
 
-								if (isMemberPage && isMember === null) return null;
-								if (isNonMemberPage && isMember !== null) return null;
+								if (isMemberPage) {
+									if (isMember === null) {
+										return null;
+									} else {
+										if (isMember.isActive === 0) {
+											return null;
+										}
+									}
+								}
+								if (isNonMemberPage && isMember !== null && isMember.isActive === 1) return null;
 
 								return (
 									<DropdownMenuItem key={link.href}>

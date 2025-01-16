@@ -17,29 +17,28 @@ import { Separator } from '@/components/ui/separator';
 import { useProperty } from "@/utils/store";
 import { calculateRegistrationFee } from "@/utils/calculateTotals";
 
-
-
 export default function CreateMemberForm({
 	profile,
 	citizenshipOptions,
 }: CreateMemberFormProps) {
-	let errorMessage = '';
-
 	const { theme } = useTheme();
 	const [birthDate, setBirthDate] = useState<Date | null>(null);
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
-	const [isReferralValid, setIsReferralValid] = useState(false);
 	const [refCode, setRefCode] = useState('');
-    const [referalCode, setReferalCode] = useState('');
 
 	const [totals, setTotals] = useState<RegistrationDetails>({
 		subTotal: 0,
 		tax: 0,
-		discount: 0,
 		orderTotal: 0,
 	  });
+
+	  useEffect(() => {
+		calculateRegistrationFee().then((totals) => {
+			setTotals(totals);
+		});
+	  }, []);
 
 	const darkModeStyles = {
 		input: "dark:bg-black dark:border-gray-700 dark:text-white",
@@ -83,14 +82,9 @@ export default function CreateMemberForm({
 		validateReferalCode(refCode)
 		.then((isValid) => {
 		  if (isValid) {
-			setIsReferralValid(true);
 			useProperty.setState({ referalCode : refCode});
-			setReferalCode(refCode);
 		  } else {
-			setIsReferralValid(false);
 			useProperty.setState({ referalCode : ''});
-			setReferalCode('');
-			throw new Error('Invalid referral code');
 		  }
 		})
 		.catch((error) => {
@@ -98,16 +92,7 @@ export default function CreateMemberForm({
 		});
 	  };
 
-	useEffect(() => {
-		try {
-			const newTotals = calculateRegistrationFee(
-				referalCode,
-			);
-			setTotals(newTotals);
-		} catch (error) {
-			errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-		}
-	}, [referalCode]);
+	
 
 	return (
 		<section className="max-w-3xl mx-auto p-4">
@@ -123,6 +108,8 @@ export default function CreateMemberForm({
 							birthDate ? birthDate.toLocaleDateString('en-CA') : ""
 						);
 						formData.set("referalCode", refCode);
+						// formData.set("closerCode", closerCode);
+						formData.set("totalPrice", totals.orderTotal.toString());
 
 						// Pass the updated formData to the action
 						return createMemberAction(prevState, formData);
@@ -161,6 +148,7 @@ export default function CreateMemberForm({
 							</label>
 							<Select
 								id="citizen"
+								name="citizen"
 								options={citizenshipOptions}
 								onChange={(option) => setSelectedCitizen(option)}
 								placeholder="Select your citizenship"
@@ -178,6 +166,7 @@ export default function CreateMemberForm({
 							</label>
 							<DatePicker
 								id="birthDate"
+								name="birthDate"
 								selected={birthDate}
 								onChange={(date) => setBirthDate(date)}
 								maxDate={new Date()}
@@ -268,8 +257,6 @@ export default function CreateMemberForm({
 									</button>
 								</div>
 							</div>
-
-							{isReferralValid && <FormRow label="Discount" amount={totals.discount} />}
 							<Separator className='mt-4' />
 							<CardTitle className='mt-8'>
 								<FormRow label='Booking Total' amount={totals.orderTotal} />

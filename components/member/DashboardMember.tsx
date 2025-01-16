@@ -3,6 +3,64 @@ import { Copy, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { dashboardMemberProps } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
+import DownlinePreview from "./DownlinePreview";
+
+const exampleData = {
+    id: "1",
+    name: "John Doe",
+    memberId: "REF1",
+    downlines: [
+      {
+        id: "2",
+        name: "Alice Smith",
+        memberId: "REF2",
+        downlines: [
+          { id: "4", name: "Bob Johnson", memberId: "REF3" },
+          { id: "5", name: "Carol White", memberId: "REF4" }
+        ]
+      },
+      {
+        id: "3",
+        name: "David Brown",
+        memberId: "REF5",
+        downlines: [
+          { id: "6", name: "Eve Wilson", memberId: "REF6" }
+        ]
+      },{
+        id: "7",
+        name: "Alice Smeagull",
+        memberId: "REF7",
+        downlines: [
+          { id: "4", name: "Bob Johnson", memberId: "REF8" },
+          { id: "5", name: "Carol White", memberId: "REF9" }
+        ]
+      },
+      {
+        id: "8",
+        name: "David Smeagull",
+        memberId: "REF10",
+        downlines: [
+          { id: "6", name: "Eve Wilson", memberId: "REF11" }
+        ]
+      },{
+        id: "9",
+        name: "Alice Treetops",
+        memberId: "REF12",
+        downlines: [
+          { id: "4", name: "Bob Johnson", memberId: "REF13" },
+          { id: "5", name: "Carol White", memberId: "REF14" }
+        ]
+      },
+      {
+        id: "10",
+        name: "David Brown",
+        memberId: "REF15",
+        downlines: [
+          { id: "6", name: "Eve Wilson", memberId: "REF16" }
+        ]
+      }
+    ]
+  };
 
 export default function DashboardMember({
     member,
@@ -220,26 +278,7 @@ export default function DashboardMember({
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Downline Tree Preview</h2>
 				<div className="bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg overflow-x-auto">
-					<div className="text-center mb-4 dark:text-gray-300">
-						<p>Total Downlines: {member.length || 5}</p>
-						<p>{tier.tierName || "Tier 0"}</p>
-					</div>
-					<div className="flex flex-col items-center min-w-[300px]">
-						<div className="w-16 h-16 rounded-full bg-[#C4A777] text-white flex items-center justify-center mb-4">
-							You
-						</div>
-						<p className="text-sm text-gray-600 dark:text-gray-400">REF{profile?.id}</p>
-						<div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-4">
-							{/* {member.slice(0, 2).map((member: any, index: number) => (
-								<div key={index} className="text-center">
-									<div className="w-16 h-16 rounded-full bg-[#C4A777] bg-opacity-80 text-white flex items-center justify-center">
-										{member.firstName}
-									</div>
-									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">REF{member.id}</p>
-								</div>
-							))} */}
-						</div>
-					</div>
+						<DownlinePreview member={exampleData} />
 				</div>
 			</div>
 		</div>

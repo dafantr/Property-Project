@@ -1,5 +1,3 @@
-import { BookingCommissionTransaction } from "@prisma/client";
-
 export type actionFunction = (
     prevState: any,
     formData: FormData
@@ -187,7 +185,12 @@ export type UpdateMemberFormProps = {
 export type RegistrationDetails = {
   subTotal: number;
   tax: number;
-  discount: number;
   orderTotal: number;
+};
+
+export type Reward = {
+  id: string;
+  rewardName: string;
+  pointReq: number;
 };
 

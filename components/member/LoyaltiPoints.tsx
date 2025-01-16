@@ -1,13 +1,19 @@
 "use client"
-import { LoyaltiPointsProps } from "@/utils/types";
+import { redeemReward } from "@/utils/actions";
+import { LoyaltiPointsProps, Reward } from "@/utils/types";
 
 export default function LoyaltiPoints({
 	member,
 	rewards,
 }: LoyaltiPointsProps) {
 
-	function handleRedeem(reward: any): void {
-		console.log(reward.rewardName);
+	const handleRedeem = (reward : Reward) => {
+		try {
+			redeemReward(reward);
+			console.log(reward.rewardName);
+		} catch (error) {
+			console.log("Failed to redeem reward.");
+		}
 	}
 
 	return (
