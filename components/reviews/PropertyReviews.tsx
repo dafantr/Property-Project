@@ -11,11 +11,11 @@ async function PropertyReviews({ propertyId }: { propertyId: string }) {
       <div className='grid md:grid-cols-2 gap-8 mt-4 '>
         {reviews.map((review) => {
           const { comment, rating } = review;
-          const { firstName, profileImage } = review.profile;
+          const { username, profileImage } = review.profile;
           const reviewInfo = {
             comment,
             rating,
-            name: firstName,
+            name: username,
             image: profileImage,
           };
           return <ReviewCard key={review.id} reviewInfo={reviewInfo} />;

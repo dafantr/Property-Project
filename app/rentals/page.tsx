@@ -1,5 +1,5 @@
 import EmptyList from '@/components/home/EmptyList';
-import { fetchRentals, deleteRentalAction } from '@/utils/actions';
+import { fetchRentals } from '@/utils/actions';
 import Link from 'next/link';
 
 import { formatCurrency } from '@/utils/format';
@@ -13,11 +13,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import FormContainer from '@/components/form/FormContainer';
 import { IconButton } from '@/components/form/Buttons';
+import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
 
 async function RentalsPage() {
   const rentals = await fetchRentals();
+
+  rentals.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (rentals.length === 0) {
     return (
@@ -64,7 +66,7 @@ async function RentalsPage() {
                   <Link href={`/rentals/${propertyId}/edit`}>
                     <IconButton actionType='edit'></IconButton>
                   </Link>
-                  <DeleteRental propertyId={propertyId} />
+                  <DeleteItemButton itemId={propertyId} itemType="property" />
                 </TableCell>
               </TableRow>
             );
@@ -72,15 +74,6 @@ async function RentalsPage() {
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-function DeleteRental({ propertyId }: { propertyId: string }) {
-  const deleteRental = deleteRentalAction.bind(null, { propertyId });
-  return (
-    <FormContainer action={deleteRental}>
-      <IconButton actionType='delete' />
-    </FormContainer>
   );
 }
 
