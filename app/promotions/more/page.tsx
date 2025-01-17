@@ -38,7 +38,7 @@ const MorePage = () => {
     return (
         <div className="relative">
             {/* Sticky Section, shifted down by 'top-16' */}
-            <div className="sticky top-10 z-10 bg-white border-b border-gray-200">
+            <div className="sticky top-10 z-10">
                 <h3 className="capitalize text-2xl font-bold px-4 py-2">
                     All Exclusive Categories
                 </h3>

@@ -279,6 +279,7 @@ export const fetchPropertyDetails = (id: string) => {
 export async function createReviewAction(prevState: any, formData: FormData) {
   const user = await getAuthUser();
   try {
+    //console.log(Object.fromEntries(formData));
     const rawData = Object.fromEntries(formData);
 
     const validatedFields = validateWithZodSchema(createReviewSchema, rawData);
@@ -306,7 +307,7 @@ export async function fetchPropertyReviews(propertyId: string) {
       comment: true,
       profile: {
         select: {
-          firstName: true,
+          username: true,
           profileImage: true,
         },
       },
@@ -519,6 +520,7 @@ export const fetchRentals = async () => {
       id: true,
       name: true,
       price: true,
+      createdAt: true
     },
   });
 
@@ -764,7 +766,7 @@ export const fetchFiveStarReviews = async () => {
         rating: true,
         profile: {
           select: {
-            firstName: true,
+            username: true,
             profileImage: true,
           },
         },
@@ -877,7 +879,7 @@ export const createPromotionAction = async (
   try {
     const title = formData.get('title') as String;
     const subtitle = formData.get('subtitle') as String;
-    const category = formData.get('exclusive') as String;
+    const category = formData.get('category') as string;
     const description = formData.get('description') as String;
     const file = formData.get('image') as File;
 

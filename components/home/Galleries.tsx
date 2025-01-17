@@ -48,17 +48,17 @@ const Galleries = () => {
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
                     onClick={handleBackgroundClick} // Handle background click
                 >
+                    {/* Close Button (X) - Positioned at top right of screen */}
+                    <button
+                        onClick={closeModal}
+                        className="fixed top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full border border-orange-500 text-orange-600 hover:bg-orange-100 transition-all"
+                        style={{ cursor: 'pointer' }}
+                    >
+                        ✕
+                    </button>
+
                     {/* Image Container */}
                     <div className="relative">
-                        {/* Close Button (X) */}
-                        <button
-                            onClick={closeModal}
-                            className="absolute top-0 right-0 text-white hover:text-gray-300 text-3xl font-bold"
-                            style={{ cursor: 'pointer' }}
-                        >
-                            ✕
-                        </button>
-
                         {/* Display Image in Original Size */}
                         <div className="flex justify-center">
                             <img
