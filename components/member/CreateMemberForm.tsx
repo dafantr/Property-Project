@@ -23,6 +23,7 @@ export default function CreateMemberForm({
 }: CreateMemberFormProps) {
 	const { theme } = useTheme();
 	const [birthDate, setBirthDate] = useState<Date | null>(null);
+	const [isReferralValid, setIsReferralValid] = useState(false);
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
@@ -83,8 +84,10 @@ export default function CreateMemberForm({
 		.then((isValid) => {
 		  if (isValid) {
 			useProperty.setState({ referalCode : refCode});
+			setIsReferralValid(true);
 		  } else {
 			useProperty.setState({ referalCode : ''});
+			setIsReferralValid(false);
 		  }
 		})
 		.catch((error) => {
@@ -122,6 +125,7 @@ export default function CreateMemberForm({
 							label="First Name"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 						<FormInput
 							type="text"
@@ -130,6 +134,7 @@ export default function CreateMemberForm({
 							label="Last Name"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 						<FormInput
 							type="text"
@@ -257,6 +262,7 @@ export default function CreateMemberForm({
 									</button>
 								</div>
 							</div>
+							{isReferralValid && <label className="text-green-500">Applied</label>}
 							<Separator className='mt-4' />
 							<CardTitle className='mt-8'>
 								<FormRow label='Booking Total' amount={totals.orderTotal} />

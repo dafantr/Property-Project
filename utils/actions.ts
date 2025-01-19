@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation';
 import { uploadImage } from './supabase';
 import { calculateTotals } from './calculateTotals';
 import { formatDate } from './format';
-import { RegistrationDetails, Reward } from './types';
+import { reward, member , referralDetails, loyaltyPointDetails} from './types';
 
 const getAuthUser = async () => {
     const user = await currentUser()
@@ -399,6 +399,7 @@ export const createBookingAction = async (prevState: {
 }) => {
 
   let bookingId: null | string = null;
+  let transactionId = null;
 
   try {
     const profile = await fetchProfile();
@@ -450,9 +451,7 @@ export const createBookingAction = async (prevState: {
           referalCode : referalCode
         }
       })
-
-      await updateMemberCommission(referalCode, commission, 'booking');
-
+      transactionId = bookingTrans.id;
     } else {
       //buat bookingCommissionTransaction tanpa referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
@@ -461,11 +460,12 @@ export const createBookingAction = async (prevState: {
           bookingId : booking.id
         }
       })
+      transactionId = bookingTrans.id;
     }
   } catch (error) {
     return renderError(error);
   }
-  redirect(`/checkout?bookingId=${bookingId}`);
+  redirect(`/checkout?bookingId=${bookingId}&trId=${transactionId}`);
 };
 
 export const fetchBookings = async () => {
@@ -1003,17 +1003,7 @@ export const createMemberAction = async (
   prevState: any,
   formData: FormData
 ): Promise<{ message: string }> => {
-  try {
-    const profile = await fetchProfile();
 
-    if (!profile) {
-      return renderError('Profile not found');
-    }
-
-    await deleteIncompleteMember(profile?.clerkId);
-
-    const firstName = formData.get('firstName') as string;
-    const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const citizen = formData.get('citizen') as string;
     const phone = formData.get('phone') as string;
@@ -1026,9 +1016,23 @@ export const createMemberAction = async (
     const dob = formData.get('birthDate') as string;
     const formattedDate = dob.slice(0, 10);
     const totalPrice = formData.get('totalPrice') as string;
+    const closerCode = formData.get('closerCode') as string;
 
-    const tier = await fetchTierByName('Tier 1');
+    console.log(formData);
+
+    const tier = await fetchTierByLevel(1);
     const memberId = await generateUniqueMemberId();
+
+    let transactionId = null;
+
+    try {
+      const profile = await fetchProfile();
+  
+      if (!profile) {
+        return renderError('Profile not found');
+      }
+  
+      await deleteIncompleteMember(profile?.clerkId);
 
     // cek referalCode
     if(referalCode.length > 0 && !await validateReferalCode(referalCode)){
@@ -1050,18 +1054,7 @@ export const createMemberAction = async (
         memberId: memberId,
         profileId: profile?.clerkId,
         parentId: referalCode,
-        tierId: tier?.id == null? '' : tier.id
-      },
-    });
-
-    await db.profile.update({
-      where: {
-        clerkId: profile?.clerkId,
-      },
-      data: {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
+        tierId: tier?.id == null? '' : tier.id,
         citizen: citizen,
         dob: formattedDate,
         phone: phone,
@@ -1074,12 +1067,13 @@ export const createMemberAction = async (
     });
 
     if(referalCode.length > 0){
-      await createMembershipCommissionTransaction(referalCode, 'temp', profile?.clerkId, parseInt(totalPrice));
+      const membershipCommissionTransactionId = await createMembershipCommissionTransaction(referalCode, closerCode, profile?.clerkId, parseInt(totalPrice));
+      transactionId = membershipCommissionTransactionId.toString();
     }
-    return { message: 'Membership registration success.' };
   } catch (error) {
     return renderError(error);
   }
+  redirect(`/member/checkout?mId=${memberId}&trId=${transactionId}`);
 };
 
 const generateUniqueMemberId = async () => {
@@ -1140,13 +1134,23 @@ export const updateMemberAction = async (
     const formattedDate = dob.slice(0, 10);
 
     const member = await fetchMember(undefined,memberId);
+    if(member === null) throw new Error("Member not found");
+    
     await db.profile.update({
       where: {
         clerkId: member?.profileId,
       },
       // data: validatedFields,
       data : {
-        email: email,
+        email: email
+      }
+    });
+
+    await db.member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
         phone: phone,
         address: address,
         dob: formattedDate,
@@ -1155,7 +1159,7 @@ export const updateMemberAction = async (
         bankName: bankName,
         bankAccNum: bankAccNum,
         bankAccName: bankAccName
-      }
+      },
     });
     revalidatePath('/member/dashboard');
     return { message: 'Member profile updated successfully' };
@@ -1229,18 +1233,18 @@ export const updateMemberCommission = async ( memberId : string, commission : an
   }
 };
 
-export const fetchTierByName = async (tierName: string) => {
-  return await db.tier.findFirst({
-    where: {
-      tierName: tierName,
-    },
-  });
-};
-
 export const fetchTierById = async ( id: string) => {
   return await db.tier.findUnique({
     where: {
       id: id,
+    },
+  });
+};
+
+export const fetchTierByLevel = async ( level: number) => {
+  return await db.tier.findFirst({
+    where: {
+      tierLevel: level,
     },
   });
 };
@@ -1302,23 +1306,18 @@ export const fetchRewards = async () => {
 export const createMembershipCommissionTransaction = async (referalCode: string, closerCode: string, clerkId: string, totalPrice: number) => {
   try {
     const refCommission = await calculateCommission(referalCode, totalPrice);
-    await db.membershipCommissionTransaction.create({
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.create({
       data: {
         profileId: clerkId,
         commission: refCommission,
-        closerId: closerCode,
+        closerId: '',
         closerCommission: totalPrice * 0.03,
         referalCode: referalCode,
-        paymentStatus: false,
+        paymentStatus: false
       },
     });
 
-    //update member commission
-    await updateMemberCommission(referalCode, refCommission, 'membership');
-
-    //update member tier
-    await updateMemberTier(referalCode);
-
+    return membershipCommissionTransaction.id;
   } catch (error) {
     console.error('Error creating membership commission transaction', error);
     return { message: 'Error creating membership commission transaction' };
@@ -1340,7 +1339,7 @@ export async function calculateCommission(referalCode: string, totalPrice: numbe
   return totalPrice * (tier.commission / 100);
 }
 
-export async function redeemReward(reward : Reward): Promise<void> {
+export async function redeemReward(reward : reward): Promise<void> {
   try {
     const profile = await fetchProfile();
     if(profile === null) throw new Error("Profile not found");
@@ -1419,16 +1418,150 @@ export const updateMemberTier = async (memberId: string) => {
   const tier = await fetchTierById(member.tierId);
   if(tier === null) throw new Error("Tier not found");
 
-  await db.member.update({
-    where: {
-      id: member.id,
-    },
-    data: {
-      tierId: tier.id,
-    },
-  });
+  const downline = await fetchDownline(memberId);
+  if(downline.length >= tier.requiredDownline){
+    const nextTier = await fetchTierByLevel(tier.tierLevel + 1);
+    if(nextTier === null) throw new Error("Next tier not found");
+
+    await db.member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
+        tierId: nextTier.id,
+      },
+    });
+  }
 }
 
+export const fetchReferralDetails = async (member : member) => {
+  try {
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.findMany({
+      where: {
+        referalCode: member.memberId,
+      },
+      select: {
+        id: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        commission: true,
+        createdAt: true,
+        paymentStatus: true,
+      }
+    });
 
+      const bookingCommissionTransaction = await db.bookingCommissionTransaction.findMany({
+        where: {
+          referalCode: member.memberId,
+        },
+        select: {
+          id: true,
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+            }
+          },
+          commission: true,
+          createdAt: true,
+          booking: {
+            select: {
+              paymentStatus: true,
+            }
+          },
+        },
+    });
+
+    const referralDetails: referralDetails[] = [
+      ...membershipCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      commission: transaction.commission,
+      createdAt: transaction.createdAt,
+      paymentStatus: transaction.paymentStatus,
+      type: 'Membership' as const
+    })),
+    ...bookingCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      commission: transaction.commission,
+      createdAt: transaction.createdAt,
+      paymentStatus: transaction.booking.paymentStatus,
+      type: 'Booking' as const
+    }))];
+
+    return referralDetails;
+  } catch (error) {
+    console.error('Error fetching rewards:', error);
+    return { message: 'Error fetching rewards' };
+  }
+}
+
+export const fetchLoyaltyPointDetails = async (member : member) => {
+  try {
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.findMany({
+      where: {
+        referalCode: member.memberId,
+      },
+      select: {
+        id: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        createdAt: true,
+      }
+    });
+
+    const pointTransaction = await db.pointTransaction.findMany({
+      where: {
+        profileId: member.profileId,
+      },
+      select: {
+        id: true,
+        reward: {
+          select: {
+            rewardName: true,
+            pointReq: true,
+          }
+        },
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        createdAt: true,
+      }
+    });
+
+    const loyaltyPointDetails: loyaltyPointDetails[] = [
+      ...membershipCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      createdAt: transaction.createdAt,
+      point: 1,
+      type: 'Membership Referral' as const
+    })),
+    ...pointTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      createdAt: transaction.createdAt,
+      point: transaction.reward.pointReq,
+      type: `Redeem Reward: ${transaction.reward.rewardName}` as const
+    }))];
+
+    return loyaltyPointDetails;
+  } catch (error) {
+    console.error('Error fetching rewards:', error);
+    return { message: 'Error fetching rewards' };
+  }
+}
 
 export { getAdminUser };

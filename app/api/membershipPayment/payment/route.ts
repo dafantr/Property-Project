@@ -2,44 +2,31 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 import { type NextRequest, type NextResponse } from 'next/server';
 import db from '@/utils/db';
-import { formatDate } from '@/utils/format';
+import { calculateRegistrationFee } from '@/utils/calculateTotals';
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
     const requestHeaders = new Headers(req.headers);
     const origin = requestHeaders.get('origin');
 
-    const { bookingId, transactionId } = await req.json();
+    const { memberId, transactionId } = await req.json();
 
-    const booking = await db.booking.findUnique({
-        where: { id: bookingId },
-        include: {
-            property: {
-                select: {
-                    name: true,
-                    image: true,
-                },
-            },
-        },
+    const member = await db.member.findFirst({
+        where: { memberId: memberId }
     });
 
-    if (!booking) {
+    const { subTotal, tax, orderTotal } = await calculateRegistrationFee();
+
+    if (member === null) {
         return Response.json(null, {
             status: 404,
             statusText: 'Not Found',
         });
     }
-    const {
-        totalNights,
-        orderTotal,
-        checkIn,
-        checkOut,
-        property: { image, name },
-    } = booking;
-
+    
     try {
         const session = await stripe.checkout.sessions.create({
             ui_mode: 'embedded',
-            metadata: { bookingId: booking.id, transactionId: transactionId },
+            metadata: { memberId: member.id, transactionId: transactionId },
             line_items: [
                 {
                     quantity: 1,
@@ -47,18 +34,15 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
                         currency: 'idr',
 
                         product_data: {
-                            name: `${name}`,
-                            images: [image],
-                            description: `Treat yourself to a relaxing stay of ${totalNights} nights, starting ${formatDate(
-                                checkIn
-                            )} and wrapping up ${formatDate(checkOut)}. Enjoy every moment!`,
+                            name: `Membership Registration Detail`,
+                            description: `Become Million Dollar Villa's Exclusive Member`,
                         },
                         unit_amount: orderTotal * 100,
                     },
                 },
             ],
             mode: 'payment',
-            return_url: `${origin}/api/confirm?session_id={CHECKOUT_SESSION_ID}`,
+            return_url: `${origin}/api/membershipPayment/confirm?session_id={CHECKOUT_SESSION_ID}`,
         });
 
         return Response.json({ clientSecret: session.client_secret });
@@ -71,3 +55,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         });
     }
 };
+
+function getMembershipPrice(tierId: any): number | undefined {
+    throw new Error('Function not implemented.');
+}

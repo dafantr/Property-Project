@@ -1,3 +1,5 @@
+import { Member } from "@prisma/client";
+
 export type actionFunction = (
     prevState: any,
     formData: FormData
@@ -37,111 +39,38 @@ export type PropertyCardProps = {
     commission: number;
   };
 
-  export type dashboardMemberProps = {
-    profile: {
-		id: string;
+  export type member = {
+    id: string;
+    profileId: string;
+    memberId: string;
+    isActive: number;
+    commission: number;
+    point: number;
+    tierId: string;
+    citizen?: string | null;
+    dob?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    gender?: string | null;
+    bankName?: string | null;
+    bankAccNum?: string | null;
+    bankAccName?: string | null;
+  }
+
+  export type profile = {
+    id: string;
 		firstName: string;
 		lastName: string;
 		email: string;
-        citizen?: string | null;
-        dob?: string | null;
-        phone?: string | null;
-        address?: string | null;
-        gender?: string | null;
-        bankName?: string | null;
-        bankAccNum?: string | null;
-        bankAccName?: string | null;
-	};
+  }  
 
-    member: {
-        id: string;
-        memberId: string;
-        isActive: number;
-        commission: number;
-        point: number;
-        tierId: string;
-    };
+  export type reward = {
+    id: string;
+    rewardName: string;
+    pointReq: number;
+  }
 
-    rewards: {
-        id: string;
-        rewardName: string;
-        pointReq: number;
-    }[];
-
-    tier: {
-        id: string;
-        tierName: string;
-        commission: number;
-    };
-
-    bookingCommissionDetails: {
-      id: string;
-      profileId: string;
-      bookingId: string;
-      referalCode: string | null;
-      commission: number;
-      createdAt: Date;
-      booking: {
-        paymentStatus: boolean;
-      };
-      profile: {
-        firstName: string;
-        lastName: string;
-      };
-    }[];
-}
-
-export type LoyaltiPointsProps = {
-  member: {
-      id: string;
-      memberId: string;
-      isActive: number;
-      commission: number;
-  point: number;
-  };
-  rewards: {
-      id: string;
-      rewardName: string;
-      pointReq: number;
-  }[];
-}
-
-export type Member = {
-  memberId: string;
-  id: string;
-  name: string;
-  downlines?: Member[];
-};
-
-export type DownlineProps = {
-  member: Member;
-  level?: number;
-};
-
-export type CitizenshipOption = {
-	value: string;
-	label: string;
-};
-
-export type CreateMemberFormProps = {
-	profile: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-	};
-	citizenshipOptions: CitizenshipOption[];
-}
-
-export type ReferralCommissionProps = {
-  member: {
-      id: string;
-      memberId: string;
-      isActive: number;
-      commission: number;
-  };
-
-  bookingCommissionDetails: {
+  export type bookingCommissionDetails = {
     id: string;
     profileId: string;
     bookingId: string;
@@ -151,34 +80,52 @@ export type ReferralCommissionProps = {
     booking: {
       paymentStatus: boolean;
     };
-    profile: {
-      firstName: string;
-      lastName: string;
-    };
-  }[];
+  }
+
+  export type dashboardMemberProps = {
+    profile: profile;
+    member: member;
+    rewards: reward[];
+    referralDetails: referralDetails[];
+    loyaltyPointDetails: loyaltyPointDetails[];
+}
+
+export type LoyaltiPointsProps = {
+  member: member;
+  rewards: reward[];
+  loyaltyPointDetails: loyaltyPointDetails[];
+}
+
+export type Downline = {
+  memberId: string;
+  id: string;
+  name: string;
+  downlines?: Downline[];
+};
+
+export type DownlineProps = {
+  member: Downline;
+  level?: number;
+};
+
+export type CitizenshipOption = {
+	value: string;
+	label: string;
+};
+
+export type CreateMemberFormProps = {
+	profile: profile;
+	citizenshipOptions: CitizenshipOption[];
+}
+
+export type ReferralCommissionProps = {
+  member: member;
+  referralDetails: referralDetails[];
 }
 
 export type UpdateMemberFormProps = {
-	profile: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-        citizen?: string | null;
-        dob?: string | null;
-        phone?: string | null;
-        address?: string | null;
-        gender?: string | null;
-        bankName?: string | null;
-        bankAccNum?: string | null;
-        bankAccName?: string | null;
-	};
-
-    member: {
-        id: string;
-        memberId: string;
-        isActive: number;
-    };
+	profile: profile;
+	member: member;
 	citizenshipOptions: CitizenshipOption[];
 }
 
@@ -188,9 +135,35 @@ export type RegistrationDetails = {
   orderTotal: number;
 };
 
-export type Reward = {
+export type membershipCommissionTransaction = {
   id: string;
-  rewardName: string;
-  pointReq: number;
-};
+  profileId: string;
+  closerId: string;
+  commission: number;
+  closerCommission: number;
+  referalCode: string | null;
+  paymentStatus: boolean;
+}
 
+export type referralDetails = {
+  id: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+  };
+  commission: number;
+  createdAt: Date;
+  paymentStatus: boolean;
+  type: 'Membership' | 'Booking';
+}
+
+export type loyaltyPointDetails = {
+  id: string;
+  createdAt: Date;
+  profile: {
+    firstName: string;
+    lastName: string;
+  };
+  type: 'Membership Referral' | `Redeem Reward: ${string}`;
+  point: number;
+}
