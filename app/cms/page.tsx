@@ -1,10 +1,16 @@
-export default function CMSPage() {
+import { fetchMemberAll } from '@/utils/actions'
+import { MemberList } from './components/MemberList'
+
+export default async function CMSPage() {
+  const members = await fetchMemberAll();
+
   return (
     <main className="flex min-h-screen flex-col p-6">
-      <h1 className="text-2xl font-bold mb-4">Content Management System</h1>
-      <div className="grid gap-4">
-        {/* Add your CMS components here */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Member Management</h1>
       </div>
+
+      <MemberList initialMembers={members} />
     </main>
   )
 }
