@@ -17,14 +17,6 @@ model Profile {
   username     String
   email        String
   profileImage String
-  dob          String?
-  citizen      String?
-  phone        String?
-  address      String?
-  gender       String?
-  bankName     String?
-  bankAccNum   String?
-  bankAccName  String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   properties   Property[]
@@ -115,7 +107,7 @@ model Promotion {
   id          String   @id @default(uuid()) @map("_id")
   title       String
   subtitle    String
-  //category    String
+  category    String
   description String
   profileId   String
   media       String
@@ -126,7 +118,9 @@ model Promotion {
 model Tier {
   id           String     @id @default(uuid()) @map("_id")
   tierName     String
+  tierLevel    Int 
   commission   Int
+  requiredDownline Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   members      Member[]
@@ -138,6 +132,14 @@ model Member {
   profileId    String
   memberId     String
   parentId     String?
+  dob          String?
+  citizen      String?
+  phone        String?
+  address      String?
+  gender       String?
+  bankName     String?
+  bankAccNum   String?
+  bankAccName  String?
   point        Int     @default(0)
   commission   Float     @default(0)
   tier         Tier     @relation(fields: [tierId], references: [id], onDelete: Cascade)
@@ -183,10 +185,19 @@ model Reward {
 
 model PointTransaction {
   id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   reward       Reward     @relation(fields: [rewardId], references: [id])
   rewardId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GeneralVariable {
+  id           String     @id @default(uuid()) @map("_id")
+  variableName String
+  variableValue String
+  variableType String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

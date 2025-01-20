@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchRewards } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchRewards, fetchLoyaltyPointDetails } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import LoyaltiPoints from "@/components/member/LoyaltiPoints";
 
@@ -15,11 +15,15 @@ export default async function RewardsPage() {
 
 	const rewards = await fetchRewards();
 	if ('message' in rewards) {
-		// Handle error case, maybe redirect or show empty array
-		return <LoyaltiPoints member={member} rewards={[]} />;
+		throw new Error("Failed to fetch rewards");
 	}
 	
+	const loyaltyPointDetails = await fetchLoyaltyPointDetails(member);
+	if ('message' in loyaltyPointDetails) {
+		throw new Error("Failed to fetch loyalty point details");
+	}
+
 	return (
-		<LoyaltiPoints member={member} rewards={rewards} />
+		<LoyaltiPoints member={member} rewards={rewards} loyaltyPointDetails={loyaltyPointDetails} />
 	);
 }

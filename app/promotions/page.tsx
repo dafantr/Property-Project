@@ -1,5 +1,5 @@
 import EmptyList from '@/components/home/EmptyList';
-import { fetchPromotions, deletePromotionAction } from '@/utils/actions';
+import { fetchPromotions } from '@/utils/actions';
 import Link from 'next/link';
 import {
   Table,
@@ -10,8 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import FormContainer from '@/components/form/FormContainer';
+import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
 import { IconButton } from '@/components/form/Buttons';
 
 async function ExclusiveHighlighPage() {
@@ -39,28 +38,26 @@ async function ExclusiveHighlighPage() {
             <TableHead className="bg-orange-500 text-white rounded-tl-lg">Media</TableHead>
             <TableHead className="bg-orange-500 text-white">Title</TableHead>
             <TableHead className="bg-orange-500 text-white">Subtitle</TableHead>
+            <TableHead className="bg-orange-500 text-white">Category</TableHead>
             <TableHead className="bg-orange-500 text-white rounded-tr-lg">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {promotions.map((promotion) => {
-            const { id, title, media } = promotion;
+            const { id, title, media, subtitle, category } = promotion;
             return (
               <TableRow key={id}>
                 <TableCell>
-                  <img
-                    src={media}
-                    alt={title}
-                    style={{ width: '200px', height: '200px', objectFit: 'cover' }}
-                  />
+                  <img src={media} alt={title} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
                 </TableCell>
                 <TableCell>{title}</TableCell>
-                <TableCell>{promotion.subtitle}</TableCell>
-                <TableCell className="flex items-center gap-x-2">
+                <TableCell>{subtitle}</TableCell>
+                <TableCell>{category}</TableCell>
+                <TableCell>
                   <Link href={`/promotions/${id}/edit`}>
                     <IconButton actionType="edit" />
                   </Link>
-                  <DeletePromotion promotionId={id} />
+                  <DeleteItemButton itemId={id} itemType="promotion" />
                 </TableCell>
               </TableRow>
             );
@@ -68,16 +65,6 @@ async function ExclusiveHighlighPage() {
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-
-function DeletePromotion({ promotionId }: { promotionId: string }) {
-  const deletePromotion = deletePromotionAction.bind(null, { promotionId });
-  return (
-    <FormContainer action={deletePromotion}>
-      <IconButton actionType='delete' />
-    </FormContainer>
   );
 }
 

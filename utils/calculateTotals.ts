@@ -1,5 +1,6 @@
 import { calculateDaysBetween } from '@/utils/calender';
 import { RegistrationDetails } from './types';
+import { getGeneralVariable } from './actions';
 
 type BookingDetails = {
   checkIn: Date;
@@ -31,20 +32,15 @@ export const calculateTotals = ({
   return { totalNights, subTotal, cleaning, service, tax, orderTotal, discount };
 };
 
-export function calculateRegistrationFee(referalCode: string): RegistrationDetails {
-  const subTotal = 18000000;
+export async function calculateRegistrationFee(): Promise<RegistrationDetails> {
+  const exclusiveMemberPrice = await getGeneralVariable('exclusiveMemberPrice');
+  const subTotal = exclusiveMemberPrice ? parseInt(exclusiveMemberPrice.variableValue) : 18000000;
   const tax = subTotal * 0.1;
-  let discount = 0;
 
-  if (referalCode && referalCode.trim() !== '') {
-    discount = (subTotal + tax) * 0.2;
-  }
-
-  const orderTotal = (subTotal + tax) - discount;
+  const orderTotal = (subTotal + tax);
 
   return {
     subTotal: subTotal,
-    discount: discount,
     tax: tax,
     orderTotal: orderTotal,
   };

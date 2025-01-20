@@ -57,13 +57,13 @@ const Slider = () => {
             >
                 {reviews.map((review) => {
                     const { comment, rating } = review;
-                    const { firstName, profileImage } = review.profile;
+                    const { username, profileImage } = review.profile;
 
                     return (
                         <SliderCard
                             key={review.id}
                             image={profileImage || ""}
-                            name={firstName}
+                            name={username}
                             comment={comment}
                             rating={rating}
                         />

@@ -32,14 +32,14 @@ async function ProfilePage() {
 
   const member = await fetchMember(profile.clerkId);
 
-  if(member === null) redirect ("/member/create");
+  if(member === null || member.isActive === 0) redirect ("/member/create");
 
   const citizenshipOptions = await fetchCitizenshipOptions();
 
   return (
     <UpdateMemberForm
 			profile={profile}
-			member={{id: member.id, memberId: member.memberId, isActive: member.isActive}}
+			member={member}
 			citizenshipOptions={citizenshipOptions}
 		/>
   );

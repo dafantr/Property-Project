@@ -5,7 +5,7 @@ import { Copy, Share2 } from "lucide-react";
 
 export default function ReferralCommission({
 	member,
-	bookingCommissionDetails,
+	referralDetails,
 }: ReferralCommissionProps) {
 	return (
 		<div className="grid grid-cols-1 gap-4 md:gap-6">
@@ -27,7 +27,7 @@ export default function ReferralCommission({
 			<div className="grid grid-cols-2 gap-4 md:gap-6">
 				<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 					<h3 className="font-semibold mb-2 dark:text-white">Total Referrals</h3>
-					<p>{bookingCommissionDetails.length}</p>
+					<p>{referralDetails.length}</p>
 				</div>
 				<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 					<h3 className="font-semibold mb-2 dark:text-white">Total Commissions Earned</h3>
@@ -45,21 +45,27 @@ export default function ReferralCommission({
 								<th className="text-left py-2 px-4">Referral Name</th>
 								<th className="text-left py-2 px-4">Amount</th>
 								<th className="text-left py-2 px-4">Status</th>
+								<th className="text-left py-2 px-4">Source</th>
 							</tr>
 						</thead>
 						<tbody className="dark:text-gray-300">
-							{bookingCommissionDetails.map((bookingCommissionDetail) => (
-								<tr key={bookingCommissionDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
-									<td className="py-2 px-4">{bookingCommissionDetail.createdAt.toLocaleDateString()}</td>
-									<td className="py-2 px-4">{bookingCommissionDetail.profile.firstName} {bookingCommissionDetail.profile.lastName}</td>
-									<td className="py-2 px-4">{formatCurrency(bookingCommissionDetail.commission)}</td>
+							{referralDetails.map((referralDetail) => (
+								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
+									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
+									<td className="py-2 px-4">{referralDetail.profile.firstName} {referralDetail.profile.lastName}</td>
+									<td className="py-2 px-4">{formatCurrency(referralDetail.commission)}</td>
 									<td className="py-2 px-4">
 										<span className={`px-2 py-1 rounded text-sm ${
-											bookingCommissionDetail.booking.paymentStatus 
+											referralDetail.paymentStatus 
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{bookingCommissionDetail.booking.paymentStatus ? 'Approved' : 'Pending'}
+											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
+										</span>
+									</td>
+									<td className="py-2 px-4">
+										<span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+											{referralDetail.type}
 										</span>
 									</td>
 								</tr>
@@ -69,33 +75,37 @@ export default function ReferralCommission({
 
 					{/* Mobile Cards */}
 					<div className="md:hidden space-y-4">
-						{bookingCommissionDetails.map((bookingCommissionDetail) => (
+						{referralDetails.map((referralDetail) => (
 							<div 
-								key={bookingCommissionDetail.id} 
+								key={referralDetail.id} 
 								className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-700"
 							>
 								<div className="space-y-2">
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Date</span>
-										<span>{bookingCommissionDetail.createdAt.toLocaleDateString()}</span>
+										<span>{referralDetail.createdAt.toLocaleDateString()}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Referral</span>
-										<span>{bookingCommissionDetail.profile.firstName} {bookingCommissionDetail.profile.lastName}</span>
+										<span>{referralDetail.profile.firstName} {referralDetail.profile.lastName}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Amount</span>
-										<span>{formatCurrency(bookingCommissionDetail.commission)}</span>
+										<span>{formatCurrency(referralDetail.commission)}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Status</span>
 										<span className={`px-2 py-1 rounded text-sm ${
-											bookingCommissionDetail.booking.paymentStatus 
+											referralDetail.paymentStatus 
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{bookingCommissionDetail.booking.paymentStatus ? 'Approved' : 'Pending'}
+											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
 										</span>
+									</div>
+									<div className="flex justify-between items-center">
+										<span className="text-gray-600 dark:text-gray-400">Source</span>
+										<span>{referralDetail.type}</span>
 									</div>
 								</div>
 							</div>

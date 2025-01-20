@@ -15,16 +15,16 @@ const stripePromise = loadStripe(
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
 
-  const bookingId = searchParams.get('bookingId');
+  const memberId = searchParams.get('mId');
   const transactionId = searchParams.get('trId');
 
   const fetchClientSecret = useCallback(async () => {
-    const response = await axios.post('/api/payment', {
-      bookingId,
+    const response = await axios.post('/api/membershipPayment/payment', {
+      memberId,
       transactionId,
     });
     return response.data.clientSecret;
-  }, [bookingId, transactionId]);
+  }, [memberId, transactionId]);
 
   const options = { fetchClientSecret };
 

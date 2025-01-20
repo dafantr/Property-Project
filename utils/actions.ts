@@ -1,6 +1,6 @@
 'use server';
 
-import { createReviewSchema, imageSchema, profileSchema, propertySchema, validateWithZodSchema } from './schemas';
+import { createReviewSchema, imageSchema, profileSchema, promotionSchema, propertySchema, validateWithZodSchema } from './schemas';
 import db from './db';
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation';
 import { uploadImage } from './supabase';
 import { calculateTotals } from './calculateTotals';
 import { formatDate } from './format';
-import { RegistrationDetails } from './types';
+import { reward, member , referralDetails, loyaltyPointDetails} from './types';
 
 const getAuthUser = async () => {
     const user = await currentUser()
@@ -22,7 +22,9 @@ const getAuthUser = async () => {
 
 const getAdminUser = async () => {
   const user = await getAuthUser();
-  if (user.id !== process.env.ADMIN_USER_ID) redirect('/');
+  if (user.id !== process.env.ADMIN_USER_ID) {
+    redirect('/');
+  }
   return user;
 };
 
@@ -277,6 +279,7 @@ export const fetchPropertyDetails = (id: string) => {
 export async function createReviewAction(prevState: any, formData: FormData) {
   const user = await getAuthUser();
   try {
+    //console.log(Object.fromEntries(formData));
     const rawData = Object.fromEntries(formData);
 
     const validatedFields = validateWithZodSchema(createReviewSchema, rawData);
@@ -304,7 +307,7 @@ export async function fetchPropertyReviews(propertyId: string) {
       comment: true,
       profile: {
         select: {
-          firstName: true,
+          username: true,
           profileImage: true,
         },
       },
@@ -396,6 +399,7 @@ export const createBookingAction = async (prevState: {
 }) => {
 
   let bookingId: null | string = null;
+  let transactionId = null;
 
   try {
     const profile = await fetchProfile();
@@ -447,9 +451,7 @@ export const createBookingAction = async (prevState: {
           referalCode : referalCode
         }
       })
-
-      await updateMemberCommission(referalCode, commission, 'booking');
-
+      transactionId = bookingTrans.id;
     } else {
       //buat bookingCommissionTransaction tanpa referal
       const bookingTrans = await db.bookingCommissionTransaction.create({
@@ -458,11 +460,12 @@ export const createBookingAction = async (prevState: {
           bookingId : booking.id
         }
       })
+      transactionId = bookingTrans.id;
     }
   } catch (error) {
     return renderError(error);
   }
-  redirect(`/checkout?bookingId=${bookingId}`);
+  redirect(`/checkout?bookingId=${bookingId}&trId=${transactionId}`);
 };
 
 export const fetchBookings = async () => {
@@ -517,6 +520,7 @@ export const fetchRentals = async () => {
       id: true,
       name: true,
       price: true,
+      createdAt: true
     },
   });
 
@@ -762,7 +766,7 @@ export const fetchFiveStarReviews = async () => {
         rating: true,
         profile: {
           select: {
-            firstName: true,
+            username: true,
             profileImage: true,
           },
         },
@@ -777,11 +781,7 @@ export const fetchFiveStarReviews = async () => {
 };
 
 export const fetchGalleries = async () => {
-  const user = await getAuthUser();
   const galleries = await db.gallery.findMany({
-    // where: {
-    //   profileId: user.id,
-    // },
     select: {
       id: true,
       title: true,
@@ -848,15 +848,12 @@ export async function deleteGaleryAction(prevState: { galeryId: string }) {
 }
 
 export const fetchPromotions = async () => {
-  const user = await getAuthUser();
   const promotions = await db.promotion.findMany({
-    // where: {
-    //   profileId: user.id,
-    // },
     select: {
       id: true,
       title: true,
       subtitle: true,
+      category: true,
       description: true,
       media: true,
       createdAt: true
@@ -880,9 +877,10 @@ export const createPromotionAction = async (
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
   try {
-    const title = formData.get('title') as string;
-    const subtitle = formData.get('subtitle') as string;
-    const description = formData.get('description') as string;
+    const title = formData.get('title') as String;
+    const subtitle = formData.get('subtitle') as String;
+    const category = formData.get('category') as string;
+    const description = formData.get('description') as String;
     const file = formData.get('image') as File;
 
     // const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -894,6 +892,7 @@ export const createPromotionAction = async (
         title: title,
         subtitle: subtitle,
         description: description,
+        category: category,
         media: fullPath,
         profileId: user.id,
       },
@@ -905,33 +904,37 @@ export const createPromotionAction = async (
 };
 
 export async function deletePromotionAction(prevState: { promotionId: string }) {
-  const { promotionId } = prevState; // `id` corresponds to MongoDB `_id` via Prisma
-
-  const user = await getAuthUser(); // Ensure user is authenticated
-
   try {
+    await getAdminUser(); // This will redirect if not admin
+
     await db.promotion.delete({
       where: {
-        id : promotionId, // Prisma maps `id` to MongoDB `_id`
+        id: prevState.promotionId,
       },
     });
 
-    revalidatePath('/promotions'); // Revalidate gallery page
-    return { message: 'Promotion deleted successfully' };
+    revalidatePath('/promotions');
+    redirect('/promotions');
   } catch (error) {
-    console.error('Error deleting promotion:', error); // Debug error
-    return renderError(error); // Handle errors gracefully
+    return renderError(error);
   }
 }
 
+export async function fetchPromotionDetails(promotionId: string) {
+  const user = await getAdminUser();
+  
+  const promotion = await db.promotion.findUnique({
+    where: {
+      id: promotionId,
+    },
+  });
+  return promotion;
+};
 
-export const fetchPromotionDetails = async (promotionId: string) => {
-  const user = await getAuthUser();
-
+export const fetchPromotionDetailsPublic = async (promotionId: string) => {
   return db.promotion.findUnique({
     where: {
       id: promotionId,
-      profileId: user.id,
     },
   });
 };
@@ -944,8 +947,11 @@ export const updatePromotionAction = async (
   const promotionId = formData.get('id') as string;
 
   try {
+    //console.log("FormData received:", Object.fromEntries(formData));
     const rawData = Object.fromEntries(formData);
+    //console.log("test raw data : ", rawData);
     const validatedFields = validateWithZodSchema(promotionSchema, rawData);
+    //console.log("Validated fields:", validatedFields);
     await db.promotion.update({
       where: {
         id: promotionId,
@@ -957,7 +963,6 @@ export const updatePromotionAction = async (
     });
 
     revalidatePath(`/promotions/${promotionId}/edit`);
-    // revalidatePath('/promotions'); // Revalidate gallery page
     return { message: 'Update Successful' };
   } catch (error) {
     return renderError(error);
@@ -998,15 +1003,7 @@ export const createMemberAction = async (
   prevState: any,
   formData: FormData
 ): Promise<{ message: string }> => {
-  const profile = await fetchProfile();
 
-  if (!profile) {
-    return renderError('Profile not found');
-  }
-
-  try {
-    const firstName = formData.get('firstName') as string;
-    const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const citizen = formData.get('citizen') as string;
     const phone = formData.get('phone') as string;
@@ -1018,14 +1015,34 @@ export const createMemberAction = async (
     const referalCode = formData.get('referalCode') as string; //parentId
     const dob = formData.get('birthDate') as string;
     const formattedDate = dob.slice(0, 10);
+    const totalPrice = formData.get('totalPrice') as string;
+    const closerCode = formData.get('closerCode') as string;
 
-    const tier = await fetchTierByName('Tier 1');
+    console.log(formData);
+
+    const tier = await fetchTierByLevel(1);
     const memberId = await generateUniqueMemberId();
+
+    let transactionId = null;
+
+    try {
+      const profile = await fetchProfile();
+  
+      if (!profile) {
+        return renderError('Profile not found');
+      }
+  
+      await deleteIncompleteMember(profile?.clerkId);
 
     // cek referalCode
     if(referalCode.length > 0 && !await validateReferalCode(referalCode)){
       throw new Error("Invalid referral code");
     }
+
+    // cek closerCode
+    // if(closerCode.length > 0 && !await validateReferalCode(closerCode)){
+    //   throw new Error("Invalid closer code");
+    // }
 
     // cek if member already exist
     if(await fetchMember(profile?.clerkId)){
@@ -1037,18 +1054,7 @@ export const createMemberAction = async (
         memberId: memberId,
         profileId: profile?.clerkId,
         parentId: referalCode,
-        tierId: tier?.id == null? '' : tier.id
-      },
-    });
-
-    await db.profile.update({
-      where: {
-        clerkId: profile?.clerkId,
-      },
-      data: {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
+        tierId: tier?.id == null? '' : tier.id,
         citizen: citizen,
         dob: formattedDate,
         phone: phone,
@@ -1061,12 +1067,13 @@ export const createMemberAction = async (
     });
 
     if(referalCode.length > 0){
-      await createMembershipCommissionTransaction(referalCode, profile?.clerkId);
+      const membershipCommissionTransactionId = await createMembershipCommissionTransaction(referalCode, closerCode, profile?.clerkId, parseInt(totalPrice));
+      transactionId = membershipCommissionTransactionId.toString();
     }
   } catch (error) {
     return renderError(error);
   }
-  redirect('/promotions');
+  redirect(`/member/checkout?mId=${memberId}&trId=${transactionId}`);
 };
 
 const generateUniqueMemberId = async () => {
@@ -1114,9 +1121,6 @@ export const updateMemberAction = async (
   formData: FormData
 ): Promise<{ message: string }> => {
   try {
-    // const rawData = Object.fromEntries(formData);
-    // const validatedFields = validateWithZodSchema(profileSchema, rawData);
-    
     const memberId = formData.get('memberId') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
@@ -1130,13 +1134,23 @@ export const updateMemberAction = async (
     const formattedDate = dob.slice(0, 10);
 
     const member = await fetchMember(undefined,memberId);
+    if(member === null) throw new Error("Member not found");
+    
     await db.profile.update({
       where: {
         clerkId: member?.profileId,
       },
       // data: validatedFields,
       data : {
-        email: email,
+        email: email
+      }
+    });
+
+    await db.member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
         phone: phone,
         address: address,
         dob: formattedDate,
@@ -1145,10 +1159,10 @@ export const updateMemberAction = async (
         bankName: bankName,
         bankAccNum: bankAccNum,
         bankAccName: bankAccName
-      }
+      },
     });
     revalidatePath('/member/dashboard');
-    return { message: 'Profile updated successfully' };
+    return { message: 'Member profile updated successfully' };
   } catch (error) {
     return renderError(error);
   }
@@ -1164,30 +1178,37 @@ export const fetchMember = async ( profileId?: string, memberId?: string) => {
 };
 
 export const validateReferalCode = async (referalCode: string): Promise<boolean> => {
-  const profile = await fetchProfile();
-
-  const member = await db.member.findFirst({
+  try {
+    const profile = await fetchProfile();
+    const member = await db.member.findFirst({
     where: {
       memberId: referalCode,
     },
   });
 
-  // if(member != null){
-  //   if(member.profileId == profile?.clerkId){
-  //     return false;
-  //   }
-  // }
-  if (!member || referalCode == '') return false;
+  if(member != null){
+    //penjagaan penggunaan referal code sendiri
+    if(member.profileId == profile?.clerkId){
+      return false;
+    }
+  }
+
+  //jika referal kosong atau tidak ditemukan
+  if (member === null || referalCode == '') return false;
+
   return true;
+  } catch (error) {
+    return false
+  }
 };
 
 export const updateMemberCommission = async ( memberId : string, commission : any, type : string) => {
   try {
     const member = await fetchMember(undefined, memberId);
 
-    if(!member) throw new Error ("Member Not Found!");
+    if(member === null) throw new Error ("Member Not Found!");
 
-    if (type == 'booking'){
+    if (type === 'booking'){
       await db.member.update({
         where: {
           id: member.id,
@@ -1212,18 +1233,18 @@ export const updateMemberCommission = async ( memberId : string, commission : an
   }
 };
 
-export const fetchTierByName = async (tierName: string) => {
-  return await db.tier.findFirst({
-    where: {
-      tierName: tierName,
-    },
-  });
-};
-
 export const fetchTierById = async ( id: string) => {
   return await db.tier.findUnique({
     where: {
       id: id,
+    },
+  });
+};
+
+export const fetchTierByLevel = async ( level: number) => {
+  return await db.tier.findFirst({
+    where: {
+      tierLevel: level,
     },
   });
 };
@@ -1238,30 +1259,35 @@ export const fetchDownline = async (memberId: string) => {
 // END MEMBERSHIP
 
 export const fetchBookingCommissionTransaction = async (referalCode: string) => {
-  return await db.bookingCommissionTransaction.findMany({
-    where: {
-      referalCode: referalCode
-    },
-    select: {
-      id: true,
-      profileId: true,
-      bookingId: true,
-      referalCode: true,
-      commission: true,
-      createdAt: true,
-      booking: {
-        select: {
-          paymentStatus: true,
+  try {
+    return await db.bookingCommissionTransaction.findMany({
+      where: {
+        referalCode: referalCode
+      },
+      select: {
+        id: true,
+        profileId: true,
+        bookingId: true,
+        referalCode: true,
+        commission: true,
+        createdAt: true,
+        booking: {
+          select: {
+            paymentStatus: true,
+          }
+        },
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
         }
       },
-      profile: {
-        select: {
-          firstName: true,
-          lastName: true,
-        }
-      }
-    },
-  });
+    });
+  } catch (error) {
+    console.error('Error fetching booking commission transaction:', error);
+    return { message: 'Error fetching booking commission transaction' };
+  }
 };
 
 // First, create a fetch function in your actions.ts
@@ -1277,26 +1303,265 @@ export const fetchRewards = async () => {
 };
 
 
-export const createMembershipCommissionTransaction = async (referalCode: string, clerkId: string) => {
+export const createMembershipCommissionTransaction = async (referalCode: string, closerCode: string, clerkId: string, totalPrice: number) => {
+  try {
+    const refCommission = await calculateCommission(referalCode, totalPrice);
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.create({
+      data: {
+        profileId: clerkId,
+        commission: refCommission,
+        closerId: '',
+        closerCommission: totalPrice * 0.03,
+        referalCode: referalCode,
+        paymentStatus: false
+      },
+    });
 
-  let commission = 0;
+    return membershipCommissionTransaction.id;
+  } catch (error) {
+    console.error('Error creating membership commission transaction', error);
+    return { message: 'Error creating membership commission transaction' };
+  }
+}
 
-  commission = await calculateCommission();
+export async function calculateCommission(referalCode: string, totalPrice: number): Promise<number> {
 
-  await db.membershipCommissionTransaction.create({
-    data: {
+  const referal = await fetchMember(undefined, referalCode);
+
+  if(referal === null) throw new Error("Member not found");
+
+  let refCommission = 0;
+
+  const tier = await fetchTierById(referal.tierId);
+
+  if(tier === null) throw new Error("Tier not found");
+
+  return totalPrice * (tier.commission / 100);
+}
+
+export async function redeemReward(reward : reward): Promise<void> {
+  try {
+    const profile = await fetchProfile();
+    if(profile === null) throw new Error("Profile not found");
+
+    const member = await fetchMember();
+    if(member === null) throw new Error("Member not found");
+
+    if(member.point >= reward.pointReq){
+
+      //create pointTransaction
+      await db.pointTransaction.create({
+        data : {
+          profileId: profile.clerkId,
+          rewardId: reward.id,
+        },
+      });
+
+      //deduct the member's point
+      await db.member.update({
+        where: {
+          id: member.id,
+        },
+        data: {
+          point: member.point - reward.pointReq,
+        }
+      })
+    }
+  } catch (error) {
+    throw new Error("failed to redeem reward. " + error);
+  }
+}
+
+// Insert Dummy Data
+export const insertGeneralVariable = async (variableName: string, variableValue: string, variableType: string) => {
+  try {
+    await db.generalVariable.create({
+      data: {
+        variableName: 'exclusiveMemberPrice',
+        variableValue: '15000000',
+        variableType: 'number',
+      },
+    });
+  } catch (error) {
+    throw new Error("failed to insert general variable. " + error);
+  }
+}
+
+export const getGeneralVariable = async (variableName: string) => {
+  const variable = await db.generalVariable.findFirst({
+    where: {
+      variableName: variableName,
+    },
+  });
+  return variable;
+}
+
+export const deleteIncompleteMember = async (clerkId: string) => {
+  await db.member.deleteMany({
+    where: {
       profileId: clerkId,
-      commission: 100,
-      closerId: referalCode,
-      closerCommission: 100,
-      referalCode: referalCode,
-      paymentStatus: false,
+      isActive: 0,
+    },
+  });
+
+  await db.membershipCommissionTransaction.deleteMany({
+    where: {
+      profileId: clerkId,
     },
   });
 }
 
-function calculateCommission(): number {
-  
+export const updateMemberTier = async (memberId: string) => {
+  const member = await fetchMember(undefined, memberId);
+  if(member === null) throw new Error("Member not found");
+
+  const tier = await fetchTierById(member.tierId);
+  if(tier === null) throw new Error("Tier not found");
+
+  const downline = await fetchDownline(memberId);
+  if(downline.length >= tier.requiredDownline){
+    const nextTier = await fetchTierByLevel(tier.tierLevel + 1);
+    if(nextTier === null) throw new Error("Next tier not found");
+
+    await db.member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
+        tierId: nextTier.id,
+      },
+    });
+  }
 }
 
+export const fetchReferralDetails = async (member : member) => {
+  try {
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.findMany({
+      where: {
+        referalCode: member.memberId,
+      },
+      select: {
+        id: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        commission: true,
+        createdAt: true,
+        paymentStatus: true,
+      }
+    });
 
+      const bookingCommissionTransaction = await db.bookingCommissionTransaction.findMany({
+        where: {
+          referalCode: member.memberId,
+        },
+        select: {
+          id: true,
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+            }
+          },
+          commission: true,
+          createdAt: true,
+          booking: {
+            select: {
+              paymentStatus: true,
+            }
+          },
+        },
+    });
+
+    const referralDetails: referralDetails[] = [
+      ...membershipCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      commission: transaction.commission,
+      createdAt: transaction.createdAt,
+      paymentStatus: transaction.paymentStatus,
+      type: 'Membership' as const
+    })),
+    ...bookingCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      commission: transaction.commission,
+      createdAt: transaction.createdAt,
+      paymentStatus: transaction.booking.paymentStatus,
+      type: 'Booking' as const
+    }))];
+
+    return referralDetails;
+  } catch (error) {
+    console.error('Error fetching rewards:', error);
+    return { message: 'Error fetching rewards' };
+  }
+}
+
+export const fetchLoyaltyPointDetails = async (member : member) => {
+  try {
+    const membershipCommissionTransaction = await db.membershipCommissionTransaction.findMany({
+      where: {
+        referalCode: member.memberId,
+      },
+      select: {
+        id: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        createdAt: true,
+      }
+    });
+
+    const pointTransaction = await db.pointTransaction.findMany({
+      where: {
+        profileId: member.profileId,
+      },
+      select: {
+        id: true,
+        reward: {
+          select: {
+            rewardName: true,
+            pointReq: true,
+          }
+        },
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          }
+        },
+        createdAt: true,
+      }
+    });
+
+    const loyaltyPointDetails: loyaltyPointDetails[] = [
+      ...membershipCommissionTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      createdAt: transaction.createdAt,
+      point: 1,
+      type: 'Membership Referral' as const
+    })),
+    ...pointTransaction.map(transaction => ({
+      id: transaction.id,
+      profile: transaction.profile,
+      createdAt: transaction.createdAt,
+      point: transaction.reward.pointReq,
+      type: `Redeem Reward: ${transaction.reward.rewardName}` as const
+    }))];
+
+    return loyaltyPointDetails;
+  } catch (error) {
+    console.error('Error fetching rewards:', error);
+    return { message: 'Error fetching rewards' };
+  }
+}
+
+export { getAdminUser };

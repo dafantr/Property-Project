@@ -26,7 +26,7 @@ async function CreateMember() {
 
 	const citizenshipOptions = await fetchCitizenshipOptions();
 
-	if (member !== null) redirect("/member/profile");
+	if (member !== null && member.isActive === 1) redirect("/member/profile");
 	return (
 		<CreateMemberForm
 			profile={profile}

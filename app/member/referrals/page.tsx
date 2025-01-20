@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchBookingCommissionTransaction } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchBookingCommissionTransaction, fetchReferralDetails } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import ReferralCommission from "@/components/member/ReferralCommission";
 
@@ -13,9 +13,12 @@ export default async function ReferralComPage() {
 		redirect('/member/create');
 	}
 
-	const bookingCommissionDetails = await fetchBookingCommissionTransaction(member.memberId);
+	const referralDetails = await fetchReferralDetails(member);
+	if('message' in referralDetails) {
+		throw new Error(referralDetails.message);
+	}
 
 	return (
-		<ReferralCommission member={member} bookingCommissionDetails={bookingCommissionDetails} />
+		<ReferralCommission member={member} referralDetails={referralDetails} />
 	);
 }

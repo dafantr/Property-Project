@@ -21,10 +21,10 @@ export default function UpdateMemberForm({
 	const { theme } = useTheme();
 
 	const [birthDate, setBirthDate] = useState<Date | null>(
-		profile.dob ? parse(profile.dob, 'yyyy-MM-dd', new Date()) : null
+		member.dob ? parse(member.dob, 'yyyy-MM-dd', new Date()) : null
     );
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
-		null
+		citizenshipOptions.find(option => option.value === member.citizen) || null
 	);
 
 	const darkModeStyles = {
@@ -128,7 +128,7 @@ export default function UpdateMemberForm({
 								onChange={(option) => setSelectedCitizen(option)}
 								placeholder="Select your citizenship"
 								className="w-full dark:bg-zinc-800 dark:border-zinc-700"
-								defaultValue={citizenshipOptions.find(option => option.value === profile.citizen)}
+								defaultValue={citizenshipOptions.find(option => option.value === member.citizen)}
 								styles={darkModeStyles.select}
 								required
 							/>
@@ -159,7 +159,7 @@ export default function UpdateMemberForm({
 							type="tel"
 							name="address"
 							label="Address"
-							defaultValue={profile.address || ''}
+							defaultValue={member.address || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -173,7 +173,7 @@ export default function UpdateMemberForm({
 								id="gender"
 								name="gender"
 								className={`w-full px-4 py-2 rounded-lg border dark:bg-zinc-800 dark:border-zinc-700 dark:text-white`}
-                                defaultValue={profile.gender || ''}
+                                defaultValue={member.gender || ''}
 								required>
 								<option value="">Select Gender</option>
 								<option value="male">Male</option>
@@ -193,7 +193,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="phone"
 							label="Phone Number"
-							defaultValue={profile.phone || ''}
+							defaultValue={member.phone || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -201,7 +201,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankName"
 							label="Bank Name"
-							defaultValue={profile.bankName || ''}
+							defaultValue={member.bankName || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -209,7 +209,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankAccNum"
 							label="Bank Account Number"
-							defaultValue={profile.bankAccNum || ''}
+							defaultValue={member.bankAccNum || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
@@ -217,7 +217,7 @@ export default function UpdateMemberForm({
 							type="text"
 							name="bankAccName"
 							label="Bank Account Name"
-							defaultValue={profile.bankAccName || ''}
+							defaultValue={member.bankAccName || ''}
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
