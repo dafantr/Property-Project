@@ -24,7 +24,7 @@ export default function UpdateMemberForm({
 		member.dob ? parse(member.dob, 'yyyy-MM-dd', new Date()) : null
     );
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
-		null
+		citizenshipOptions.find(option => option.value === member.citizen) || null
 	);
 
 	const darkModeStyles = {

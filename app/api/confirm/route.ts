@@ -27,7 +27,7 @@ export const GET = async (req: NextRequest) => {
         data: { paymentStatus: true },
       });
 
-      await updateMemberCommission(transactionId as string, bookingCommissionTransaction?.commission as number, 'booking');
+      await updateMemberCommission(bookingCommissionTransaction?.referalCode as string, bookingCommissionTransaction?.commission as number, 'booking');
     }
   } catch (err) {
     console.log(err);
