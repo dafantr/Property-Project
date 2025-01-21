@@ -1,5 +1,3 @@
-import { Member } from "@prisma/client";
-
 export type actionFunction = (
     prevState: any,
     formData: FormData
