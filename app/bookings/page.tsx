@@ -16,6 +16,7 @@ import FormContainer from '@/components/form/FormContainer';
 import { IconButton } from '@/components/form/Buttons';
 import { fetchBookings, deleteBookingAction } from '@/utils/actions';
 import CityFlagAndName from '@/components/card/CityFlagAndName';
+import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
 
 async function BookingsPage() {
   const bookings = await fetchBookings();
@@ -62,7 +63,7 @@ async function BookingsPage() {
                 <TableCell>{startDate}</TableCell>
                 <TableCell>{endDate}</TableCell>
                 <TableCell>
-                  <DeleteBooking bookingId={id} />
+                  <DeleteItemButton itemId={booking.id} itemType="booking" />
                 </TableCell>
               </TableRow>
             );
@@ -70,15 +71,6 @@ async function BookingsPage() {
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-function DeleteBooking({ bookingId }: { bookingId: string }) {
-  const deleteBooking = deleteBookingAction.bind(null, { bookingId });
-  return (
-    <FormContainer action={deleteBooking}>
-      <IconButton actionType='delete' />
-    </FormContainer>
   );
 }
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { XIcon, Trash2 } from 'lucide-react';
-import { deleteGaleryAction, deletePromotionAction, deleteRentalAction } from '@/utils/actions';
+import { deleteBookingAction, deleteGaleryAction, deletePromotionAction, deleteRentalAction, deleteReviewAction } from '@/utils/actions';
 import { useRouter } from 'next/navigation';
 
 function DeleteConfirmationModal({
@@ -45,7 +45,7 @@ function DeleteConfirmationModal({
   );
 }
 
-export default function DeleteItemButton({ itemId, itemType }: { itemId: string; itemType: 'gallery' | 'promotion' | 'property'}) {
+export default function DeleteItemButton({ itemId, itemType }: { itemId: string; itemType: 'gallery' | 'promotion' | 'property' | 'review' | 'booking' }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const router = useRouter();
 
@@ -57,6 +57,10 @@ export default function DeleteItemButton({ itemId, itemType }: { itemId: string;
         await deletePromotionAction({ promotionId: itemId });
       } else if (itemType === 'property') {
         await deleteRentalAction({ propertyId: itemId });
+      } else if (itemType === 'review') {
+        await deleteReviewAction({ reviewId: itemId });
+      } else if (itemType === 'booking') {
+        await deleteBookingAction({ bookingId: itemId });
       }
       router.refresh(); // Refresh the page to show updated data
     } catch (error) {
