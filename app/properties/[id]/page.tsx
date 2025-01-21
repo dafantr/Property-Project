@@ -37,7 +37,8 @@ const DynamicBookingWrapper = dynamic(
 async function PropertyDetailsPage({ params }: { params: { id: string } }) {
   const property = await fetchPropertyDetails(params.id);
   if (!property) redirect("/");
-  const { baths, bedrooms, beds, guests } = property;
+
+  const { baths, bedrooms, beds, guests, rating, count } = property;
   const details = { baths, bedrooms, beds, guests };
   const firstName = property.profile.firstName;
   const profileImage = property.profile.profileImage;
@@ -46,6 +47,8 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
   const isNotOwner = property.profile.clerkId !== userId;
   const reviewDoesNotExist =
     userId && isNotOwner && !(await findExistingReview(userId, property.id));
+
+  console.log("Property Rating:", rating, "Property Count:", count); // Debug log
 
   return (
     <section>
@@ -63,7 +66,8 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
         <div className="lg:col-span-8">
           <div className="flex gap-x-4 items-center">
             <h1 className="text-xl font-bold">{property.name}</h1>
-            <PropertyRating inPage propertyId={property.id} />
+            {/* Property Rating Component */}
+            <PropertyRating inPage={true} rating={rating ?? 0} count={count ?? 0} />
           </div>
           <PropertyDetails details={details} />
           <UserInfo profile={{ firstName, profileImage }} />
@@ -84,7 +88,5 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
     </section>
   );
 }
+
 export default PropertyDetailsPage;
-
-
-

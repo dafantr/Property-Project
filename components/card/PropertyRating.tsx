@@ -1,23 +1,32 @@
-import { fetchPropertyRating } from '@/utils/actions';
-import { FaStar } from 'react-icons/fa';
+import { FaStar } from "react-icons/fa";
 
-async function PropertyRating({
-  propertyId,
+function PropertyRating({
+  rating,
+  count,
   inPage,
 }: {
-  propertyId: string;
+  rating: number;
+  count: number;
   inPage: boolean;
 }) {
-  const { rating, count } = await fetchPropertyRating(propertyId);
-  if (count === 0) return null;
-  const className = `flex gap-1 items-center ${inPage ? 'text-md' : 'text-xs'}`;
-  const countText = count === 1 ? 'review' : 'reviews';
-  const countValue = `(${count}) ${inPage ? countText : ''}`;
+  if (rating == null || count == null || count === 0) return null;
+
+  // Display stars for rating
+  const ratingStars = Array.from({ length: 5 }, (_, i) => (
+    <FaStar
+      key={i}
+      className={`w-4 h-4 ${i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"}`}
+    />
+  ));
+
+  const countText = count === 1 ? "review" : "reviews";
+  const countValue = `(${count}) ${inPage ? countText : ""}`;
+
   return (
-    <span className={className}>
-      <FaStar className='w-3 h-3' />
-      {rating} {countValue}
-    </span>
+    <div className="flex items-center gap-1">
+      <div className="flex gap-1">{ratingStars}</div>
+      <span className="text-sm">{rating} {countValue}</span>
+    </div>
   );
 }
 

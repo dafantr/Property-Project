@@ -13,8 +13,6 @@ const MorePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchPromotions();
-
-            // Sort promotions by 'createdAt' field (newest first)
             const sortedData = data.sort(
                 (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
@@ -38,7 +36,7 @@ const MorePage = () => {
     return (
         <div className="relative">
             {/* Sticky Section, shifted down by 'top-16' */}
-            <div className="sticky top-10 z-10">
+            <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
                 <h3 className="capitalize text-2xl font-bold px-4 py-2">
                     All Exclusive Categories
                 </h3>
