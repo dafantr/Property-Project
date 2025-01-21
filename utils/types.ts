@@ -121,6 +121,7 @@ export type CreateMemberFormProps = {
 export type ReferralCommissionProps = {
   member: member;
   referralDetails: referralDetails[];
+  withdrawalRequestDetails: WithdrawalRequestDetails[];
 }
 
 export type UpdateMemberFormProps = {
@@ -174,3 +175,19 @@ export type ConfirmWithdrawModalProps = {
   setShowSuccessModal: (show: boolean) => void;
 }
 
+export type WithdrawalRequestDetails = {
+  id: string;
+  profile: profile;
+  amount: number;
+  bankName: string;
+  bankAccNumber: string;
+  bankAccName: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  createdAt: Date;
+}
+
+export type WithdrawalHistoryModalProps = {
+  member: member;
+  withdrawalRequestDetails: WithdrawalRequestDetails[];
+  setShowWithdrawalHistoryModal: (show: boolean) => void;
+}

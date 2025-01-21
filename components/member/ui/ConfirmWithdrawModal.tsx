@@ -5,6 +5,7 @@ import { ConfirmWithdrawModalProps } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import { useTheme } from "next-themes";
 import { createWithdrawalRequest } from "@/utils/actions";
+import { useRouter } from "next/navigation";
 
 export default function ConfirmWithdrawModal(
     {
@@ -13,6 +14,7 @@ export default function ConfirmWithdrawModal(
         setShowSuccessModal
     }: ConfirmWithdrawModalProps
 ) {
+    const router = useRouter();
     const { theme } = useTheme();
 
     const onBackdropClick = (e: React.MouseEvent) => {
@@ -75,9 +77,17 @@ export default function ConfirmWithdrawModal(
 				<FormContainer
 					action={async (prevState: any, formData: FormData) => {
 						// Pass the updated formData to the action
-						return createWithdrawalRequest(prevState, formData);
+						await createWithdrawalRequest(prevState, formData);
+						setShowWithdrawModal(false);
+						setShowSuccessModal(true);
+						setTimeout(() => {
+							setShowSuccessModal(false);
+							router.refresh();
+						}, 2000);
+
+						return { message: 'Withdrawal request submitted successfully' };
 					}}>
-					<div className="grid md:grid-cols-1 gap-4 mt-4">
+					<div className="grid md:grid-cols-2 gap-4 mt-4">
 						<FormInput
 							type="number"
 							name="amountWithdrawn"

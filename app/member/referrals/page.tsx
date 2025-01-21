@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchBookingCommissionTransaction, fetchReferralDetails } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchBookingCommissionTransaction, fetchReferralDetails, fetchWithdrawalRequest } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import ReferralCommission from "@/components/member/ReferralCommission";
 
@@ -18,7 +18,12 @@ export default async function ReferralComPage() {
 		throw new Error(referralDetails.message);
 	}
 
+	const withdrawalRequestDetails = await fetchWithdrawalRequest(member.profileId);
+	if('message' in withdrawalRequestDetails) {
+		throw new Error(withdrawalRequestDetails.message);
+	}
+
 	return (
-		<ReferralCommission member={member} referralDetails={referralDetails} />
+		<ReferralCommission member={member} referralDetails={referralDetails} withdrawalRequestDetails={withdrawalRequestDetails} />
 	);
 }

@@ -143,6 +143,7 @@ export default function CreateMemberForm({
 							label="Email Address"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 
 						<div className="form-group">

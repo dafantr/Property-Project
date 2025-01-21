@@ -1698,7 +1698,7 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
     const amountWithdrawn = parseFloat(formData.get('amountWithdrawn') as string);
     const bankName = formData.get('bankName') as string;
     const accountName = formData.get('bankAccName') as string;
-    const accountNumber = formData.get('bankAccNumber') as string;
+    const accountNumber = formData.get('bankAccNum') as string;
     const notes = formData.get('notes') as string;
 
     if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission" };
@@ -1720,6 +1720,30 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
   } catch (error) {
     return { message: "failed to create withdrawal request. " + error };
   }
+}
+
+export const fetchWithdrawalRequest = async (profileId: string) => {
+  const withdrawalRequest = await db.withdrawCommissionRequest.findMany({
+    where: {
+      profileId: profileId,
+    },
+    select: {
+      id: true,
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+        }
+      },
+      amount: true,
+      bankName: true,
+      bankAccNumber: true,
+      bankAccName: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+  return withdrawalRequest;
 }
 
 export { getAdminUser };

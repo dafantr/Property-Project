@@ -5,20 +5,21 @@ import { Copy, Share2 } from "lucide-react";
 import { useState } from "react";
 import ConfirmWithdrawModal from "./ui/ConfirmWithdrawModal";
 import SuccessModal from "./ui/SuccessModal";
+import WithdrawalHistoryModal from "./ui/WithdrawalHistoryModal";
 
 export default function ReferralCommission({
 	member,
 	referralDetails,
+	withdrawalRequestDetails,
 }: ReferralCommissionProps) {
 
-	const [showConfirmModal, setShowWithdrawModal] = useState(false);
-	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showWithdrawalHistoryModal, setShowWithdrawalHistoryModal] = useState(false);
 
 	const onWithdrawClick = () => {
-		setShowWithdrawModal(true);
+		setShowWithdrawalHistoryModal(true);
 	  };
-	  
-	  const [copied, setCopied] = useState(false);
+
+	const [copied, setCopied] = useState(false);
 
 	const referralLink = `${process.env.NEXT_PUBLIC_URL}/sign-up?ref=${member.memberId}`;
 	const referralCode = `${member.memberId}`;
@@ -51,6 +52,14 @@ export default function ReferralCommission({
 		  navigator.clipboard.writeText(referralLink);
 		}
 	  };
+
+	  const [statusFilter, setStatusFilter] = useState('all');
+
+	  const filteredReferrals = referralDetails.filter(detail => 
+		statusFilter === 'all' || 
+		(statusFilter === 'approved' && detail.paymentStatus) ||
+		(statusFilter === 'pending' && !detail.paymentStatus)
+	  );
 	  
 	return (
 		<div className="grid grid-cols-1 gap-4 md:gap-6">
@@ -100,16 +109,12 @@ export default function ReferralCommission({
 				</div>
 			</div>
 
-			{showConfirmModal && (
-				<ConfirmWithdrawModal member={member} setShowWithdrawModal={setShowWithdrawModal} setShowSuccessModal={setShowSuccessModal} />
-			)}
-
-			{showSuccessModal && (
-				<SuccessModal />
+			{showWithdrawalHistoryModal && (
+				<WithdrawalHistoryModal member={member} withdrawalRequestDetails={withdrawalRequestDetails} setShowWithdrawalHistoryModal={setShowWithdrawalHistoryModal} />
 			)}
 
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
-			<h3 className="font-semibold mb-2 dark:text-white">Commission History</h3>
+				<h3 className="font-semibold mb-2 dark:text-white">Commission History</h3>
 				<div className="overflow-x-auto">
 					{/* Desktop Table */}
 					<table className="w-full hidden md:table">
@@ -118,12 +123,22 @@ export default function ReferralCommission({
 								<th className="text-left py-2 px-4">Date</th>
 								<th className="text-left py-2 px-4">Referral Name</th>
 								<th className="text-left py-2 px-4">Amount</th>
-								<th className="text-left py-2 px-4">Status</th>
+								<th className="text-left py-2 px-4">Status : 
+									<select
+										className="py-1.5 text-sm rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+										value={statusFilter}
+										onChange={(e) => setStatusFilter(e.target.value)}
+										>
+										<option value="all">All</option>
+										<option value="approved">Approved</option>
+										<option value="pending">Pending</option>
+									</select>
+								</th>
 								<th className="text-left py-2 px-4">Source</th>
 							</tr>
 						</thead>
 						<tbody className="dark:text-gray-300">
-							{referralDetails.map((referralDetail) => (
+							{filteredReferrals.map((referralDetail) => (
 								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
 									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
 									<td className="py-2 px-4">{referralDetail.profile.firstName} {referralDetail.profile.lastName}</td>
@@ -147,9 +162,22 @@ export default function ReferralCommission({
 						</tbody>
 					</table>
 
+
+					<div className="md:hidden space-y-4 mb-4">
+						<select
+							className="px-3 py-1.5 text-sm border rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+							value={statusFilter}
+							onChange={(e) => setStatusFilter(e.target.value)}
+							>
+							<option value="all">Status : All</option>
+							<option value="approved">Status : Approved</option>
+							<option value="pending">Status : Pending</option>
+						</select>
+					</div>
+
 					{/* Mobile Cards */}
 					<div className="md:hidden space-y-4">
-						{referralDetails.map((referralDetail) => (
+						{filteredReferrals.map((referralDetail) => (
 							<div 
 								key={referralDetail.id} 
 								className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-700"
