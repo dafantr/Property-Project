@@ -1344,7 +1344,7 @@ export async function redeemReward(reward : reward): Promise<void> {
     const profile = await fetchProfile();
     if(profile === null) throw new Error("Profile not found");
 
-    const member = await fetchMember();
+    const member = await fetchMember(profile.clerkId);
     if(member === null) throw new Error("Member not found");
 
     if(member.point >= reward.pointReq){
@@ -1358,7 +1358,7 @@ export async function redeemReward(reward : reward): Promise<void> {
       });
 
       //deduct the member's point
-      await db.member.update({
+      const newMember = await db.member.update({
         where: {
           id: member.id,
         },
@@ -1477,7 +1477,7 @@ export const fetchReferralDetails = async (member : member) => {
     });
 
     const referralDetails: referralDetails[] = [
-      ...membershipCommissionTransaction.map(transaction => ({
+      ...membershipCommissionTransaction.map((transaction: { id: any; profile: any; commission: any; createdAt: any; paymentStatus: any; }) => ({
       id: transaction.id,
       profile: transaction.profile,
       commission: transaction.commission,
@@ -1485,7 +1485,7 @@ export const fetchReferralDetails = async (member : member) => {
       paymentStatus: transaction.paymentStatus,
       type: 'Membership' as const
     })),
-    ...bookingCommissionTransaction.map(transaction => ({
+    ...bookingCommissionTransaction.map((transaction: { id: any; profile: any; commission: any; createdAt: any; booking: { paymentStatus: any; }; }) => ({
       id: transaction.id,
       profile: transaction.profile,
       commission: transaction.commission,
@@ -1542,14 +1542,14 @@ export const fetchLoyaltyPointDetails = async (member : member) => {
     });
 
     const loyaltyPointDetails: loyaltyPointDetails[] = [
-      ...membershipCommissionTransaction.map(transaction => ({
+      ...membershipCommissionTransaction.map((transaction: { id: any; profile: any; createdAt: any; }) => ({
       id: transaction.id,
       profile: transaction.profile,
       createdAt: transaction.createdAt,
       point: 1,
       type: 'Membership Referral' as const
     })),
-    ...pointTransaction.map(transaction => ({
+    ...pointTransaction.map((transaction: { id: any; profile: any; createdAt: any; reward: { pointReq: any; rewardName: any; }; }) => ({
       id: transaction.id,
       profile: transaction.profile,
       createdAt: transaction.createdAt,
@@ -1561,6 +1561,42 @@ export const fetchLoyaltyPointDetails = async (member : member) => {
   } catch (error) {
     console.error('Error fetching rewards:', error);
     return { message: 'Error fetching rewards' };
+  }
+}
+
+export const createWithdrawalRequest = async (prevState: any, formData: FormData) => {
+  try {
+
+    const profile = await fetchProfile();
+    if(profile === null) throw new Error("Profile not found");
+
+    const member = await fetchMember(profile.clerkId);
+    if(member === null) throw new Error("Member not found");
+
+    const amountWithdrawn = parseFloat(formData.get('amountWithdrawn') as string);
+    const bankName = formData.get('bankName') as string;
+    const accountName = formData.get('bankAccName') as string;
+    const accountNumber = formData.get('bankAccNumber') as string;
+    const notes = formData.get('notes') as string;
+
+    if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission" };
+    if(amountWithdrawn <= 0) return { message: "Amount withdrawn must be greater than 0" };
+    
+    await db.withdrawCommissionRequest.create({
+      data: {
+        profileId: profile.clerkId,
+        amount: amountWithdrawn,
+        bankName: bankName,
+        bankAccNumber: accountNumber,
+        bankAccName: accountName,
+        notes: notes,
+        status: 'Pending',
+      },
+    });
+
+    return { message: 'Withdrawal request created successfully' };
+  } catch (error) {
+    return { message: "failed to create withdrawal request. " + error };
   }
 }
 

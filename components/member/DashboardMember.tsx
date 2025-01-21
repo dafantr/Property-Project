@@ -1,9 +1,12 @@
 "use client"
 import { Copy, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { dashboardMemberProps } from "@/utils/types";
+import { dashboardMemberProps, reward } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import DownlinePreview from "./DownlinePreview";
+import { useState } from "react";
+import SuccessModal from "./ui/SuccessModal";
+import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
 
 const exampleData = {
     id: "1",
@@ -69,10 +72,51 @@ export default function DashboardMember({
     referralDetails,
 	loyaltyPointDetails
 }: dashboardMemberProps) {
-    function handleRedeem(reward: any): void {
-		console.log(reward.rewardName);
-	}
+
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [selectedReward, setSelectedReward] = useState<reward | null>(null);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+	const onRedeemClick = (reward: reward) => {
+		setSelectedReward(reward);
+		setShowConfirmModal(true);
+	  };
+  
     const router = useRouter();
+
+	const [copied, setCopied] = useState(false);
+
+	const referralLink = `${process.env.NEXT_PUBLIC_URL}/sign-up?ref=${member.memberId}`;
+	const referralCode = `${member.memberId}`;
+
+	const copyToClipboard = () => {
+		navigator.clipboard.writeText(referralCode);
+		setCopied(true);
+		
+		// Reset the "Copied!" message after 2 seconds
+		setTimeout(() => {
+		setCopied(false);
+		}, 2000);
+	};
+
+	const handleShare = async () => {
+		// Check if Web Share API is supported
+		if (navigator.share) {
+		  try {
+			await navigator.share({
+			  title: 'Join with my referral link',
+			  text: 'Sign up using my referral link!',
+			  url: referralLink,
+			});
+		  } catch (error) {
+			// User cancelled or share failed
+			console.log('Share failed:', error);
+		  }
+		} else {
+		  // Fallback to copying to clipboard
+		  navigator.clipboard.writeText(referralLink);
+		}
+	  };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 gap-6">
@@ -154,11 +198,19 @@ export default function DashboardMember({
 				<div className="mb-4">
 					<p className="mb-2 dark:text-gray-300">Unique Referral Code: {member.memberId}</p>
 					<div className="flex flex-col sm:flex-row gap-2">
-						<button className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors">
-							<Copy className="h-4 w-4" /> Copy Referral Code
+						<button 
+							onClick={copyToClipboard}
+							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							>
+							<Copy className="h-4 w-4" />
+							{copied ? "Copied!" : "Copy Referral Code"}
 						</button>
-						<button className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors">
-							<Share2 className="h-4 w-4" /> Share Referral Link
+						<button 
+							onClick={handleShare}
+							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							>
+							<Share2 className="h-4 w-4" /> 
+							Share Referral Link
 						</button>
 					</div>
 				</div>
@@ -249,11 +301,17 @@ export default function DashboardMember({
 					{/* Desktop Table */}
 					<table className="w-full hidden md:table">
 						<tbody className="dark:text-gray-300">
-							{loyaltyPointDetails.map((loyaltyPointDetail) => (
-								<tr key={loyaltyPointDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
-									<td className="py-2 px-4">{loyaltyPointDetail.type} - {loyaltyPointDetail.point} point</td>
+							{loyaltyPointDetails.length > 0 ? (
+								loyaltyPointDetails.slice(-3).map((loyaltyPointDetail) => (
+									<tr key={loyaltyPointDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
+										<td className="py-2 px-4">{loyaltyPointDetail.type} - {loyaltyPointDetail.point} point</td>
+									</tr>
+								))
+							) : (
+								<tr>
+									<td className="py-2 px-4">No activities found</td>
 								</tr>
-							))}
+							)}
 						</tbody>
 					</table>
 
@@ -277,7 +335,7 @@ export default function DashboardMember({
 						{member.point >= reward.pointReq ? (
 						<button 
 							className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
-							onClick={() => handleRedeem(reward)}
+							onClick={() => onRedeemClick(reward)}
 						>
 							Redeem
 						</button>
@@ -290,6 +348,15 @@ export default function DashboardMember({
 					))}
 				</div>
 			</div>
+
+			{/* Confirmation Modal */}
+			{showConfirmModal && (
+				<ConfirmRedeemModal selectedReward={selectedReward} setShowConfirmModal={setShowConfirmModal} setShowSuccessModal={setShowSuccessModal} />
+			)}
+
+			{showSuccessModal && (
+				<SuccessModal/>
+			)}
 
 			{/* Downline Tree Card */}
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">

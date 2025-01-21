@@ -167,3 +167,10 @@ export type loyaltyPointDetails = {
   type: 'Membership Referral' | `Redeem Reward: ${string}`;
   point: number;
 }
+
+export type ConfirmWithdrawModalProps = {
+  member: member;
+  setShowWithdrawModal: (show: boolean) => void;
+  setShowSuccessModal: (show: boolean) => void;
+}
+

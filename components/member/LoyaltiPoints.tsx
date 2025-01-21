@@ -1,6 +1,9 @@
 "use client"
 import { redeemReward } from "@/utils/actions";
 import { LoyaltiPointsProps, reward } from "@/utils/types";
+import { useState } from "react";
+import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
+import SuccessModal from "./ui/SuccessModal";
 
 export default function LoyaltiPoints({
 	member,
@@ -8,14 +11,14 @@ export default function LoyaltiPoints({
 	loyaltyPointDetails,
 }: LoyaltiPointsProps) {
 
-	const handleRedeem = async (reward : reward) => {
-		try {
-			await redeemReward(reward);
-			console.log(reward.rewardName);
-		} catch (error) {
-			console.log("Failed to redeem reward.");
-		}
-	}
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [selectedReward, setSelectedReward] = useState<reward | null>(null);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+	const onRedeemClick = (reward: reward) => {
+		setSelectedReward(reward);
+		setShowConfirmModal(true);
+	  };
 
 	return (
 		<div className="grid grid-cols-1 gap-4 md:gap-6">
@@ -35,8 +38,9 @@ export default function LoyaltiPoints({
 							</tr>
 						</thead>
 						<tbody className="dark:text-gray-300">
-							{loyaltyPointDetails.map((loyaltyPointDetail) => (
-								<tr key={loyaltyPointDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
+							{loyaltyPointDetails.length > 0 ? (
+								loyaltyPointDetails.map((loyaltyPointDetail) => (
+									<tr key={loyaltyPointDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
 									<td className="py-2 px-4">{loyaltyPointDetail.createdAt.toLocaleDateString()}</td>
 									<td className="py-2 px-4">{loyaltyPointDetail.type}</td>
 									<td className="py-2 px-4">
@@ -51,7 +55,14 @@ export default function LoyaltiPoints({
 									)}
 									</td>
 								</tr>
-							))}
+								))
+							) : (
+								<tr>
+									<td className="py-2 px-4 text-gray-500 dark:text-gray-400">No Data</td>
+									<td className="py-2 px-4 text-gray-500 dark:text-gray-400">No Data</td>
+									<td className="py-2 px-4 text-gray-500 dark:text-gray-400">No Data</td>
+								</tr>
+							)}
 						</tbody>
 					</table>
 				</div>
@@ -106,7 +117,7 @@ export default function LoyaltiPoints({
 							{member.point >= reward.pointReq ? (
 							<button 
 								className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
-								onClick={() => handleRedeem(reward)}
+								onClick={() => onRedeemClick(reward)}
 							>
 								Redeem
 							</button>
@@ -120,6 +131,14 @@ export default function LoyaltiPoints({
 				</div>
 			</div>
 			
+			{/* Confirmation Modal */}
+			{showConfirmModal && (
+				<ConfirmRedeemModal selectedReward={selectedReward} setShowConfirmModal={setShowConfirmModal} setShowSuccessModal={setShowSuccessModal} />
+			)}
+
+			{showSuccessModal && (
+				<SuccessModal/>
+			)}
 			
 			</div>
 		</div>
