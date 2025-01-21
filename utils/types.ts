@@ -17,7 +17,7 @@ export type PropertyCardProps = {
     endDate: Date;
     key: string;
   };
-  
+
   export type Booking = {
     checkIn: Date;
     checkOut: Date;
@@ -40,7 +40,9 @@ export type PropertyCardProps = {
   export type member = {
     id: string;
     profileId: string;
+    parentId: string;
     memberId: string;
+    createdAt: Date;
     isActive: number;
     commission: number;
     point: number;
@@ -60,7 +62,7 @@ export type PropertyCardProps = {
 		firstName: string;
 		lastName: string;
 		email: string;
-  }  
+  }
 
   export type reward = {
     id: string;

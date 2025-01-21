@@ -6,6 +6,7 @@ import NavMenu from "./NavMenu";
 import Link from "next/link";
 
 import DashboardNavbar from "./DashboardNavbar";
+import AdminNavbar from "./AdminNavbar";
 
 function Navbar() {
 	return (
@@ -29,7 +30,8 @@ function Navbar() {
 					</div>
 				</div>
 			</div>
-		<DashboardNavbar/>
+			<DashboardNavbar />
+			<AdminNavbar />
 		</nav>
 	);
 }
