@@ -38,8 +38,8 @@ export default function EditMemberForm({
 	});
 
 	return (
-		<Card className="max-w-4xl mx-auto p-6">
-			<h2 className="text-2xl font-bold mb-6">Member Profile</h2>
+		<Card className="max-w-4xl mx-auto p-4 sm:p-6 dark:bg-black">
+			<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 dark:text-white">Member Profile</h2>
 			<FormContainer
 				action={async (prevState: any, formData: FormData) => {
 					formData.append("citizen", citizen?.value || "");
@@ -49,7 +49,7 @@ export default function EditMemberForm({
 					);
 					return updateMemberAdminAction(prevState, formData);
 				}}>
-				<div className="grid md:grid-cols-2 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 					<FormInput
 						type="text"
 						name="memberId"
@@ -76,7 +76,7 @@ export default function EditMemberForm({
 					/>
 
 					<div>
-						<label className="block text-sm font-medium mb-2">Citizen</label>
+						<label className="block text-sm font-medium mb-2 dark:text-white">Citizen</label>
 						<Select
 							value={citizen}
 							onChange={setCitizen}
@@ -84,17 +84,25 @@ export default function EditMemberForm({
 							className="w-full"
 							classNamePrefix="select"
 							placeholder="Select citizenship"
+							theme={(theme) => ({
+								...theme,
+								colors: {
+									...theme.colors,
+									neutral0: 'var(--background)',
+									neutral80: 'var(--foreground)',
+								},
+							})}
 						/>
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium mb-2">
+						<label className="block text-sm font-medium mb-2 dark:text-white">
 							Date of Birth
 						</label>
 						<DatePicker
 							selected={birthDate}
 							onChange={setBirthDate}
-							className="w-full p-2 border rounded-md"
+							className="w-full p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700"
 							dateFormat="yyyy-MM-dd"
 							placeholderText="Select date"
 						/>
@@ -198,15 +206,15 @@ export default function EditMemberForm({
 						defaultValue={member.totalDownline?.toString() || "N/A" || ""}
 					/> */}
 
-					<div className="col-span-2 flex gap-4 justify-end">
+					<div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4 justify-end">
 						<button
 							type="button"
-							className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+							className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 dark:border-gray-700 dark:text-white dark:hover:bg-gray-900">
 							Discard
 						</button>
 						<button
 							type="submit"
-							className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+							className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
 							Apply changes
 						</button>
 					</div>
