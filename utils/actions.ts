@@ -1740,7 +1740,7 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
 
     if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission" };
     if(amountWithdrawn <= 0) return { message: "Amount withdrawn must be greater than 0" };
-    
+
     await db.withdrawCommissionRequest.create({
       data: {
         profileId: profile.clerkId,
@@ -1782,5 +1782,78 @@ export const fetchWithdrawalRequest = async (profileId: string) => {
   });
   return withdrawalRequest;
 }
+
+export const updateMemberAdminAction = async (
+	prevState: any,
+	formData: FormData
+): Promise<{ message: string }> => {
+	try {
+		const memberId = formData.get("memberId") as string;
+		console.log("Attempting to update member with ID:", memberId); // Debug log
+
+		// Fetch member directly using Prisma instead of fetchMember helper
+		const member = await db.member.findUnique({
+			where: {
+				id: memberId,
+			},
+			include: {
+				profile: true,
+			},
+		});
+
+		if (!member) {
+			console.log("Member not found with ID:", memberId); // Debug log
+			throw new Error("Member not found");
+		}
+
+		const fullName = formData.get("fullName") as string;
+		const [firstName, lastName] = fullName.split(" ");
+		const email = formData.get("email") as string;
+		const phone = formData.get("phone") as string;
+		const address = formData.get("address") as string;
+		const citizen = formData.get("citizen") as string;
+		const gender = formData.get("gender") as string;
+		const bankName = formData.get("bankName") as string;
+		const bankAccNum = formData.get("bankAccNum") as string;
+		const bankAccName = formData.get("bankAccName") as string;
+		const birthDate = formData.get("birthDate") as string;
+
+		// Update profile
+		await db.profile.update({
+			where: {
+				clerkId: member.profileId,
+			},
+			data: {
+				firstName: firstName || "",
+				lastName: lastName || "",
+				email: email || "",
+			},
+		});
+
+		// Update member
+		const updatedMember = await db.member.update({
+			where: {
+				id: memberId,
+			},
+			data: {
+				phone: phone || null,
+				address: address || null,
+				dob: birthDate || null,
+				citizen: citizen || null,
+				gender: gender || null,
+				bankName: bankName || null,
+				bankAccNum: bankAccNum || null,
+				bankAccName: bankAccName || null,
+			},
+		});
+
+		console.log("Member updated successfully:", updatedMember); // Debug log
+		revalidatePath("/admin/memberOverview");
+		return { message: "Member updated successfully" };
+	} catch (error) {
+		console.error("Full error details:", error); // More detailed error logging
+		return renderError(error);
+	}
+};
 
 export { getAdminUser };

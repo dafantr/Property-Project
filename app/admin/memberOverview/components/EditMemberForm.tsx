@@ -2,7 +2,7 @@
 
 import FormContainer from "@/components/form/FormContainer";
 import FormInput from "@/components/form/FormInput";
-import { updateMemberAction } from "@/utils/actions";
+import { updateMemberAdminAction } from "@/utils/actions";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import Select from "react-select";
@@ -47,8 +47,7 @@ export default function EditMemberForm({
 						"birthDate",
 						birthDate ? birthDate.toLocaleDateString("en-CA") : ""
 					);
-					formData.append("memberId", memberData.id);
-					return updateMemberAction(prevState, formData);
+					return updateMemberAdminAction(prevState, formData);
 				}}>
 				<div className="grid md:grid-cols-2 gap-6">
 					<FormInput

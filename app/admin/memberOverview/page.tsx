@@ -76,6 +76,7 @@ export default async function CMSPage() {
 				initialMembers={members.map((member) => ({
 					...member,
 					joinDate: member.profile.createdAt.toISOString().split("T")[0],
+					parentId: member.parentId ?? '',
 				}))}
 			/>
 		</div>
