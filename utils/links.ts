@@ -24,7 +24,11 @@ export const groupedLinks = {
   ],
   admin: <NavLink[]>[
     { href: '/reservations', label: 'reservations' },
-    { href: '/admin', label: 'admin' }
+    { href: '/admin/dashboard', label: 'admin dashboard' },
+    { href: '/admin/memberOverview', label: 'member overview' },
+    { href: '/admin/referralCommissions', label: 'referral & commissions' },
+    { href: '/admin/memberLoyaltyOverview', label: 'loyalty points & rewards' },
+    { href: '/admin/downline', label: 'downline tree' },
   ],
   profile: <NavLink[]>[
     { href: '/profile', label: 'profile' },
@@ -34,9 +38,13 @@ export const groupedLinks = {
     { href: '/member/dashboard', label: 'dashboard' },
     { href: '/member/profile', label: 'member profile' },
     { href: '/member/referrals', label: 'referrals & commissions' },
-    { href: '/member/rewards', label: 'rewards' },
+    { href: '/member/rewards', label: 'loyalty points & rewards' },
     { href: '/member/downline', label: 'downline' },
-    { href: '/member/contact', label: 'contact' },
+  ],
+  marketing: <NavLink[]>[
+    { href: '/marketing/dashboard', label: 'dashboard' },
+    { href: '/marketing/profile', label: 'member profile' },
+    { href: '/marketing/referrals', label: 'referrals & commissions' },
   ],
 
 };
