@@ -1083,7 +1083,7 @@ export const createMemberAction = async (
 	const proofOfPayment = formData.get("paymentProof") as File;
 
 	let closerCode = formData.get("closerCode") as string;
-	
+
 	let closerValid = false;
 	let referalValid = false;
 
@@ -1394,7 +1394,7 @@ const createDownlineSelect = (depth: number) => {
 	  lastName: true,
 	  profileImage: true,
 	};
-  
+
 	const buildSelect = (currentDepth: number): any => {
 	  if (currentDepth === 0) {
 		return {
@@ -1403,7 +1403,7 @@ const createDownlineSelect = (depth: number) => {
 			profile: { select: profileSelect }
 		};
 	  }
-  
+
 	  return {
 		id: true,
 		memberId: true,
@@ -1413,7 +1413,7 @@ const createDownlineSelect = (depth: number) => {
 		}
 	  };
 	};
-  
+
 	return {
 	  id: true,
 	  profile: { select: profileSelect },
@@ -1856,7 +1856,7 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
 
     if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission", status: 'error' };
     if(amountWithdrawn < 1) return { message: "Amount withdrawn must be greater than 0", status: 'error' };
-    
+
     await db.withdrawCommissionRequest.create({
       data: {
         profileId: profile.clerkId,
@@ -1958,3 +1958,43 @@ export const createMemberAdminAction = async (
 };
 
 export { getAdminUser };
+
+export const fetchMemberRequests = async () => {
+  try {
+    const memberRequests = await db.member.findMany({
+      where: {
+        isActive: 0,
+        profileId: {
+          in: db.membershipCommissionTransaction.findMany({
+            where: {
+              paymentMethod: "tf",
+              paymentStatus: false
+            },
+            select: {
+              profileId: true
+            }
+          }).then(transactions => transactions.map(t => t.profileId))
+        }
+      },
+      include: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+            createdAt: true
+          }
+        },
+        tier: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    return memberRequests;
+  } catch (error) {
+    console.error("Error fetching member requests:", error);
+    throw new Error("Failed to fetch member requests");
+  }
+};
