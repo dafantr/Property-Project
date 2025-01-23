@@ -17,18 +17,18 @@ export default async function EditMemberPage({
 	const citizenshipOptions = await fetchCitizenshipOptions();
 
 	return (
-		<main className="flex min-h-screen flex-col p-6">
-			<div className="flex items-center gap-4 mb-6">
+		<main className="flex min-h-screen flex-col p-4 sm:p-6 dark:bg-black">
+			<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
 				<Link
 					href="/cms"
-					className="flex items-center text-sm text-gray-500 hover:text-gray-700">
+					className="flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
 					<ArrowLeft className="w-4 h-4 mr-1" />
 					Back to Members
 				</Link>
-				<h1 className="text-2xl font-bold">Member Profile</h1>
+				<h1 className="text-xl sm:text-2xl font-bold dark:text-white">Member Profile</h1>
 			</div>
 
-			<div className="bg-white rounded-lg shadow-sm p-8">
+			<div className="bg-white dark:bg-black rounded-lg shadow-sm p-4 sm:p-8">
 				<EditMemberForm
 					member={JSON.stringify(memberDatas)}
 					citizenshipOptions={citizenshipOptions}
