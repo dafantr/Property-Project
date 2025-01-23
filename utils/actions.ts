@@ -1062,7 +1062,6 @@ export const createMemberAction = async (
 	prevState: any,
 	formData: FormData
 ): Promise<{ message: string }> => {
-	const email = formData.get("email") as string;
 	const citizen = formData.get("citizen") as string;
 	const phone = formData.get("phone") as string;
 	const address = formData.get("address") as string;
@@ -1070,15 +1069,18 @@ export const createMemberAction = async (
 	const bankName = formData.get("bankName") as string;
 	const bankAccNum = formData.get("bankAccNum") as string;
 	const bankAccName = formData.get("bankAccName") as string;
-	const referalCode = formData.get("referalCode") as string; //parentId
+	const referalCode = formData.get("referalCode") as string;
 	const dob = formData.get("birthDate") as string;
 	const formattedDate = dob.slice(0, 10);
 	const totalPrice = formData.get("totalPrice") as string;
-	const closerCode = formData.get("closerCode") as string;
+	const paymentMethod = formData.get("paymentMethod") as string;
+	const proofOfPayment = formData.get("paymentProof") as File;
 
-	console.log(formData);
+	let closerCode = formData.get("closerCode") as string;
+	
+	let closerValid = false;
+	let referalValid = false;
 
-	const tier = await fetchTierByLevel(1);
 	const memberId = await generateUniqueMemberId();
 
 	let transactionId = null;
@@ -1092,27 +1094,43 @@ export const createMemberAction = async (
 
 		await deleteIncompleteMember(profile?.clerkId);
 
-		// cek referalCode
-		if (referalCode.length > 0 && !(await validateReferalCode(referalCode))) {
-			throw new Error("Invalid referral code");
-		}
-
-		// cek closerCode
-		// if(closerCode.length > 0 && !await validateReferalCode(closerCode)){
-		//   throw new Error("Invalid closer code");
-		// }
-
 		// cek if member already exist
 		if (await fetchMember(profile?.clerkId)) {
 			throw new Error("Member already exist");
 		}
 
+		// cek referalCode
+		if (referalCode.length > 0 ) {
+			referalValid = await validateReferalCode(referalCode);
+			if(!referalValid){
+				throw new Error("Invalid referral code");
+			}
+		}
+
+		if(closerCode.length > 0){
+			closerValid = await validateReferalCode(closerCode);
+			if(!closerValid){
+				throw new Error("Invalid closer code");
+			}
+		}
+
+		// cek closerCode
+		if(referalCode.length > 0 && referalValid && (closerCode.length === 0 || closerCode === null || closerCode === undefined || closerCode === "")){
+		  closerCode = referalCode;
+		}
+
+		const tier = await fetchTierByLevel(1);
+		if(tier === null) throw new Error("Tier not found");
+
+		const parentMember = await fetchMember(undefined, referalCode);
+
 		await db.member.create({
 			data: {
 				memberId: memberId,
 				profileId: profile?.clerkId,
-				parentId: referalCode,
-				tierId: tier?.id == null ? "" : tier.id,
+				parentMemberId: referalCode,
+				parentId: parentMember?.id,
+				tierId: tier.id,
 				citizen: citizen,
 				dob: formattedDate,
 				phone: phone,
@@ -1124,20 +1142,27 @@ export const createMemberAction = async (
 			},
 		});
 
-		if (referalCode.length > 0) {
-			const membershipCommissionTransactionId =
-				await createMembershipCommissionTransaction(
-					referalCode,
-					closerCode,
-					profile?.clerkId,
-					parseInt(totalPrice)
-				);
-			transactionId = membershipCommissionTransactionId.toString();
-		}
+		const membershipCommissionTransactionId =
+			await createMembershipCommissionTransaction(
+				referalCode,
+				closerCode,
+				profile?.clerkId,
+				parseInt(totalPrice),
+				paymentMethod,
+				proofOfPayment.name
+			);
+		transactionId = membershipCommissionTransactionId.toString();
+
 	} catch (error) {
 		return renderError(error);
 	}
-	redirect(`/member/checkout?mId=${memberId}&trId=${transactionId}`);
+
+	if(paymentMethod === "CC"){
+		redirect(`/member/checkout?mId=${memberId}&trId=${transactionId}`);
+	} else {
+		revalidatePath('/');
+		redirect('/');
+	}
 };
 
 const generateUniqueMemberId = async () => {
@@ -1303,6 +1328,29 @@ export const updateMemberCommission = async (
 	}
 };
 
+export const updateCloserCommission = async (
+	memberId: string,
+	commission: any
+) => {
+	try {
+		const member = await fetchMember(undefined, memberId);
+
+		if (member === null) throw new Error("Member Not Found!");
+
+		await db.member.update({
+			where: {
+				id: member.id,
+			},
+			data: {
+				commission: member.commission + commission,
+			},
+		});
+
+	} catch (error) {
+		return renderError(error);
+	}
+};
+
 export const fetchTierById = async (id: string) => {
 	return await db.tier.findUnique({
 		where: {
@@ -1326,7 +1374,50 @@ export const fetchDownline = async (memberId: string) => {
 		},
 	});
 };
-// END MEMBERSHIP
+
+export const fetchDownlines = async (memberId: string, depth: number) => {
+	return await db.member.findUnique({
+		where: { id: memberId },
+		select: createDownlineSelect(depth) // Get 5 levels of downlines
+	  });
+};
+
+const createDownlineSelect = (depth: number) => {
+	const profileSelect = {
+	  firstName: true,
+	  lastName: true,
+	  profileImage: true,
+	};
+  
+	const buildSelect = (currentDepth: number): any => {
+	  if (currentDepth === 0) {
+		return {
+			id: true,
+			memberId: true,
+			profile: { select: profileSelect }
+		};
+	  }
+  
+	  return {
+		id: true,
+		memberId: true,
+		profile: { select: profileSelect },
+		downlines: {
+		  select: buildSelect(currentDepth - 1)
+		}
+	  };
+	};
+  
+	return {
+	  id: true,
+	  profile: { select: profileSelect },
+	  memberId: true,
+	  isActive: true,
+	  downlines: {
+		select: buildSelect(depth - 1)
+	  }
+	};
+  };
 
 export const fetchBookingCommissionTransaction = async (
 	referalCode: string
@@ -1377,22 +1468,41 @@ export const createMembershipCommissionTransaction = async (
 	referalCode: string,
 	closerCode: string,
 	clerkId: string,
-	totalPrice: number
+	totalPrice: number,
+	paymentMethod: string,
+	proofOfPayment: string
 ) => {
 	try {
-		const refCommission = await calculateCommission(referalCode, totalPrice);
-		const membershipCommissionTransaction =
+		let membershipCommissionTransaction = null;
+
+		if(referalCode.length > 0){
+			const refCommission = await calculateCommission(referalCode, totalPrice);
+			membershipCommissionTransaction =
 			await db.membershipCommissionTransaction.create({
 				data: {
 					profileId: clerkId,
 					commission: refCommission,
-					closerId: "",
+					closerId: closerCode,
 					closerCommission: totalPrice * 0.03,
 					referalCode: referalCode,
 					paymentStatus: false,
+					paymentMethod: paymentMethod,
+					proofOfPayment: proofOfPayment,
 				},
 			});
 
+		} else {
+			membershipCommissionTransaction =
+			await db.membershipCommissionTransaction.create({
+				data: {
+					profileId: clerkId,
+					paymentStatus: false,
+					paymentMethod: paymentMethod,
+					proofOfPayment: proofOfPayment,
+				},
+			});
+		}
+		console.log(membershipCommissionTransaction);
 		return membershipCommissionTransaction.id;
 	} catch (error) {
 		console.error("Error creating membership commission transaction", error);
@@ -1738,9 +1848,9 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
     const accountNumber = formData.get('bankAccNum') as string;
     const notes = formData.get('notes') as string;
 
-    if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission" };
-    if(amountWithdrawn <= 0) return { message: "Amount withdrawn must be greater than 0" };
-
+    if(amountWithdrawn > member.commission) return { message: "Amount withdrawn is greater than the commission", status: 'error' };
+    if(amountWithdrawn < 1) return { message: "Amount withdrawn must be greater than 0", status: 'error' };
+    
     await db.withdrawCommissionRequest.create({
       data: {
         profileId: profile.clerkId,
@@ -1753,9 +1863,9 @@ export const createWithdrawalRequest = async (prevState: any, formData: FormData
       },
     });
 
-    return { message: 'Withdrawal request created successfully' };
+    return { message: 'Withdrawal request created successfully', status: 'success' };
   } catch (error) {
-    return { message: "failed to create withdrawal request. " + error };
+    return { message: "failed to create withdrawal request. " + error, status: 'error' };
   }
 }
 

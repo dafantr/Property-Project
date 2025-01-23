@@ -3,6 +3,7 @@ import SuccessModal from "./SuccessModal";
 import ConfirmWithdrawModal from "./ConfirmWithdrawModal";
 import { WithdrawalHistoryModalProps } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
+import ErrorModal from "./ErrorModal";
 
 export default function WithdrawalHistoryModal({
     setShowWithdrawalHistoryModal,
@@ -12,6 +13,7 @@ export default function WithdrawalHistoryModal({
 
     const [showConfirmModal, setShowWithdrawModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
     const onBackdropClick = (e: React.MouseEvent) => {
 		if (e.target === e.currentTarget) {
@@ -154,10 +156,14 @@ export default function WithdrawalHistoryModal({
             </div>
             
             {showConfirmModal && (
-                <ConfirmWithdrawModal member={member} setShowWithdrawModal={setShowWithdrawModal} setShowSuccessModal={setShowSuccessModal} />
+                <ConfirmWithdrawModal member={member} setShowWithdrawModal={setShowWithdrawModal} setShowSuccessModal={setShowSuccessModal} setShowErrorModal={setShowErrorModal} />
             )}
             {showSuccessModal && (
-                <SuccessModal />
+                <SuccessModal message="Withdrawal request created successfully" />
+            )}
+
+            {showErrorModal && (
+                <ErrorModal message="Failed to create withdrawal request" />
             )}
 
 		</div>

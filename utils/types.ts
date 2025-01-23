@@ -42,7 +42,7 @@ export type PropertyCardProps = {
   export type member = {
     id: string;
     profileId: string;
-    parentId: string;
+    parentMemberId: string;
     memberId: string;
     createdAt: Date;
     isActive: number;
@@ -99,10 +99,15 @@ export type LoyaltiPointsProps = {
 }
 
 export type Downline = {
-  memberId: string;
   id: string;
-  name: string;
-  downlines?: Downline[];
+  profile: {
+    firstName: string;
+    lastName: string;
+    profileImage: string;
+  },
+  memberId: string;
+  isActive: number;
+  downlines: Downline[];
 };
 
 export type DownlineProps = {
@@ -175,6 +180,7 @@ export type ConfirmWithdrawModalProps = {
   member: member;
   setShowWithdrawModal: (show: boolean) => void;
   setShowSuccessModal: (show: boolean) => void;
+  setShowErrorModal: (show: boolean) => void;
 }
 
 export type WithdrawalRequestDetails = {
@@ -192,4 +198,10 @@ export type WithdrawalHistoryModalProps = {
   member: member;
   withdrawalRequestDetails: WithdrawalRequestDetails[];
   setShowWithdrawalHistoryModal: (show: boolean) => void;
+}
+
+export type dashboardMarketingProps = {
+  member: member;
+  profile: profile;
+  referralDetails: referralDetails[];
 }

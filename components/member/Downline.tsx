@@ -1,6 +1,6 @@
 "use client"
 import { DownlineProps } from "@/utils/types";
-import { ChevronDown, ChevronRight, User } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, User } from "lucide-react";
 import { useState } from "react";
 
 export default function Downline({
@@ -9,20 +9,69 @@ export default function Downline({
 }: DownlineProps) {
     
     const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
     const hasDownlines = member.downlines && member.downlines.length > 0;
+
+     // Search function
+    const highlightNode = (node: any) => {
+        const searchLower = searchTerm.toLowerCase();
+        const nameMatch = node.profile.firstName.toLowerCase().includes(searchLower);
+        const idMatch = node.memberId.toLowerCase().includes(searchLower);
+        return nameMatch || idMatch;
+    };
+
+    if (level === 0) {
+        return (
+        <div className={`flex items-center justify-center w-20 sm:w-24 md:w-28 lg:w-32 h-20 sm:h-24 md:h-28 lg:h-32 bg-white dark:bg-zinc-800 border-2 ${highlightNode(member) ? 'border-green-500' : 'border-[#C4A777]'} rounded-lg`}>
+            <div className="text-center">
+              {member.profile.profileImage ? (
+                <img 
+                  src={member.profile.profileImage} 
+                  alt="Profile Image" 
+                  className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 object-cover rounded-full p-1"
+                />
+              ) : (
+                <User className="w-6 sm:w-7 md:w-8 lg:w-9 h-6 sm:h-7 md:h-8 lg:h-9 mx-auto mb-1 text-[#C4A777]" />
+              )}
+              <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
+                {member.profile.firstName}
+              </p>
+              <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
+                {member.memberId}
+              </p>
+              {hasDownlines && (
+                <button 
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="text-gray-500 hover:text-[#C4A777]"
+                >
+                  {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </button>
+              )}
+            </div>
+        </div>
+        );
+      }
+
 	return (
         <div className="relative">
             {/* Node */}
-            <div className="flex flex-col items-center">
-                <div className="flex items-center justify-center w-20 sm:w-24 md:w-32 h-20 sm:h-24 md:h-32 rounded-full border-2 border-[#C4A777] bg-white dark:bg-zinc-800 shadow-md">
+            <div className={`flex flex-col items-center transition-all duration-200 ${highlightNode(member) ? 'scale-105' : ''}`}>
+            <div className={`flex items-center justify-center w-20 sm:w-24 md:w-28 lg:w-32 h-20 sm:h-24 md:h-28 lg:h-32 bg-white dark:bg-zinc-800 border-2 ${highlightNode(member) ? 'border-green-500' : 'border-[#C4A777]'} rounded-lg`}>
                 <div className="text-center">
-                    <User className="w-6 sm:w-7 md:w-8 h-6 sm:h-7 md:h-8 mx-auto mb-1 md:mb-2 text-[#C4A777]" />
-                    <p className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-[100px]">{member.name}</p>
-                    <p className="text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-[100px]">{member.memberId}</p>
+                    {member.profile.profileImage ? (
+                        <img src={member.profile.profileImage} alt="Profile Image" 
+                        className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 object-cover rounded-full p-1"/>
+                    ) : (
+                        <User className="w-6 sm:w-7 md:w-8 lg:w-9 h-6 sm:h-7 md:h-8 lg:h-9 mx-auto mb-1 text-[#C4A777]" />
+                    )}
+                    <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
+                        {member.profile.firstName}</p>
+                    <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
+                        {member.memberId}</p>
                     {hasDownlines && (
                     <button 
                         onClick={() => setIsOpen(!isOpen)}
-                        className="mt-1 md:mt-2 text-gray-500 hover:text-[#C4A777]"
+                        className="text-gray-500 hover:text-[#C4A777]"
                     >
                         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     </button>
@@ -32,31 +81,27 @@ export default function Downline({
                 {/* Downlines Container */}
                 {isOpen && hasDownlines && (
                 <>
-                    {/* Vertical Line */}
-                    <div className="w-px h-4 sm:h-6 md:h-8 bg-[#C4A777]" />
+                    {/* Increase the vertical line height */}
+                    <div className="w-px h-8 sm:h-10 md:h-12 lg:h-14 bg-[#C4A777]" />
                     
-                    {/* Horizontal Line Container */}
-                    <div className="relative flex overflow-x-auto pb-4">
-                        {/* Horizontal Lines */}
-                        {member.downlines && member.downlines.length > 1 && (
-                            <div className="absolute top-0 left-1/2 h-px bg-[#C4A777]" 
-                                style={{ 
-                                width: `${(member.downlines.length - 1) * 200}px`,
-                                transform: 'translateX(-50%)'
-                                }} 
-                            />
-                        )}
+                    <div className="relative flex overflow-x-auto"> {/* Increased padding bottom */}
+                    {member.downlines && member.downlines.length > 1 && (
+                        <div className="absolute top-0 left-1/2 h-px bg-[#C4A777]" 
+                        style={{ 
+                            width: `${(member.downlines.length - 1) * 200}px`,
+                            transform: 'translateX(-50%)'
+                        }} 
+                        />
+                    )}
                     
-                        {/* Downline Nodes */}
-                        <div className="flex gap-4 sm:gap-6 md:gap-8 min-w-max px-4">
-                            {member.downlines?.map((downline, index) => (
-                            <div key={downline.id} className="relative">
-                                {/* Vertical Line to Child */}
-                                <div className="absolute top-0 left-1/2 w-px h-4 sm:h-6 md:h-8 bg-[#C4A777] -translate-x-1/2" />
-                                <Downline member={downline} level={level + 1} />
-                            </div>
-                            ))}
+                    <div className="flex gap-[100px] sm:gap-[120px] md:gap-[140px] lg:gap-[160px] min-w-max px-2 sm:px-4"> {/* Increased gap */}
+                        {member.downlines?.map((downline) => (
+                        <div key={downline.id} className="relative"> {/* Added margin top */}
+                            <div className="absolute top-0 left-1/2 w-px h-8 sm:h-10 md:h-12 lg:h-14 bg-[#C4A777] -translate-x-1/2" />
+                            <Downline member={downline} level={level + 1} />
                         </div>
+                        ))}
+                    </div>
                     </div>
                 </>
                 )}

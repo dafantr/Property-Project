@@ -11,7 +11,8 @@ export default function ConfirmWithdrawModal(
     {
         member,
         setShowWithdrawModal,
-        setShowSuccessModal
+        setShowSuccessModal,
+        setShowErrorModal
     }: ConfirmWithdrawModalProps
 ) {
     const router = useRouter();
@@ -77,15 +78,23 @@ export default function ConfirmWithdrawModal(
 				<FormContainer
 					action={async (prevState: any, formData: FormData) => {
 						// Pass the updated formData to the action
-						await createWithdrawalRequest(prevState, formData);
+						const result = await createWithdrawalRequest(prevState, formData);
 						setShowWithdrawModal(false);
-						setShowSuccessModal(true);
-						setTimeout(() => {
-							setShowSuccessModal(false);
-							router.refresh();
-						}, 2000);
+						
+						if(result.status === 'success') {
+							setShowSuccessModal(true);
+							setTimeout(() => {
+								setShowSuccessModal(false);
+								router.refresh();
+							}, 2000);
+						} else if (result.status === 'error') {
+							setShowErrorModal(true);
+							setTimeout(() => {
+								setShowErrorModal(false);
+							}, 2000);
+						}
 
-						return { message: 'Withdrawal request submitted successfully' };
+						return { message: result.message, status: result.status };
 					}}>
 					<div className="grid md:grid-cols-2 gap-4 mt-4">
 						<FormInput

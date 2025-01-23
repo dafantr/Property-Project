@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 
 import { type NextRequest, type NextResponse } from 'next/server';
 import db from '@/utils/db';
-import { updateMemberCommission, updateMemberTier } from '@/utils/actions';
+import { updateCloserCommission, updateMemberCommission, updateMemberTier } from '@/utils/actions';
+import { revalidatePath } from 'next/cache';
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -34,8 +35,13 @@ export const GET = async (req: NextRequest) => {
         data: { isActive: 1},
       });
 
-      await updateMemberCommission(membershipCommissionTransaction?.referalCode as string, membershipCommissionTransaction?.commission, 'membership');
-      await updateMemberTier(membershipCommissionTransaction?.referalCode as string);
+      if(membershipCommissionTransaction?.referalCode) {
+        await updateMemberCommission(membershipCommissionTransaction?.referalCode as string, membershipCommissionTransaction?.commission, 'membership');
+        await updateMemberTier(membershipCommissionTransaction?.referalCode as string);
+      }
+      if(membershipCommissionTransaction?.closerId) {
+        await updateCloserCommission(membershipCommissionTransaction?.closerId as string, membershipCommissionTransaction?.closerCommission);
+      }
 
       await db.membershipCommissionTransaction.update({
         where: { id: transactionId },
@@ -49,5 +55,6 @@ export const GET = async (req: NextRequest) => {
       statusText: 'Internal Server Error',
     });
   }
+  revalidatePath('/member/dashboard');
   redirect('/member/dashboard');
 };
