@@ -7,6 +7,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { AddMember } from "./components/AddMember";
 
 export default async function CMSPage() {
 	const members = await fetchMemberAll();
@@ -57,9 +58,7 @@ export default async function CMSPage() {
 
 			{/* Add Member Button */}
 			<div>
-				<button className="px-4 py-2 bg-[#B69C71] text-white rounded hover:bg-[#A08B60]">
-					Add Member +
-				</button>
+				<AddMember />
 			</div>
 
 			{/* Tabs */}

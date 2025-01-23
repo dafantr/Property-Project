@@ -1783,75 +1783,60 @@ export const fetchWithdrawalRequest = async (profileId: string) => {
   return withdrawalRequest;
 }
 
-export const updateMemberAdminAction = async (
+export const createMemberAdminAction = async (
 	prevState: any,
-	formData: FormData
+	data: {
+		name: string;
+		email: string;
+		phone: string;
+		address: string;
+	}
 ): Promise<{ message: string }> => {
 	try {
-		const memberId = formData.get("memberId") as string;
-		console.log("Attempting to update member with ID:", memberId); // Debug log
+		await getAdminUser(); // Ensure only admin can create members
 
-		// Fetch member directly using Prisma instead of fetchMember helper
-		const member = await db.member.findUnique({
-			where: {
-				id: memberId,
-			},
-			include: {
-				profile: true,
+		// Split the full name into first and last name
+		const [firstName, ...lastNameParts] = data.name.trim().split(' ');
+		const lastName = lastNameParts.join(' ');
+
+		// Create the profile first
+		const profile = await db.profile.create({
+			data: {
+				firstName,
+				lastName,
+				email: data.email,
+				clerkId: 'aa', // Add required clerkId field
+				username: `${firstName.toLowerCase()}-${Date.now()}`, // Generate a unique username
+				profileImage: '/default-avatar.png', // Set a default profile image
 			},
 		});
 
-		if (!member) {
-			console.log("Member not found with ID:", memberId); // Debug log
-			throw new Error("Member not found");
+		// Generate a unique member ID
+		const memberId = await generateUniqueMemberId();
+
+		// Get the initial tier (assuming tier level 1)
+		const initialTier = await fetchTierByLevel(1);
+		if (!initialTier) {
+			throw new Error("Initial tier not found");
 		}
 
-		const fullName = formData.get("fullName") as string;
-		const [firstName, lastName] = fullName.split(" ");
-		const email = formData.get("email") as string;
-		const phone = formData.get("phone") as string;
-		const address = formData.get("address") as string;
-		const citizen = formData.get("citizen") as string;
-		const gender = formData.get("gender") as string;
-		const bankName = formData.get("bankName") as string;
-		const bankAccNum = formData.get("bankAccNum") as string;
-		const bankAccName = formData.get("bankAccName") as string;
-		const birthDate = formData.get("birthDate") as string;
-
-		// Update profile
-		await db.profile.update({
-			where: {
-				clerkId: member.profileId,
-			},
+		// Create the member record
+		await db.member.create({
 			data: {
-				firstName: firstName || "",
-				lastName: lastName || "",
-				email: email || "",
+				memberId: memberId,
+				profileId: profile.id,
+				tierId: initialTier.id,
+				phone: data.phone,
+				address: data.address,
+				isActive: 1, // Set as active since it's created by admin
+				point: 0,
+				commission: 0,
 			},
 		});
 
-		// Update member
-		const updatedMember = await db.member.update({
-			where: {
-				id: memberId,
-			},
-			data: {
-				phone: phone || null,
-				address: address || null,
-				dob: birthDate || null,
-				citizen: citizen || null,
-				gender: gender || null,
-				bankName: bankName || null,
-				bankAccNum: bankAccNum || null,
-				bankAccName: bankAccName || null,
-			},
-		});
-
-		console.log("Member updated successfully:", updatedMember); // Debug log
-		revalidatePath("/admin/memberOverview");
-		return { message: "Member updated successfully" };
+		revalidatePath('/admin/memberOverview');
+		return { message: "Member created successfully" };
 	} catch (error) {
-		console.error("Full error details:", error); // More detailed error logging
 		return renderError(error);
 	}
 };
