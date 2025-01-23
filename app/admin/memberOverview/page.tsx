@@ -1,4 +1,6 @@
-import { fetchMemberAll } from "@/utils/actions";
+'use client'
+
+import { fetchMemberAll, fetchMemberRequests } from "@/utils/actions";
 import { MemberList } from "./components/MemberList";
 import {
 	Select,
@@ -8,9 +10,26 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { AddMember } from "./components/AddMember";
+import { useState, useEffect } from "react";
+import { MemberRequests } from "./components/MemberRequests";
 
-export default async function CMSPage() {
-	const members = await fetchMemberAll();
+export default function CMSPage() {
+	const [selectedTab, setSelectedTab] = useState('memberList');
+	const [members, setMembers] = useState<any[]>([]);
+	const [memberRequests, setMemberRequests] = useState<any[]>([]);
+
+	useEffect(() => {
+		const getMembers = async () => {
+			const data = await fetchMemberAll();
+			setMembers(data);
+		};
+		const getMemberRequests = async () => {
+			const data = await fetchMemberRequests();
+			setMemberRequests(data);
+		};
+		getMembers();
+		getMemberRequests();
+	}, []);
 
 	// Calculate member statistics
 	const activeMembers = members.filter(
@@ -19,7 +38,7 @@ export default async function CMSPage() {
 	const inactiveMembers = members.filter(
 		(member) => member.isActive === 0
 	).length;
-	// const requestedMembers = members.filter(member => member.isActive === 'pending').length;
+	const requestedMembers = memberRequests.length;
 
 	return (
 		<div className="space-y-6 p-6">
@@ -52,7 +71,7 @@ export default async function CMSPage() {
 					<h3 className="text-gray-600 font-medium">
 						Total New Requested Member
 					</h3>
-					<p className="text-3xl font-bold mt-2">{}</p>
+					<p className="text-3xl font-bold mt-2">{requestedMembers}</p>
 				</div>
 			</div>
 
@@ -63,21 +82,40 @@ export default async function CMSPage() {
 
 			{/* Tabs */}
 			<div className="flex gap-4 border-b">
-				<button className="px-4 py-2 border-b-2 border-[#B69C71] text-[#B69C71] font-medium">
+				<button
+					onClick={() => setSelectedTab('memberList')}
+					className={`px-4 py-2 ${
+						selectedTab === 'memberList'
+							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
+							: 'text-gray-500 hover:text-[#B69C71]'
+					} font-medium`}
+				>
 					Member List
 				</button>
-				<button className="px-4 py-2 text-gray-500 hover:text-[#B69C71]">
+				<button
+					onClick={() => setSelectedTab('requests')}
+					className={`px-4 py-2 ${
+						selectedTab === 'requests'
+							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
+							: 'text-gray-500 hover:text-[#B69C71]'
+					}`}
+				>
 					New Member Requests
 				</button>
 			</div>
 
-			<MemberList
-				initialMembers={members.map((member) => ({
-					...member,
-					joinDate: member.profile.createdAt.toISOString().split("T")[0],
-					parentId: member.parentId ?? '',
-				}))}
-			/>
+			{/* Conditional Content */}
+			{selectedTab === 'memberList' ? (
+				<MemberList
+					initialMembers={members.map((member) => ({
+						...member,
+						joinDate: member.profile.createdAt.toISOString().split("T")[0],
+						parentId: member.parentId ?? '',
+					}))}
+				/>
+			) : (
+				<MemberRequests memberRequests={memberRequests} />
+			)}
 		</div>
 	);
 }
