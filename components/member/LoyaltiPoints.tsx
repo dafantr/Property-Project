@@ -1,5 +1,4 @@
 "use client"
-import { redeemReward } from "@/utils/actions";
 import { LoyaltiPointsProps, reward } from "@/utils/types";
 import { useState } from "react";
 import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
@@ -137,7 +136,7 @@ export default function LoyaltiPoints({
 			)}
 
 			{showSuccessModal && (
-				<SuccessModal/>
+				<SuccessModal message="Reward redeemed successfully"/>
 			)}
 			
 			</div>

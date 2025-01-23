@@ -19,12 +19,18 @@ import { formatDate } from "./format";
 import { reward, member, referralDetails, loyaltyPointDetails } from "./types";
 
 const getAuthUser = async () => {
-	const user = await currentUser();
-	if (!user) {
-		return redirect("/");
+	try {
+		const user = await currentUser();
+		
+		if (!user) {
+		  redirect("/");
+		}
+	
+		return user;
+	} catch (error) {
+		console.error("Auth error:", error);
+		redirect("/");
 	}
-	// if (!user.privateMetadata.hasProfile) redirect('/profile/create');
-	return user;
 };
 
 const getAdminUser = async () => {

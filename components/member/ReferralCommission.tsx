@@ -3,8 +3,6 @@ import { formatCurrency } from "@/utils/format";
 import { ReferralCommissionProps } from "@/utils/types";
 import { Copy, Share2 } from "lucide-react";
 import { useState } from "react";
-import ConfirmWithdrawModal from "./ui/ConfirmWithdrawModal";
-import SuccessModal from "./ui/SuccessModal";
 import WithdrawalHistoryModal from "./ui/WithdrawalHistoryModal";
 
 export default function ReferralCommission({

@@ -42,7 +42,7 @@ export type PropertyCardProps = {
   export type member = {
     id: string;
     profileId: string;
-    parentMemberId: string;
+    parentMemberId: string | null;
     memberId: string;
     createdAt: Date;
     isActive: number;
@@ -185,12 +185,15 @@ export type ConfirmWithdrawModalProps = {
 
 export type WithdrawalRequestDetails = {
   id: string;
-  profile: profile;
+  profile: {
+    firstName: string;
+    lastName: string;
+  };
   amount: number;
   bankName: string;
   bankAccNumber: string;
   bankAccName: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
+  status: string;
   createdAt: Date;
 }
 

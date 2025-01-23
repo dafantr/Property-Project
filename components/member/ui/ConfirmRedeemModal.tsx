@@ -1,8 +1,6 @@
 import { redeemReward } from "@/utils/actions";
 import { reward } from "@/utils/types";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import SuccessModal from "./SuccessModal";
 
 export default function ConfirmModal({ 
     selectedReward,
