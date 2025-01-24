@@ -17,8 +17,6 @@ export default async function DownlinePage() {
   if (downlines === null) {
     return new Error('Failed to fetch downlines');
   }
-
-  console.log(downlines);
 	
 	return (
         <div className="grid grid-cols-1 gap-6">

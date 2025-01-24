@@ -452,7 +452,7 @@ export const createBookingAction = async (prevState: {
 	try {
 		const profile = await fetchProfile();
 
-		if (!profile) {
+		if (profile === null) {
 			return renderError("Profile not found");
 		}
 
@@ -472,7 +472,7 @@ export const createBookingAction = async (prevState: {
 		if (!property) {
 			return { message: "Property not found" };
 		}
-		if (!(await validateReferalCode(referalCode))) {
+		if (!(await validateReferalCode(referalCode, "booking"))) {
 			return { message: "Referal code not valid" };
 		}
 		const { orderTotal, totalNights, discount } = calculateTotals({
@@ -496,7 +496,7 @@ export const createBookingAction = async (prevState: {
 
 		//hitung commission
 		let commission = 0;
-		if (referalCode && referalCode.trim() !== "") {
+		if (referalCode.length > 0) {
 			commission = orderTotal * 0.1;
 
 			//buat bookingCommissionTransaction dengan referal
@@ -1101,14 +1101,14 @@ export const createMemberAction = async (
 
 		// cek referalCode
 		if (referalCode.length > 0 ) {
-			referalValid = await validateReferalCode(referalCode);
+			referalValid = await validateReferalCode(referalCode, "member");
 			if(!referalValid){
 				throw new Error("Invalid referral code");
 			}
 		}
 
 		if(closerCode.length > 0){
-			closerValid = await validateReferalCode(closerCode);
+			closerValid = await validateReferalCode(closerCode, "member");
 			if(!closerValid){
 				throw new Error("Invalid closer code");
 			}
@@ -1267,7 +1267,8 @@ export const fetchMember = async (profileId?: string, memberId?: string) => {
 };
 
 export const validateReferalCode = async (
-	referalCode: string
+	referalCode: string,
+	from: string
 ): Promise<boolean> => {
 	try {
 		const profile = await fetchProfile();
@@ -1280,6 +1281,10 @@ export const validateReferalCode = async (
 		if (member != null) {
 			//penjagaan penggunaan referal code sendiri
 			if (member.profileId == profile?.clerkId) {
+				return false;
+			}
+
+			if(from === "booking" && member.isMarketing === true) {
 				return false;
 			}
 		}
@@ -1355,6 +1360,14 @@ export const fetchTierById = async (id: string) => {
 	return await db.tier.findUnique({
 		where: {
 			id: id,
+		},
+	});
+};
+
+export const fetchTierByName = async (name: string) => {
+	return await db.tier.findFirst({
+		where: {
+			tierName: name,
 		},
 	});
 };
@@ -1475,6 +1488,9 @@ export const createMembershipCommissionTransaction = async (
 	try {
 		let membershipCommissionTransaction = null;
 
+		let closerPercentage = await getGeneralVariable("closerPercentage");
+		if(closerPercentage === null) throw new Error("Closer percentage not found");
+
 		if(referalCode.length > 0){
 			const refCommission = await calculateCommission(referalCode, totalPrice);
 			membershipCommissionTransaction =
@@ -1483,7 +1499,7 @@ export const createMembershipCommissionTransaction = async (
 					profileId: clerkId,
 					commission: refCommission,
 					closerId: closerCode,
-					closerCommission: totalPrice * 0.03,
+					closerCommission: totalPrice * (Number(closerPercentage.variableValue) / 100),
 					referalCode: referalCode,
 					paymentStatus: false,
 					paymentMethod: paymentMethod,
@@ -1502,7 +1518,6 @@ export const createMembershipCommissionTransaction = async (
 				},
 			});
 		}
-		console.log(membershipCommissionTransaction);
 		return membershipCommissionTransaction.id;
 	} catch (error) {
 		console.error("Error creating membership commission transaction", error);
@@ -1519,12 +1534,21 @@ export async function calculateCommission(
 	if (referal === null) throw new Error("Member not found");
 
 	let refCommission = 0;
+	let tier = null;
+	
+	if(referal.isMarketing === true) {
+		tier = await fetchTierByName("Marketing");
+	} else {
+		tier = await fetchTierById(referal.tierId);
+	}
 
-	const tier = await fetchTierById(referal.tierId);
+	if(tier === null) throw new Error("Tier not found");
+
+	refCommission = totalPrice * (tier.commission / 100);
 
 	if (tier === null) throw new Error("Tier not found");
 
-	return totalPrice * (tier.commission / 100);
+	return refCommission;
 }
 
 export async function redeemReward(reward: reward): Promise<void> {
@@ -1606,22 +1630,24 @@ export const updateMemberTier = async (memberId: string) => {
 	const member = await fetchMember(undefined, memberId);
 	if (member === null) throw new Error("Member not found");
 
-	const tier = await fetchTierById(member.tierId);
-	if (tier === null) throw new Error("Tier not found");
-
-	const downline = await fetchDownline(memberId);
-	if (downline.length >= tier.requiredDownline) {
-		const nextTier = await fetchTierByLevel(tier.tierLevel + 1);
-		if (nextTier === null) throw new Error("Next tier not found");
-
-		await db.member.update({
-			where: {
-				id: member.id,
-			},
-			data: {
-				tierId: nextTier.id,
-			},
-		});
+	if(member.isMarketing === false) {
+		const tier = await fetchTierById(member.tierId);
+		if (tier === null) throw new Error("Tier not found");
+	
+		const downline = await fetchDownline(memberId);
+		if (downline.length >= tier.requiredDownline) {
+			const nextTier = await fetchTierByLevel(tier.tierLevel + 1);
+			if (nextTier === null) throw new Error("Next tier not found");
+	
+			await db.member.update({
+				where: {
+					id: member.id,
+				},
+				data: {
+					tierId: nextTier.id,
+				},
+			});
+		}
 	}
 };
 

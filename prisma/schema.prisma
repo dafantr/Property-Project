@@ -142,6 +142,7 @@ model Member {
   bankName     String?
   bankAccNum   String?
   bankAccName  String?
+  isMarketing  Boolean @default(false)
   point        Int     @default(0)
   commission   Float     @default(0)
   tier         Tier     @relation(fields: [tierId], references: [id], onDelete: Cascade)

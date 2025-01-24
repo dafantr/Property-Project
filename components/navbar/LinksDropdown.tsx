@@ -168,7 +168,7 @@ async function LinksDropdown() {
 					)}
 
 					{/* Member Links */}
-					{ !isAdminUser && !isMember?.memberId.toLowerCase().includes("marketing") && hasVisibleLinks(groupedLinks.member) && (
+					{ !isAdminUser && !isMember?.isMarketing && hasVisibleLinks(groupedLinks.member) && (
 						<>
 							<DropdownMenuSeparator />
 							{groupedLinks.member.map((link) => {
