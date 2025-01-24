@@ -5,9 +5,8 @@ import { dashboardMemberProps, reward } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import DownlinePreview from "./DownlinePreview";
 import { useState } from "react";
-import SuccessModal from "../ui/SuccessModal";
-import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
-import { fetchDownlines } from "@/utils/actions";
+import SuccessModal from "@/components/ui/SuccessModal";
+import ConfirmRedeemModal from "@/components/ui/ConfirmRedeemModal";
 
 export default function DashboardMember({
     member,

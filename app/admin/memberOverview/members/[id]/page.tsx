@@ -16,7 +16,7 @@ export default async function MemberViewPage({
     <main className="flex min-h-screen flex-col p-6">
       <div className="flex items-center gap-4 mb-6">
         <Link
-          href="/cms"
+          href="/admin/memberOverview"
           className="flex items-center text-sm text-gray-500 hover:text-gray-700"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
@@ -44,16 +44,16 @@ export default async function MemberViewPage({
               </div>
               <div>
                 <p className="text-sm text-gray-500">Phone</p>
-                <p className="font-medium">{member.profile.phone || 'N/A'}</p>
+                <p className="font-medium">{member.phone || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Gender</p>
-                <p className="font-medium capitalize">{member.profile.gender || 'N/A'}</p>
+                <p className="font-medium capitalize">{member.gender || 'N/A'}</p>
               </div>
-              <div className="col-span-2">
-                <p className="text-sm text-gray-500">Address</p>
-                <p className="font-medium">{member.profile.address || 'N/A'}</p>
-              </div>
+            </div>
+            <div className="col-span-2">
+              <p className="text-sm text-gray-500">Address</p>
+              <p className="font-medium">{member.address || 'N/A'}</p>
             </div>
           </CardContent>
         </Card>
@@ -104,15 +104,15 @@ export default async function MemberViewPage({
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Bank Name</p>
-                <p className="font-medium">{member.profile.bankName || 'N/A'}</p>
+                <p className="font-medium">{member.bankName || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Account Number</p>
-                <p className="font-medium">{member.profile.bankAccNum || 'N/A'}</p>
+                <p className="font-medium">{member.bankAccNum || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Account Name</p>
-                <p className="font-medium">{member.profile.bankAccName || 'N/A'}</p>
+                <p className="font-medium">{member.bankAccName || 'N/A'}</p>
               </div>
             </div>
           </CardContent>

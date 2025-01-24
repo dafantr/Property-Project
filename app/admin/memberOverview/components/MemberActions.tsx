@@ -45,7 +45,7 @@ export function MemberActions({ memberId }: MemberActionsProps) {
         asChild
         className="w-full"
       >
-        <Link href={`/cms/members/${memberId}`}>
+        <Link href={`/admin/memberOverview/members/${memberId}`}>
           <Eye className="w-4 h-4 mr-1" />
           View
         </Link>
@@ -56,7 +56,7 @@ export function MemberActions({ memberId }: MemberActionsProps) {
         asChild
         className="w-full"
       >
-        <Link href={`/cms/members/${memberId}/edit`}>
+        <Link href={`/admin/memberOverview/members/${memberId}/edit`}>
           <Edit className="w-4 h-4 mr-1" />
           Edit
         </Link>

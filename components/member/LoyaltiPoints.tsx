@@ -1,8 +1,8 @@
 "use client"
 import { LoyaltiPointsProps, reward } from "@/utils/types";
 import { useState } from "react";
-import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
-import SuccessModal from "../ui/SuccessModal";
+import ConfirmRedeemModal from "@/components/ui/ConfirmRedeemModal";
+import SuccessModal from "@/components/ui/SuccessModal";
 
 export default function LoyaltiPoints({
 	member,
