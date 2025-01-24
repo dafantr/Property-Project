@@ -132,25 +132,25 @@ export default function WithdrawalRequest() {
   }
 
   return (
-    <div className="bg-white dark:bg-black p-4 sm:p-6 rounded-lg">
+    <div className="bg-white dark:bg-black p-2 sm:p-6 rounded-lg">
       {message && (
-        <div className="mb-4 p-2 bg-blue-100 dark:bg-black text-blue-700 dark:text-white rounded">
+        <div className="mb-4 p-2 bg-blue-100 dark:bg-black text-blue-700 dark:text-white rounded border dark:border-gray-700">
           {message}
         </div>
       )}
 
       <h2 className="text-xl font-bold mb-4 dark:text-white">Commission Withdrawal Request</h2>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:flex sm:flex-row gap-3 mb-6">
         <input
           type="text"
           placeholder="Search by name or ID"
-          className="border p-2 rounded flex-1 dark:bg-black dark:border-gray-700 dark:text-white"
+          className="border p-2 rounded w-full dark:bg-black dark:border-gray-700 dark:text-white"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <select
-          className="border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+          className="border p-2 rounded w-full dark:bg-black dark:border-gray-700 dark:text-white"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -160,7 +160,7 @@ export default function WithdrawalRequest() {
           ))}
         </select>
         <select
-          className="border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+          className="border p-2 rounded w-full dark:bg-black dark:border-gray-700 dark:text-white"
           value={bankFilter}
           onChange={(e) => setBankFilter(e.target.value)}
         >
@@ -169,18 +169,18 @@ export default function WithdrawalRequest() {
             <option key={bank} value={bank}>{bank}</option>
           ))}
         </select>
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-1 sm:flex sm:flex-row items-center gap-2">
           <input
             type="date"
-            className="border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+            className="border p-2 rounded w-full dark:bg-black dark:border-gray-700 dark:text-white"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             placeholder="Start Date"
           />
-          <span className="dark:text-white">to</span>
+          <span className="text-center dark:text-white">to</span>
           <input
             type="date"
-            className="border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+            className="border p-2 rounded w-full dark:bg-black dark:border-gray-700 dark:text-white"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             placeholder="End Date"
@@ -188,98 +188,101 @@ export default function WithdrawalRequest() {
         </div>
         <button
           onClick={resetFilters}
-          className="bg-[#B69C6C] text-white px-4 py-2 rounded hover:bg-[#A58B5B]"
+          className="bg-[#B69C6C] text-white p-2 rounded hover:bg-[#A58B5B] w-full"
         >
           Reset Filters
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-200 dark:border-gray-700">
-          <thead>
-            <tr className="text-left bg-gray-50 dark:bg-black">
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Name</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Member ID</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Amount</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Status</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Bank</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Date</th>
-              <th className="border border-gray-200 dark:border-gray-700 p-3 text-sm font-semibold dark:text-white">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((request) => (
-                <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.name}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.memberId}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.amount}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.status}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.bank}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3 dark:text-white">{request.requestDate}</td>
-                  <td className="border border-gray-200 dark:border-gray-700 p-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        className="bg-[#B69C6C] text-white px-3 py-1 rounded hover:bg-[#A58B5B]"
-                        onClick={() => handleView(request)}
-                      >
-                        View
-                      </button>
-                      {request.status !== 'Approved' && (
-                        <button
-                          className="bg-[#B69C6C] text-white px-3 py-1 rounded hover:bg-[#A58B5B]"
-                          onClick={() => handleApprove(request.id)}
-                        >
-                          Approve
-                        </button>
-                      )}
-                      {request.status !== 'Rejected' && (
-                        <button
-                          className="bg-[#B69C6C] text-white px-3 py-1 rounded hover:bg-[#A58B5B]"
-                          onClick={() => handleReject(request.id)}
-                        >
-                          Reject
-                        </button>
-                      )}
-                    </div>
-                  </td>
+      <div className="overflow-x-auto -mx-2 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-black">
+                <tr>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Name</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Member ID</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Amount</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Status</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Bank</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Date</th>
+                  <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold dark:text-white">Action</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="text-center py-4 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                  No Data Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {currentItems.length > 0 ? (
+                  currentItems.map((request) => (
+                    <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.name}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.memberId}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.amount}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.status}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.bank}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.requestDate}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
+                        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                          <button
+                            className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
+                            onClick={() => handleView(request)}
+                          >
+                            View
+                          </button>
+                          {request.status !== 'Approved' && (
+                            <button
+                              className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
+                              onClick={() => handleApprove(request.id)}
+                            >
+                              Approve
+                            </button>
+                          )}
+                          {request.status !== 'Rejected' && (
+                            <button
+                              className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
+                              onClick={() => handleReject(request.id)}
+                            >
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="px-2 sm:px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
+                      No Data Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      {/* Pagination */}
       {filteredRequests.length > 0 && (
-        <div className="flex justify-center items-center space-x-2 mt-4">
+        <div className="flex flex-wrap justify-center items-center gap-2 mt-4 px-2">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded ${
+            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded ${
               currentPage === 1
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-200 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed'
                 : 'bg-[#B69C6C] text-white hover:bg-[#A58B5B]'
             }`}
           >
             Previous
           </button>
 
-          <div className="flex space-x-1">
+          <div className="flex flex-wrap justify-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
               <button
                 key={number}
                 onClick={() => paginate(number)}
-                className={`px-3 py-1 rounded ${
+                className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded ${
                   currentPage === number
                     ? 'bg-[#B69C6C] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-gray-200 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800'
                 }`}
               >
                 {number}
@@ -290,9 +293,9 @@ export default function WithdrawalRequest() {
           <button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded ${
+            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded ${
               currentPage === totalPages
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-200 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed'
                 : 'bg-[#B69C6C] text-white hover:bg-[#A58B5B]'
             }`}
           >

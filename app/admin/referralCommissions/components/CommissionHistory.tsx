@@ -101,19 +101,19 @@ export default function CommissionHistory() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Commission History</h2>
+    <div className="bg-white dark:bg-black p-4 sm:p-6 rounded-lg">
+      <h2 className="text-xl font-bold mb-4 dark:text-white">Commission History</h2>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <input
           type="text"
           placeholder="Search by name or ID"
-          className="border p-2 rounded flex-1"
+          className="border dark:border-gray-700 dark:bg-black dark:text-white p-2 rounded flex-1"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <select
-          className="border p-2 rounded"
+          className="border dark:border-gray-700 dark:bg-black dark:text-white p-2 rounded"
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
         >
@@ -122,18 +122,18 @@ export default function CommissionHistory() {
           <option value="Membership">Membership Commission</option>
           <option value="Closer">Closer Commission</option>
         </select>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <input
             type="date"
-            className="border p-2 rounded"
+            className="border dark:border-gray-700 dark:bg-black dark:text-white p-2 rounded w-full sm:w-auto"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             placeholder="Start Date"
           />
-          <span>to</span>
+          <span className="dark:text-white">to</span>
           <input
             type="date"
-            className="border p-2 rounded"
+            className="border dark:border-gray-700 dark:bg-black dark:text-white p-2 rounded w-full sm:w-auto"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             placeholder="End Date"
@@ -141,82 +141,86 @@ export default function CommissionHistory() {
         </div>
         <button
           onClick={resetFilters}
-          className="bg-[#B69C6C] text-white px-4 py-2 rounded hover:bg-[#A58B5B]"
+          className="bg-[#B69C6C] text-white px-4 py-2 rounded hover:bg-[#A58B5B] w-full sm:w-auto"
         >
           Reset Filters
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left">
-              <th className="pb-4">Name</th>
-              <th className="pb-4">Member ID</th>
-              <th className="pb-4">Commission Rate</th>
-              <th className="pb-4">Commission Amount</th>
-              <th className="pb-4">Commission Category</th>
-              <th className="pb-4">Transaction Date/Time</th>
-              <th className="pb-4">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((item) => (
-                <tr key={item.id} className="border-t">
-                  <td className="py-3">{item.memberName}</td>
-                  <td className="py-3">{item.memberId}</td>
-                  <td className="py-3">-</td>
-                  <td className="py-3">{formatCurrency(item.amount)}</td>
-                  <td className="py-3">{item.type}</td>
-                  <td className="py-3">
-                    {new Date(item.dateTime).toLocaleString('en-GB', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: false,
-                    }).replace(/\//g, '-').replace(', ', '/')}
-                  </td>
-                  <td className="py-3">
-                    <button
-                      className="bg-[#B69C6C] text-white px-3 py-1 rounded hover:bg-[#A58B5B]"
-                      onClick={() => handleViewDetails(item)}
-                    >
-                      View Details
-                    </button>
-                  </td>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="min-w-full inline-block align-middle">
+          <div className="overflow-hidden">
+            <table className="min-w-full">
+              <thead>
+                <tr className="text-left">
+                  <th className="pb-4 px-4 dark:text-gray-300">Name</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Member ID</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Commission Rate</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Commission Amount</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Commission Category</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Transaction Date/Time</th>
+                  <th className="pb-4 px-4 dark:text-gray-300">Action</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="text-center py-4 text-gray-500">
-                  No Data Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((item) => (
+                    <tr key={item.id} className="border-t dark:border-gray-800">
+                      <td className="py-3 px-4 dark:text-gray-300">{item.memberName}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{item.memberId}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">-</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{formatCurrency(item.amount)}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{item.type}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">
+                        {new Date(item.dateTime).toLocaleString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: false,
+                        }).replace(/\//g, '-').replace(', ', '/')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <button
+                          className="bg-[#B69C6C] text-white px-3 py-1 rounded hover:bg-[#A58B5B] whitespace-nowrap"
+                          onClick={() => handleViewDetails(item)}
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4 text-gray-500 dark:text-gray-400">
+                      No Data Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Pagination */}
       {filteredData.length > 0 && (
-        <div className="flex justify-center items-center space-x-2 mt-4">
+        <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
             className={`px-3 py-1 rounded ${
               currentPage === 1
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-200 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed'
                 : 'bg-[#B69C6C] text-white hover:bg-[#A58B5B]'
             }`}
           >
             Previous
           </button>
 
-          <div className="flex space-x-1">
+          <div className="flex flex-wrap gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
               <button
                 key={number}
@@ -224,7 +228,7 @@ export default function CommissionHistory() {
                 className={`px-3 py-1 rounded ${
                   currentPage === number
                     ? 'bg-[#B69C6C] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-gray-200 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800'
                 }`}
               >
                 {number}
@@ -237,7 +241,7 @@ export default function CommissionHistory() {
             disabled={currentPage === totalPages}
             className={`px-3 py-1 rounded ${
               currentPage === totalPages
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-200 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed'
                 : 'bg-[#B69C6C] text-white hover:bg-[#A58B5B]'
             }`}
           >

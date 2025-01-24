@@ -73,11 +73,11 @@ export default function ReferralCommissionPage() {
   ]
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Referral Commission Overview</h1>
+    <div className="p-4 sm:p-6 dark:bg-black">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold dark:text-white">Referral Commission Overview</h1>
         <select
-          className="border p-2 rounded"
+          className="w-full sm:w-auto border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
           value={selectedPeriod}
           onChange={(e) => setSelectedPeriod(e.target.value)}
         >
@@ -89,29 +89,37 @@ export default function ReferralCommissionPage() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {statsDisplay.map((stat, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-gray-600 mb-2">{stat.title}</h3>
-            <p className="text-xl font-bold">{stat.value}</p>
+          <div key={index} className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
+            <h3 className="text-gray-600 dark:text-gray-300 text-sm mb-2">{stat.title}</h3>
+            <p className="text-lg sm:text-xl font-bold dark:text-white">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <button className="bg-[#B69C6C] text-white px-4 py-2 rounded mb-6">
+      <button className="bg-[#B69C6C] text-white px-4 py-2 rounded mb-6 hover:bg-[#A58B5B] w-full sm:w-auto">
         Manage Commission
       </button>
 
       <div className="mb-6">
-        <div className="border-b">
+        <div className="flex border-b dark:border-gray-700">
           <button
-            className={`px-4 py-2 ${selectedTab === 'history' ? 'border-b-2 border-[#B69C6C]' : ''}`}
+            className={`flex-1 sm:flex-none px-4 py-3 text-center sm:text-left font-medium ${
+              selectedTab === 'history'
+                ? 'border-b-2 border-[#B69C6C] text-[#B69C6C] bg-transparent dark:bg-black'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-transparent dark:bg-black'
+            }`}
             onClick={() => setSelectedTab('history')}
           >
             Commission History
           </button>
           <button
-            className={`px-4 py-2 ${selectedTab === 'withdrawal' ? 'border-b-2 border-[#B69C6C]' : ''}`}
+            className={`flex-1 sm:flex-none px-4 py-3 text-center sm:text-left font-medium ${
+              selectedTab === 'withdrawal'
+                ? 'border-b-2 border-[#B69C6C] text-[#B69C6C] bg-transparent dark:bg-black'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-transparent dark:bg-black'
+            }`}
             onClick={() => setSelectedTab('withdrawal')}
           >
             Withdrawal Request
