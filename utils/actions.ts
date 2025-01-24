@@ -2296,4 +2296,63 @@ export const fetchCommissionHistory = async () => {
 	}
 };
 
+export const fetchCommissionStats = async (startDate?: Date | null, endDate?: Date | null) => {
+	try {
+		const dateFilter = startDate && endDate ? {
+			createdAt: {
+				gte: startDate,
+				lte: endDate
+			}
+		} : {};
+
+		// Get total commission amount
+		const totalCommission = await db.member.aggregate({
+			_sum: {
+				commission: true
+			}
+		});
+
+		// Get total withdrawal requests count with date filter
+		const withdrawalRequestsCount = await db.withdrawCommissionRequest.count({
+			where: dateFilter
+		});
+
+		// Get successful referral transactions with date filter
+		const bookingCommissions = await db.bookingCommissionTransaction.count({
+			where: {
+				...dateFilter
+			}
+		});
+
+		const membershipCommissions = await db.membershipCommissionTransaction.count({
+			where: {
+				...dateFilter,
+				paymentStatus: true
+			}
+		});
+
+		// Calculate total payable commission
+		const membersWithCommission = await db.member.aggregate({
+			_sum: {
+				commission: true
+			},
+			where: {
+				commission: {
+					gt: 0
+				}
+			}
+		});
+
+		return {
+			overallCommission: totalCommission._sum.commission || 0,
+			payableCommission: membersWithCommission._sum.commission || 0,
+			withdrawalRequests: withdrawalRequestsCount,
+			successfulTransactions: bookingCommissions + membershipCommissions
+		};
+	} catch (error) {
+		console.error('Error fetching commission stats:', error);
+		throw new Error('Failed to fetch commission stats');
+	}
+};
+
 export { getAdminUser };
