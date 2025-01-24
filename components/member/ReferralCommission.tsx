@@ -1,14 +1,16 @@
 "use client"
 import { formatCurrency } from "@/utils/format";
 import { ReferralCommissionProps } from "@/utils/types";
-import { Copy, Share2 } from "lucide-react";
+import { Check, Copy, Share2 } from "lucide-react";
 import { useState } from "react";
-import WithdrawalHistoryModal from "./ui/WithdrawalHistoryModal";
+import WithdrawalHistoryModal from "@/components/ui/WithdrawalHistoryModal";
 
 export default function ReferralCommission({
 	member,
 	referralDetails,
 	withdrawalRequestDetails,
+	tier,
+	generalVariable,
 }: ReferralCommissionProps) {
 
 	const [showWithdrawalHistoryModal, setShowWithdrawalHistoryModal] = useState(false);
@@ -65,25 +67,24 @@ export default function ReferralCommission({
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Referral & Commission Overview</h2>
 				<div className="mb-4">
-					<p className="mb-2 dark:text-gray-300">Unique Referral Code: {member.memberId}</p>
 					<div className="flex flex-col sm:flex-row gap-2">
-					<div className="flex flex-col sm:flex-row gap-2">
+					<p className="dark:text-gray-300">Unique Referral Code: {member.memberId} </p>
 						<button 
 							onClick={copyToClipboard}
-							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							className=""
 							>
-							<Copy className="h-4 w-4" />
-							{copied ? "Copied!" : "Copy Referral Code"}
+							{copied ? <Check className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> : <Copy className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" />}
 						</button>
 						<button 
-								onClick={handleShare}
-								className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
-								>
-								<Share2 className="h-4 w-4" /> 
-								Share Referral Link
-							</button>
-						</div>
+							onClick={handleShare}
+							className=""
+							>
+							<Share2 className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> 
+						</button>
 					</div>
+					<p className="dark:text-gray-300">{tier.tierName || 'noTier'}</p>
+					<p className="dark:text-gray-300">Membership Referral Commission: {tier.commission}%</p>
+					<p className="dark:text-gray-300">Booking Referral Commission: {generalVariable.variableValue}%</p>
 				</div>
 			</div>
 			<div className="grid grid-cols-2 gap-4 md:gap-6">

@@ -5,14 +5,14 @@ import { dashboardMemberProps, reward } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import DownlinePreview from "./DownlinePreview";
 import { useState } from "react";
-import SuccessModal from "../ui/SuccessModal";
-import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
-import { fetchDownlines } from "@/utils/actions";
+import SuccessModal from "@/components/ui/SuccessModal";
+import ConfirmRedeemModal from "@/components/ui/ConfirmRedeemModal";
 
 export default function DashboardMember({
     member,
     profile,
     rewards,
+	tier,
     referralDetails,
 	loyaltyPointDetails,
 	downlines
@@ -74,6 +74,10 @@ export default function DashboardMember({
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Member ID:</span>
                             <span className="font-medium">{member.memberId || 'noId'}</span>
+                        </div>
+						<div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">Tier:</span>
+                            <span className="font-medium">{tier.tierName || 'noTier'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Membership Status:</span>

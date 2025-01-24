@@ -22,50 +22,50 @@ export default function AdminNavbar() {
 				<div className="flex items-center space-x-8 overflow-x-auto max-w-[calc(100vw-200px)] no-scrollbar">
 					<Link
 						href="/admin/dashboard"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 								${
 									pathname === "/admin/dashboard"
-										? "text-blue-600 dark:text-blue-400 font-semibold"
+										? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 										: "text-gray-600 dark:text-white"
 								}`}>
 						Dashboard
 					</Link>
 					<Link
 						href="/admin/memberOverview"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/admin/memberOverview")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Member Overview
 					</Link>
 					<Link
 						href="/admin/referralNcommision"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/admin/referralNcommision")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-blue-400 font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Referral & Commissions
 					</Link>
 					<Link
 						href="/admin/memberLoyaltyOverview"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/admin/memberLoyaltyOverview")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Loyalty Points & Rewards
 					</Link>
 					<Link
 						href="/admin/downline"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/admin/downline")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Downline Tree

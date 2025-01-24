@@ -17,6 +17,7 @@ export default function UpdateMemberForm({
 	profile,
 	member,
 	citizenshipOptions,
+	tier,
 }: UpdateMemberFormProps) {
 	const { theme } = useTheme();
 
