@@ -1279,9 +1279,9 @@ export const validateReferalCode = async (
 		});
 		if (member != null) {
 			//penjagaan penggunaan referal code sendiri
-			if (member.profileId == profile?.clerkId) {
-				return false;
-			}
+			// if (member.profileId == profile?.clerkId) {
+			// 	return false;
+			// }
 
 			if(from === "booking" && member.isMarketing === true) {
 				return false;

@@ -51,7 +51,7 @@ export default function DashboardMarketing({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 gap-6">
 			{/* Profile Information Card */}
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
-				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Membership Information</h2>
+				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Marketing Member Information</h2>
 				<div className="space-y-4 dark:text-gray-300">
                     {/* Member Status */}
                     <div className="space-y-2">
