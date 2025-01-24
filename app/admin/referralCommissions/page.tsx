@@ -1,167 +1,129 @@
 'use client'
 
-import { fetchMemberAll, fetchMemberRequests } from "@/utils/actions";
-import { MemberList } from "@/app/admin/dashboard/components/MemberList";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { useState, useEffect } from "react";
-import { MemberRequests } from "@/app/admin/dashboard/components/MemberRequests";
-import { CommissionHistory } from "@/app/admin/dashboard/components/CommissionHistory";
-import { WithdrawalRequests } from "@/app/admin/dashboard/components/WithdrawalRequests";
-import { PointDistribution } from "@/app/admin/dashboard/components/PointDistribution";
-import { RedemptionHistory } from "@/app/admin/dashboard/components/RedemptionHistory";
+import { useState, useEffect } from 'react'
+import { fetchCommissionStats } from '@/utils/actions'
+import CommissionHistory from './components/CommissionHistory'
+import WithdrawalRequest from './components/WithdrawalRequest'
 
-export default function referralCommissions() {
-	const [selectedTab, setSelectedTab] = useState('memberList');
-	const [members, setMembers] = useState<any[]>([]);
-	const [memberRequests, setMemberRequests] = useState<any[]>([]);
+export default function ReferralCommissionPage() {
+  const [selectedTab, setSelectedTab] = useState('history')
+  const [selectedPeriod, setSelectedPeriod] = useState('all')
+  const [stats, setStats] = useState({
+    overallCommission: 0,
+    payableCommission: 0,
+    withdrawalRequests: 0,
+    successfulTransactions: 0
+  })
 
-	useEffect(() => {
-		const getMembers = async () => {
-			const data = await fetchMemberAll();
-			setMembers(data);
-		};
-		const getMemberRequests = async () => {
-			const data = await fetchMemberRequests();
-			setMemberRequests(data);
-		};
-		getMembers();
-		getMemberRequests();
-	}, []);
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        let startDate, endDate;
+        const now = new Date()
 
-	// Calculate member statistics
-	const activeMembers = members.filter(
-		(member) => member.isActive === 1
-	).length;
-	const inactiveMembers = members.filter(
-		(member) => member.isActive === 0
-	).length;
-	const requestedMembers = memberRequests.length;
+        switch (selectedPeriod) {
+          case 'today':
+            startDate = new Date(now.setHours(0, 0, 0, 0))
+            endDate = new Date(now.setHours(23, 59, 59, 999))
+            break
+          case 'week':
+            startDate = new Date(now.setDate(now.getDate() - 7))
+            endDate = new Date()
+            break
+          case 'month':
+            startDate = new Date(now.setMonth(now.getMonth() - 1))
+            endDate = new Date()
+            break
+          case 'year':
+            startDate = new Date(now.setFullYear(now.getFullYear() - 1))
+            endDate = new Date()
+            break
+          default:
+            startDate = null
+            endDate = null
+        }
 
-	return (
-		<div className="space-y-6 p-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold">Admin Dashboard Overview</h1>
-				<Select defaultValue="all">
-					<SelectTrigger className="w-[180px]">
-						<SelectValue placeholder="Filter by Date Period" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">All Time</SelectItem>
-						<SelectItem value="today">Today</SelectItem>
-						<SelectItem value="week">This Week</SelectItem>
-						<SelectItem value="month">This Month</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
+        const data = await fetchCommissionStats(startDate, endDate)
+        setStats(data)
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      }
+    }
 
-			{/* Statistics Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Total Member</h3>
-					<p className="text-3xl font-bold mt-2">{members.length}</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Referral Commission Payouts</h3>
-					<p className="text-3xl font-bold mt-2">0</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">
-						Loyalty Points Overview
-					</h3>
-					<p className="text-3xl font-bold mt-2">0</p>
-				</div>
-			</div>
+    loadStats()
+  }, [selectedPeriod])
 
-			{/* Tabs */}
-			<div className="flex gap-4 border-b">
-				<button
-					onClick={() => setSelectedTab('memberList')}
-					className={`px-4 py-2 ${
-						selectedTab === 'memberList'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					} font-medium`}
-				>
-					Member List
-				</button>
-				<button
-					onClick={() => setSelectedTab('requests')}
-					className={`px-4 py-2 ${
-						selectedTab === 'requests'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					New Member Requests
-				</button>
-				<button
-					onClick={() => setSelectedTab('commissionHistory')}
-					className={`px-4 py-2 ${
-						selectedTab === 'commissionHistory'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					Commission History
-				</button>
-				<button
-					onClick={() => setSelectedTab('withdrawalRequests')}
-					className={`px-4 py-2 ${
-						selectedTab === 'withdrawalRequests'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					Withdrawal Requests
-				</button>
-				<button
-					onClick={() => setSelectedTab('pointDistribution')}
-					className={`px-4 py-2 ${
-						selectedTab === 'pointDistribution'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					Point Distribution
-				</button>
-				<button
-					onClick={() => setSelectedTab('redemptionHistory')}
-					className={`px-4 py-2 ${
-						selectedTab === 'redemptionHistory'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					Redemption History
-				</button>
-			</div>
+  const statsDisplay = [
+    {
+      title: 'Overall Member Commission',
+      value: `Rp ${stats.overallCommission.toLocaleString()}`
+    },
+    {
+      title: 'Total Payable Commission',
+      value: `Rp ${stats.payableCommission.toLocaleString()}`
+    },
+    {
+      title: 'Total Withdrawal Requests',
+      value: stats.withdrawalRequests.toString()
+    },
+    {
+      title: 'Successful Referral Transactions',
+      value: stats.successfulTransactions.toString()
+    }
+  ]
 
-			{/* Conditional Content */}
-			{selectedTab === 'memberList' ? (
-				<MemberList
-					initialMembers={members.map((member) => ({
-						...member,
-						joinDate: member.profile.createdAt.toISOString().split("T")[0],
-						parentId: member.parentId ?? '',
-					}))}
-				/>
-			) : selectedTab === 'requests' ? (
-				<MemberRequests memberRequests={memberRequests} />
-			) : selectedTab === 'commissionHistory' ? (
-				<CommissionHistory />
-			) : selectedTab === 'withdrawalRequests' ? (
-				<WithdrawalRequests />
-			) : selectedTab === 'pointDistribution' ? (
-				<PointDistribution />
-			) : selectedTab === 'redemptionHistory' ? (
-				<RedemptionHistory />
-			) : null}
-		</div>
-	);
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Referral Commission Overview</h1>
+        <select
+          className="border p-2 rounded"
+          value={selectedPeriod}
+          onChange={(e) => setSelectedPeriod(e.target.value)}
+        >
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="year">Last Year</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {statsDisplay.map((stat, index) => (
+          <div key={index} className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-gray-600 mb-2">{stat.title}</h3>
+            <p className="text-xl font-bold">{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <button className="bg-[#B69C6C] text-white px-4 py-2 rounded mb-6">
+        Manage Commission
+      </button>
+
+      <div className="mb-6">
+        <div className="border-b">
+          <button
+            className={`px-4 py-2 ${selectedTab === 'history' ? 'border-b-2 border-[#B69C6C]' : ''}`}
+            onClick={() => setSelectedTab('history')}
+          >
+            Commission History
+          </button>
+          <button
+            className={`px-4 py-2 ${selectedTab === 'withdrawal' ? 'border-b-2 border-[#B69C6C]' : ''}`}
+            onClick={() => setSelectedTab('withdrawal')}
+          >
+            Withdrawal Request
+          </button>
+        </div>
+      </div>
+
+      {selectedTab === 'history' ? (
+        <CommissionHistory />
+      ) : (
+        <WithdrawalRequest />
+      )}
+    </div>
+  )
 }
