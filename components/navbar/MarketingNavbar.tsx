@@ -20,30 +20,30 @@ export default function MemberNavbar() {
 				<div className="flex items-center space-x-8 overflow-x-auto max-w-[calc(100vw-200px)] no-scrollbar">
 					<Link
 						href="/marketing/dashboard"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 								${
 									pathname === "/marketing/dashboard"
-										? "text-blue-600 dark:text-blue-400 font-semibold"
+										? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 										: "text-gray-600 dark:text-white"
 								}`}>
 						Dashboard
 					</Link>
 					<Link
 						href="/marketing/profile"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/marketing/profile")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Member Profile
 					</Link>
 					<Link
 						href="/marketing/referrals"
-						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-sm
 							${
 								pathname?.includes("/marketing/referrals")
-									? "text-blue-600 dark:text-blue-400 font-semibold"
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Referrals & Commissions

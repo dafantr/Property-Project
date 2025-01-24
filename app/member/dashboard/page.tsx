@@ -42,6 +42,6 @@ export default async function DashboardPage() {
 	}
 
 	return (
-		<DashboardMember member={member} profile={profile} rewards={rewards} referralDetails={referralDetails} loyaltyPointDetails={loyaltyPointDetails} downlines={downlines} />
+		<DashboardMember member={member} profile={profile} rewards={rewards} referralDetails={referralDetails} loyaltyPointDetails={loyaltyPointDetails} downlines={downlines} tier={tier} />
 	);
 }

@@ -1,6 +1,7 @@
 import {
   fetchProfile,
   fetchMember,
+  fetchTierById,
 } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import UpdateMemberForm from "@/components/marketing/UpdateMemberForm";
@@ -37,11 +38,17 @@ async function ProfilePage() {
 
   const citizenshipOptions = await fetchCitizenshipOptions();
 
+  const tier = await fetchTierById(member.tierId);
+  if (tier === null) {
+    throw new Error('Tier not found');
+  }
+
   return (
     <UpdateMemberForm
 			profile={profile}
 			member={member as member}
 			citizenshipOptions={citizenshipOptions}
+			tier={tier}
 		/>
   );
   

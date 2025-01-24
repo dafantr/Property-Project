@@ -89,6 +89,7 @@ export type PropertyCardProps = {
   export type dashboardMemberProps = {
     profile: profile;
     member: member;
+    tier: tier;
     rewards: reward[];
     referralDetails: referralDetails[];
     loyaltyPointDetails: loyaltyPointDetails[];
@@ -130,13 +131,16 @@ export type CreateMemberFormProps = {
 
 export type ReferralCommissionProps = {
   member: member;
+  tier: tier;
   referralDetails: referralDetails[];
   withdrawalRequestDetails: WithdrawalRequestDetails[];
+  generalVariable: generalVariable;
 }
 
 export type UpdateMemberFormProps = {
 	profile: profile;
 	member: member;
+	tier: tier;
 	citizenshipOptions: CitizenshipOption[];
 }
 
@@ -213,3 +217,12 @@ export type dashboardMarketingProps = {
   profile: profile;
   referralDetails: referralDetails[];
 }
+
+export type generalVariable = {
+  id: string;
+  variableName: string;
+  variableValue: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+

@@ -20,9 +20,9 @@ export default function UpdateMemberForm({
 	profile,
 	member,
 	citizenshipOptions,
+	tier,
 }: UpdateMemberFormProps) {
 	const { theme } = useTheme();
-	const router = useRouter();
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [showErrorModal, setShowErrorModal] = useState(false);
 	const [birthDate, setBirthDate] = useState<Date | null>(
@@ -130,6 +130,16 @@ export default function UpdateMemberForm({
 							name="fullName"
 							defaultValue={profile.firstName + " " + profile.lastName}
 							label="Full Name"
+							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
+							labelClassName={darkModeStyles.label}
+							readonly
+						/>
+
+						<FormInput
+							type="text"
+							name="tier"
+							defaultValue={tier.tierName || 'noTier'}
+							label="Tier"
 							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
 							labelClassName={darkModeStyles.label}
 							readonly

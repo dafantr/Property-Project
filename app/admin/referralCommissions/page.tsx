@@ -16,7 +16,7 @@ import { WithdrawalRequests } from "@/app/admin/dashboard/components/WithdrawalR
 import { PointDistribution } from "@/app/admin/dashboard/components/PointDistribution";
 import { RedemptionHistory } from "@/app/admin/dashboard/components/RedemptionHistory";
 
-export default function AdminDashboard() {
+export default function referralCommissions() {
 	const [selectedTab, setSelectedTab] = useState('memberList');
 	const [members, setMembers] = useState<any[]>([]);
 	const [memberRequests, setMemberRequests] = useState<any[]>([]);

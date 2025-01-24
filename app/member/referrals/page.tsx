@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchReferralDetails, fetchWithdrawalRequest } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchReferralDetails, fetchWithdrawalRequest, fetchTierById, getGeneralVariable } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import ReferralCommission from "@/components/member/ReferralCommission";
 
@@ -23,7 +23,17 @@ export default async function ReferralComPage() {
 		throw new Error("Failed to fetch withdrawal request details");
 	}
 
+	const tier = await fetchTierById(member.tierId);
+	if (tier === null) {
+		throw new Error('Tier not found');
+	}
+
+	const generalVariable = await getGeneralVariable("bookingCommissionRate");
+	if (generalVariable === null) {
+		throw new Error('General variable not found');
+	}
+
 	return (
-		<ReferralCommission member={member} referralDetails={referralDetails} withdrawalRequestDetails={withdrawalRequestDetails} />
+		<ReferralCommission member={member} referralDetails={referralDetails} withdrawalRequestDetails={withdrawalRequestDetails} tier={tier} generalVariable={generalVariable} />
 	);
 }

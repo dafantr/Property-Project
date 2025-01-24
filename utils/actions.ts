@@ -1282,6 +1282,9 @@ export const validateReferalCode = async (
 			// if (member.profileId == profile?.clerkId) {
 			// 	return false;
 			// }
+			if(member.isActive === 0) {
+				return false;
+			}
 
 			if(from === "booking" && member.isMarketing === true) {
 				return false;

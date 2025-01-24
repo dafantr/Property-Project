@@ -13,6 +13,7 @@ export default function DashboardMember({
     member,
     profile,
     rewards,
+	tier,
     referralDetails,
 	loyaltyPointDetails,
 	downlines
@@ -74,6 +75,10 @@ export default function DashboardMember({
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Member ID:</span>
                             <span className="font-medium">{member.memberId || 'noId'}</span>
+                        </div>
+						<div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">Tier:</span>
+                            <span className="font-medium">{tier.tierName || 'noTier'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Membership Status:</span>
