@@ -51,13 +51,13 @@ async function LinksDropdown() {
 				{/* Signed Out Links */}
 				<SignedOut>
 					<DropdownMenuItem>
-						<SignInButton mode="modal" signInFallbackRedirectUrl="/">
+						<SignInButton mode="modal">
 							<button className="w-full text-left">Login</button>
 						</SignInButton>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>
-						<SignUpButton mode="modal" signInFallbackRedirectUrl="/" >
+						<SignUpButton mode="modal">
 							<button className="w-full text-left">Register</button>
 						</SignUpButton>
 					</DropdownMenuItem>

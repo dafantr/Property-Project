@@ -36,7 +36,9 @@ export type PropertyCardProps = {
   export type tier = {
     id: string;
     tierName: string;
+    tierLevel: number;
     commission: number;
+    requiredDownline: number;
   };
 
   export type member = {
@@ -146,10 +148,12 @@ export type RegistrationDetails = {
 export type membershipCommissionTransaction = {
   id: string;
   profileId: string;
-  closerId: string;
+  closerId: string | null;
   commission: number;
   closerCommission: number;
   referalCode: string | null;
+  proofOfPayment: string | null;
+  paymentMethod: string;
   paymentStatus: boolean;
 }
 
