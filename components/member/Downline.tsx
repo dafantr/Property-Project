@@ -1,6 +1,6 @@
 "use client"
 import { DownlineProps } from "@/utils/types";
-import { ChevronDown, ChevronRight, Search, User } from "lucide-react";
+import { ChevronDown, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
 
 export default function Downline({

@@ -12,9 +12,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "next-themes";
 import { parse } from "date-fns";
 import { CitizenshipOption, UpdateMemberFormProps } from "@/utils/types";
-import { redirect, useRouter } from "next/navigation";
-import ErrorModal from "../ui/ErrorModal";
-import SuccessModal from "../ui/SuccessModal";
+import { redirect } from "next/navigation";
+import ErrorModal from "@/components/ui/ErrorModal";
+import SuccessModal from "@/components/ui/SuccessModal";
 
 export default function UpdateMemberForm({
 	profile,

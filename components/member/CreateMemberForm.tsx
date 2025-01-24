@@ -15,8 +15,9 @@ import { Card, CardTitle } from "../ui/card";
 import { formatCurrency } from "@/utils/format";
 import { Separator } from '@/components/ui/separator';
 import { calculateRegistrationFee } from "@/utils/calculateTotals";
-import ErrorModal from "../ui/ErrorModal";
+import ErrorModal from "@/components/ui/ErrorModal";
 import { useRouter } from "next/navigation";
+import SuccessModal from "../ui/SuccessModal";
 
 export default function CreateMemberForm({
 	profile,
@@ -35,6 +36,7 @@ export default function CreateMemberForm({
 	const [clsCode, setClsCode] = useState('');
 
 	const [showErrorModal, setShowErrorModal] = useState(false);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
 
 	const [totals, setTotals] = useState<RegistrationDetails>({
 		subTotal: 0,
@@ -138,6 +140,13 @@ export default function CreateMemberForm({
 						// Pass the updated formData to the action
 						const result = await createMemberAction(prevState, formData);
 
+						if (result.status === 'success') {
+							setShowSuccessModal(true);
+							setTimeout(() => {
+								setShowSuccessModal(false);
+							}, 2000);
+							router.push('/');
+						}
 						if (result.status === 'error') {
 							setShowErrorModal(true);
 							setTimeout(() => {
@@ -302,7 +311,7 @@ export default function CreateMemberForm({
 								<button
 								type="button"
 								onClick={handleApplyCloserCode}
-								className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+								className="ml-2 px-2 py-1 bg-[#C4A777] text-white rounded-md shadow-sm hover:bg-[#B39665] focus:outline-none focus:ring-2 focus:ring-[#C4A777] focus:ring-offset-2"
 								>
 								Check
 								</button>
@@ -328,7 +337,7 @@ export default function CreateMemberForm({
 									<button
 									type="button"
 									onClick={handleApplyReferralCode}
-									className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+									className="ml-2 px-2 py-1 bg-[#C4A777] text-white rounded-md shadow-sm hover:bg-[#B39665] focus:outline-none focus:ring-2 focus:ring-[#C4A777] focus:ring-offset-2"
 									>
 									Check
 									</button>
@@ -366,14 +375,18 @@ export default function CreateMemberForm({
 					</div>
 					<SubmitButton
 						text="Register Now"
-						className="mt-8 w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg transition-colors"
+						className="mt-8 w-full bg-[#C4A777] hover:bg-[#B39665] text-white py-3 rounded-lg transition-colors"
 					/>
 				</FormContainer>
 			</div>
-						
-            {showErrorModal && (
+
+			{showErrorModal && (
                 <ErrorModal message="Registration failed" />
             )}
+
+			{showSuccessModal && (
+				<SuccessModal message="Registration successful" />
+			)}
 		</section>
 	);
 }

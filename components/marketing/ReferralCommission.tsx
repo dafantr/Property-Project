@@ -3,7 +3,7 @@ import { formatCurrency } from "@/utils/format";
 import { ReferralCommissionProps } from "@/utils/types";
 import { Copy, Share2 } from "lucide-react";
 import { useState } from "react";
-import WithdrawalHistoryModal from "./ui/WithdrawalHistoryModal";
+import WithdrawalHistoryModal from "@/components/ui/WithdrawalHistoryModal";
 
 export default function ReferralCommission({
 	member,

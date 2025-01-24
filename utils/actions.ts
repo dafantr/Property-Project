@@ -495,9 +495,13 @@ export const createBookingAction = async (prevState: {
 		bookingId = booking.id;
 
 		//hitung commission
+		const commissionRate = await getGeneralVariable("bookingCommissionRate");
+		if(commissionRate === null){
+			return renderError("Commission rate not found");
+		}
 		let commission = 0;
 		if (referalCode.length > 0) {
-			commission = orderTotal * 0.1;
+			commission = orderTotal * (Number(commissionRate.variableValue) / 100);
 
 			//buat bookingCommissionTransaction dengan referal
 			const bookingTrans = await db.bookingCommissionTransaction.create({
@@ -1160,8 +1164,7 @@ export const createMemberAction = async (
 	if(paymentMethod === "CC"){
 		redirect(`/member/checkout?mId=${memberId}&trId=${transactionId}`);
 	} else {
-		revalidatePath('/');
-		redirect('/');
+		return { message: "Member created successfully", status: "success" };
 	}
 };
 
