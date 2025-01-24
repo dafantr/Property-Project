@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchRewards, fetchTierById, fetchBookingCommissionTransaction } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchRewards, fetchTierById, fetchReferralDetails, fetchLoyaltyPointDetails } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import DashboardMember from "@/components/member/DashboardMember";
 
@@ -25,9 +25,18 @@ export default async function DashboardPage() {
 		throw new Error(rewards.message);
 	}
 
-	const bookingCommissionDetails = await fetchBookingCommissionTransaction(member.memberId);
+	const referralDetails = await fetchReferralDetails(member);
+
+	if('message' in referralDetails) {
+		throw new Error(referralDetails.message);
+	}
+
+	const loyaltyPointDetails = await fetchLoyaltyPointDetails(member);
+	if('message' in loyaltyPointDetails) {
+		throw new Error(loyaltyPointDetails.message);
+	}
 
 	return (
-		<DashboardMember member={member} profile={profile} rewards={rewards} tier={tier} bookingCommissionDetails={bookingCommissionDetails} />
+		<DashboardMember member={member} profile={profile} rewards={rewards} referralDetails={referralDetails} loyaltyPointDetails={loyaltyPointDetails} />
 	);
 }

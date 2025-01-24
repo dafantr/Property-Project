@@ -17,14 +17,6 @@ model Profile {
   username     String
   email        String
   profileImage String
-  dob          String?
-  citizen      String?
-  phone        String?
-  address      String?
-  gender       String?
-  bankName     String?
-  bankAccNum   String?
-  bankAccName  String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   properties   Property[]
@@ -36,6 +28,7 @@ model Profile {
   bookingCommissionTransactions BookingCommissionTransaction[]
   membershipCommissionTransactions MembershipCommissionTransaction[]
   pointTransactions PointTransaction[]
+  withdrawCommissionRequests WithdrawCommissionRequest[]
 }
 
 model Property {
@@ -126,6 +119,7 @@ model Promotion {
 model Tier {
   id           String     @id @default(uuid()) @map("_id")
   tierName     String
+  tierLevel    Int 
   commission   Int
   requiredDownline Int
   createdAt    DateTime @default(now())
@@ -138,7 +132,17 @@ model Member {
   profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   memberId     String
+  parentMemberId String?
   parentId     String?
+  dob          String?
+  citizen      String?
+  phone        String?
+  address      String?
+  gender       String?
+  bankName     String?
+  bankAccNum   String?
+  bankAccName  String?
+  isMarketing  Boolean @default(false)
   point        Int     @default(0)
   commission   Float     @default(0)
   tier         Tier     @relation(fields: [tierId], references: [id], onDelete: Cascade)
@@ -146,6 +150,8 @@ model Member {
   isActive     Int     @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  parent       Member?    @relation("Downline", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  downlines    Member[]   @relation("Downline")
 }
 
 model BookingCommissionTransaction {
@@ -165,9 +171,11 @@ model MembershipCommissionTransaction {
   profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   commission   Float     @default(0)
-  closerId     String
+  closerId     String?
   closerCommission Float  @default(0)
   referalCode  String?
+  paymentMethod String
+  proofOfPayment String?
   paymentStatus Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -184,7 +192,7 @@ model Reward {
 
 model PointTransaction {
   id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId])
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
   profileId    String
   reward       Reward     @relation(fields: [rewardId], references: [id])
   rewardId     String
@@ -197,6 +205,20 @@ model GeneralVariable {
   variableName String
   variableValue String
   variableType String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model WithdrawCommissionRequest {
+  id           String     @id @default(uuid()) @map("_id")
+  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId    String
+  bankName     String
+  bankAccNumber   String
+  bankAccName  String
+  amount       Float     
+  status       String
+  notes        String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

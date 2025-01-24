@@ -1,78 +1,71 @@
 "use client"
 import { Copy, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { dashboardMemberProps } from "@/utils/types";
+import { dashboardMemberProps, reward } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import DownlinePreview from "./DownlinePreview";
+import { useState } from "react";
+import SuccessModal from "./ui/SuccessModal";
+import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
+import { fetchDownlines } from "@/utils/actions";
 
-const exampleData = {
-    id: "1",
-    name: "John Doe",
-    memberId: "REF1",
-    downlines: [
-      {
-        id: "2",
-        name: "Alice Smith",
-        memberId: "REF2",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF3" },
-          { id: "5", name: "Carol White", memberId: "REF4" }
-        ]
-      },
-      {
-        id: "3",
-        name: "David Brown",
-        memberId: "REF5",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF6" }
-        ]
-      },{
-        id: "7",
-        name: "Alice Smeagull",
-        memberId: "REF7",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF8" },
-          { id: "5", name: "Carol White", memberId: "REF9" }
-        ]
-      },
-      {
-        id: "8",
-        name: "David Smeagull",
-        memberId: "REF10",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF11" }
-        ]
-      },{
-        id: "9",
-        name: "Alice Treetops",
-        memberId: "REF12",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF13" },
-          { id: "5", name: "Carol White", memberId: "REF14" }
-        ]
-      },
-      {
-        id: "10",
-        name: "David Brown",
-        memberId: "REF15",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF16" }
-        ]
-      }
-    ]
-  };
-
-export default function DashboardMember({
+export default async function DashboardMember({
     member,
     profile,
     rewards,
-    tier,
-    bookingCommissionDetails
+    referralDetails,
+	loyaltyPointDetails
 }: dashboardMemberProps) {
-    function handleRedeem(reward: any): void {
-		console.log(reward.rewardName);
-	}
+
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [selectedReward, setSelectedReward] = useState<reward | null>(null);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+	const onRedeemClick = (reward: reward) => {
+		setSelectedReward(reward);
+		setShowConfirmModal(true);
+	  };
+  
     const router = useRouter();
+
+	const [copied, setCopied] = useState(false);
+
+	const referralLink = `${process.env.NEXT_PUBLIC_URL}/sign-up?ref=${member.memberId}`;
+	const referralCode = `${member.memberId}`;
+
+	const copyToClipboard = () => {
+		navigator.clipboard.writeText(referralCode);
+		setCopied(true);
+		
+		// Reset the "Copied!" message after 2 seconds
+		setTimeout(() => {
+		setCopied(false);
+		}, 2000);
+	};
+
+	const handleShare = async () => {
+		// Check if Web Share API is supported
+		if (navigator.share) {
+		  try {
+			await navigator.share({
+			  title: 'Join with my referral link',
+			  text: 'Sign up using my referral link!',
+			  url: referralLink,
+			});
+		  } catch (error) {
+			// User cancelled or share failed
+			console.log('Share failed:', error);
+		  }
+		} else {
+		  // Fallback to copying to clipboard
+		  navigator.clipboard.writeText(referralLink);
+		}
+	  };
+
+	  const downlines = await fetchDownlines(member.id, 3);
+	  if (downlines === null) {
+		return new Error('Failed to fetch downlines');
+	  }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 gap-6">
@@ -111,27 +104,27 @@ export default function DashboardMember({
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Phone:</span>
-                            <span>{profile.phone}</span>
+                            <span>{member.phone}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Address:</span>
-                            <span className="text-right max-w-[60%]">{profile.address}</span>
+                            <span className="text-right max-w-[60%]">{member.address}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Gender:</span>
-                            <span className="capitalize">{profile.gender}</span>
+                            <span className="capitalize">{member.gender}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Bank Name:</span>
-                            <span>{profile.bankName}</span>
+                            <span>{member.bankName}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Account Number:</span>
-                            <span>{profile.bankAccNum}</span>
+                            <span>{member.bankAccNum}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Account Name:</span>
-                            <span>{profile.bankAccName}</span>
+                            <span>{member.bankAccName}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-gray-400">Referral Code:</span>
@@ -154,17 +147,25 @@ export default function DashboardMember({
 				<div className="mb-4">
 					<p className="mb-2 dark:text-gray-300">Unique Referral Code: {member.memberId}</p>
 					<div className="flex flex-col sm:flex-row gap-2">
-						<button className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors">
-							<Copy className="h-4 w-4" /> Copy Referral Code
+						<button 
+							onClick={copyToClipboard}
+							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							>
+							<Copy className="h-4 w-4" />
+							{copied ? "Copied!" : "Copy Referral Code"}
 						</button>
-						<button className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors">
-							<Share2 className="h-4 w-4" /> Share Referral Link
+						<button 
+							onClick={handleShare}
+							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							>
+							<Share2 className="h-4 w-4" /> 
+							Share Referral Link
 						</button>
 					</div>
 				</div>
 
 				<div className="space-y-2 mb-6 dark:text-gray-300">
-					<p>Total Referrals: {bookingCommissionDetails.length || "0"}</p>
+					<p>Total Referrals: {referralDetails.length || "0"}</p>
 					<p>Total Commissions Earned: {formatCurrency(member.commission || 0)}</p>
 				</div>
 
@@ -181,18 +182,18 @@ export default function DashboardMember({
 							</tr>
 						</thead>
 						<tbody className="dark:text-gray-300">
-							{bookingCommissionDetails.map((bookingCommissionDetail) => (
-								<tr key={bookingCommissionDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
-									<td className="py-2 px-4">{bookingCommissionDetail.createdAt.toLocaleDateString()}</td>
-									<td className="py-2 px-4">{bookingCommissionDetail.profile.firstName} {bookingCommissionDetail.profile.lastName}</td>
-									<td className="py-2 px-4">{formatCurrency(bookingCommissionDetail.commission)}</td>
+							{referralDetails.map((referralDetail) => (
+								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
+									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
+									<td className="py-2 px-4">{referralDetail.profile.firstName} {referralDetail.profile.lastName}</td>
+									<td className="py-2 px-4">{formatCurrency(referralDetail.commission)}</td>
 									<td className="py-2 px-4">
 										<span className={`px-2 py-1 rounded text-sm ${
-											bookingCommissionDetail.booking.paymentStatus 
+											referralDetail.paymentStatus 
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{bookingCommissionDetail.booking.paymentStatus ? 'Approved' : 'Pending'}
+											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
 										</span>
 									</td>
 								</tr>
@@ -202,32 +203,32 @@ export default function DashboardMember({
 
 					{/* Mobile Cards */}
 					<div className="md:hidden space-y-4">
-						{bookingCommissionDetails.map((bookingCommissionDetail) => (
+						{referralDetails.map((referralDetail) => (
 							<div 
-								key={bookingCommissionDetail.id} 
+								key={referralDetail.id} 
 								className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-700"
 							>
 								<div className="space-y-2">
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Date</span>
-										<span>{bookingCommissionDetail.createdAt.toLocaleDateString()}</span>
+										<span>{referralDetail.createdAt.toLocaleDateString()}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Referral</span>
-										<span>{bookingCommissionDetail.profile.firstName} {bookingCommissionDetail.profile.lastName}</span>
+										<span>{referralDetail.profile.firstName} {referralDetail.profile.lastName}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Amount</span>
-										<span className="font-medium">{formatCurrency(bookingCommissionDetail.commission)}</span>
+										<span className="font-medium">{formatCurrency(referralDetail.commission)}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Status</span>
 										<span className={`px-2 py-1 rounded text-sm ${
-											bookingCommissionDetail.booking.paymentStatus 
+											referralDetail.paymentStatus 
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{bookingCommissionDetail.booking.paymentStatus ? 'Approved' : 'Pending'}
+											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
 										</span>
 									</div>
 								</div>
@@ -245,12 +246,35 @@ export default function DashboardMember({
 				</p>
 
 				<h3 className="font-semibold mb-2 dark:text-white">Activities Breakdown</h3>
-				<div className="space-y-2 mb-6 dark:text-gray-300">
-					<p>Referral Sign-up - 500 points</p>
-					<p>Purchase - 300 points</p>
-					<p>Monthly Bonus - 400 points</p>
-				</div>
+				<div className="overflow-x-auto ">
+					{/* Desktop Table */}
+					<table className="w-full hidden md:table">
+						<tbody className="dark:text-gray-300">
+							{loyaltyPointDetails.length > 0 ? (
+								loyaltyPointDetails.slice(-3).map((loyaltyPointDetail) => (
+									<tr key={loyaltyPointDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
+										<td className="py-2 px-4">{loyaltyPointDetail.type} - {loyaltyPointDetail.point} point</td>
+									</tr>
+								))
+							) : (
+								<tr>
+									<td className="py-2 px-4">No activities found</td>
+								</tr>
+							)}
+						</tbody>
+					</table>
 
+					{/* Mobile Cards */}
+					<div className="md:hidden space-y-4">
+						{loyaltyPointDetails.map((loyaltyPointDetail) => (
+							<div key={loyaltyPointDetail.id} className="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-zinc-700">
+								<p>{loyaltyPointDetail.type} - {loyaltyPointDetail.point} point</p>
+							</div>
+						))}
+					</div>
+				</div>
+				
+				<br />
 				<h3 className="font-semibold mb-2 dark:text-white">Available Rewards</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 					{rewards?.map((reward) => (
@@ -260,7 +284,7 @@ export default function DashboardMember({
 						{member.point >= reward.pointReq ? (
 						<button 
 							className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
-							onClick={() => handleRedeem(reward)}
+							onClick={() => onRedeemClick(reward)}
 						>
 							Redeem
 						</button>
@@ -274,11 +298,20 @@ export default function DashboardMember({
 				</div>
 			</div>
 
+			{/* Confirmation Modal */}
+			{showConfirmModal && (
+				<ConfirmRedeemModal selectedReward={selectedReward} setShowConfirmModal={setShowConfirmModal} setShowSuccessModal={setShowSuccessModal} />
+			)}
+
+			{showSuccessModal && (
+				<SuccessModal message="Reward redeemed successfully"/>
+			)}
+
 			{/* Downline Tree Card */}
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Downline Tree Preview</h2>
 				<div className="bg-gray-50 dark:bg-zinc-900 p-4 rounded-lg overflow-x-auto">
-						<DownlinePreview member={exampleData} />
+						<DownlinePreview member={downlines} />
 				</div>
 			</div>
 		</div>

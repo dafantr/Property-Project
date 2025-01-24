@@ -168,7 +168,7 @@ async function LinksDropdown() {
 					)}
 
 					{/* Member Links */}
-					{hasVisibleLinks(groupedLinks.member) && (
+					{ !isAdminUser && !isMember?.isMarketing && hasVisibleLinks(groupedLinks.member) && (
 						<>
 							<DropdownMenuSeparator />
 							{groupedLinks.member.map((link) => {
@@ -176,9 +176,8 @@ async function LinksDropdown() {
 									"member profile",
 									"dashboard",
 									"referrals & commissions",
-									"rewards",
-									"downline",
-									"contact",
+									"loyalty points & rewards",
+									"downline"
 								].includes(link.label);
 
 								const isNonMemberPage = ["exclusive member"].includes(
@@ -195,6 +194,38 @@ async function LinksDropdown() {
 									}
 								}
 								if (isNonMemberPage && isMember !== null && isMember.isActive === 1) return null;
+
+								return (
+									<DropdownMenuItem key={link.href}>
+										<Link href={link.href} className="capitalize w-full">
+											{link.label}
+										</Link>
+									</DropdownMenuItem>
+								);
+							})}
+						</>
+					)}
+
+					{/* Member Links */}
+					{ !isAdminUser && isMember?.memberId.toLowerCase().includes("marketing") && hasVisibleLinks(groupedLinks.marketing) && (
+						<>
+							<DropdownMenuSeparator />
+							{groupedLinks.marketing.map((link) => {
+								const isMemberPage = [
+									"member profile",
+									"dashboard",
+									"referrals & commissions",
+								].includes(link.label);
+
+								if (isMemberPage) {
+									if (isMember === null) {
+										return null;
+									} else {
+										if (isMember.isActive === 0) {
+											return null;
+										}
+									}
+								}
 
 								return (
 									<DropdownMenuItem key={link.href}>

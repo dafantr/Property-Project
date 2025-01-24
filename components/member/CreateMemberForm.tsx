@@ -14,7 +14,6 @@ import { CitizenshipOption, CreateMemberFormProps, RegistrationDetails } from "@
 import { Card, CardTitle } from "../ui/card";
 import { formatCurrency } from "@/utils/format";
 import { Separator } from '@/components/ui/separator';
-import { useProperty } from "@/utils/store";
 import { calculateRegistrationFee } from "@/utils/calculateTotals";
 
 export default function CreateMemberForm({
@@ -23,10 +22,14 @@ export default function CreateMemberForm({
 }: CreateMemberFormProps) {
 	const { theme } = useTheme();
 	const [birthDate, setBirthDate] = useState<Date | null>(null);
+	const [isReferralValid, setIsReferralValid] = useState(false);
+	const [isCloserValid, setIsCloserValid] = useState(false);
 	const [citizen, setSelectedCitizen] = useState<CitizenshipOption | null>(
 		null
 	);
+	const [paymentMethod, setPaymentMethod] = useState('');
 	const [refCode, setRefCode] = useState('');
+	const [clsCode, setClsCode] = useState('');
 
 	const [totals, setTotals] = useState<RegistrationDetails>({
 		subTotal: 0,
@@ -82,16 +85,30 @@ export default function CreateMemberForm({
 		validateReferalCode(refCode)
 		.then((isValid) => {
 		  if (isValid) {
-			useProperty.setState({ referalCode : refCode});
+			setIsReferralValid(true);
 		  } else {
-			useProperty.setState({ referalCode : ''});
+			setIsReferralValid(false);
 		  }
 		})
 		.catch((error) => {
 		  console.error('Error validating referral code:', error);
 		});
-	  };
+	};
 
+	const handleApplyCloserCode = () => {
+		//validate referalCode
+		validateReferalCode(clsCode)
+		.then((isValid) => {
+		  if (isValid) {
+			setIsCloserValid(true);
+		  } else {
+			setIsCloserValid(false);
+		  }
+		})
+		.catch((error) => {
+		  console.error('Error validating closer code:', error);
+		});
+	};
 	
 
 	return (
@@ -102,13 +119,15 @@ export default function CreateMemberForm({
 			<div className="border dark:border-gray-700 p-8 rounded-lg shadow-lg bg-white dark:bg-black">
 				<FormContainer
 					action={async (prevState: any, formData: FormData) => {
+						const file = formData.get('paymentProof') as File;
 						formData.append("citizen", citizen?.value || "");
 						formData.append(
 							"birthDate",
 							birthDate ? birthDate.toLocaleDateString('en-CA') : ""
 						);
 						formData.set("referalCode", refCode);
-						// formData.set("closerCode", closerCode);
+						formData.set("closerCode", clsCode);
+						formData.append('paymentProof', file);
 						formData.set("totalPrice", totals.orderTotal.toString());
 
 						// Pass the updated formData to the action
@@ -122,6 +141,7 @@ export default function CreateMemberForm({
 							label="First Name"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 						<FormInput
 							type="text"
@@ -130,6 +150,7 @@ export default function CreateMemberForm({
 							label="Last Name"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 						<FormInput
 							type="text"
@@ -138,6 +159,7 @@ export default function CreateMemberForm({
 							label="Email Address"
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
+							readonly
 						/>
 
 						<div className="form-group">
@@ -181,7 +203,7 @@ export default function CreateMemberForm({
 						</div>
 
 						<FormInput
-							type="tel"
+							type="number"
 							name="phone"
 							label="Phone Number"
 							className={`${darkModeStyles.input} transition-colors`}
@@ -219,7 +241,7 @@ export default function CreateMemberForm({
 							labelClassName={darkModeStyles.label}
 						/>
 						<FormInput
-							type="text"
+							type="number"
 							name="bankAccNum"
 							label="Bank Account Number"
 							className={`${darkModeStyles.input} transition-colors`}
@@ -232,11 +254,52 @@ export default function CreateMemberForm({
 							className={`${darkModeStyles.input} transition-colors`}
 							labelClassName={darkModeStyles.label}
 						/>
+
+						<div className="form-group">
+							<label
+								htmlFor="paymentMethod"
+								className={`block mb-2 text-sm font-medium ${darkModeStyles.label}`}>
+								Payment Method
+							</label>
+							<select
+								id="paymentMethod"
+								name="paymentMethod"
+								value={paymentMethod}
+								onChange={(e) => setPaymentMethod(e.target.value)}
+								className={`w-full px-4 py-2 rounded-lg border dark:bg-black dark:border-gray-700 dark:text-white`}
+								required>
+								<option value="">Select Payment Method</option>
+								<option value="CC">Credit Card</option>
+								<option value="TRF">Bank Transfer</option>
+							</select>
+						</div>
+
+						<div className="">
+							<div className="flex items-center">
+								<input
+								type="text"
+								id="closerCode"
+								name="closerCode"
+								value={clsCode}
+								onChange={(e) => setClsCode(e.target.value)}
+								className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-black dark:border-gray-700 dark:text-white focus:ring-2 focus:ring-primary/50"
+								placeholder="Enter closer code"
+								/>
+								<button
+								type="button"
+								onClick={handleApplyCloserCode}
+								className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+								>
+								Check
+								</button>
+							</div>
+						</div>
+						{isCloserValid && <label className="text-green-500">Valid</label>}
+
 						<Card className='p-8 mb-4'>
 							<CardTitle className='mb-8'>Registration Fee Summary </CardTitle>
 							<FormRow label='Registration Fee' amount={totals.subTotal} />
 							<FormRow label='Tax' amount={totals.tax} />
-
 							<div className="mt-4 mb-4">
 								<div className="flex items-center">
 									<input
@@ -245,7 +308,7 @@ export default function CreateMemberForm({
 									name="referalCode"
 									value={refCode}
 									onChange={(e) => setRefCode(e.target.value)}
-									className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+									className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-black dark:border-gray-700 dark:text-white focus:ring-2 focus:ring-primary/50"
 									placeholder="Enter referal code"
 									/>
 									<button
@@ -253,15 +316,39 @@ export default function CreateMemberForm({
 									onClick={handleApplyReferralCode}
 									className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 									>
-									Apply
+									Check
 									</button>
 								</div>
 							</div>
+							{isReferralValid && <label className="text-green-500">Valid</label>}
+
 							<Separator className='mt-4' />
 							<CardTitle className='mt-8'>
 								<FormRow label='Booking Total' amount={totals.orderTotal} />
 							</CardTitle>
 						</Card>
+
+						{paymentMethod === "TRF" && (
+							<div className="space-y-2">
+								<label className="block text-sm font-medium dark:text-gray-200">
+								Upload Payment Proof
+								<span className="text-red-500 ml-1">*</span>
+								</label>
+								<input
+								type="file"
+								name="paymentProof"
+								accept="image/*"
+								required
+								className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-black dark:border-gray-700 dark:text-white 
+									file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+									file:text-sm file:bg-[#C4A777] file:text-white
+									hover:file:bg-[#B39665]"
+								/>
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+								Accepted formats: JPG, PNG, JPEG (Max 5MB)
+								</p>
+						  	</div>
+						)}
 					</div>
 					<SubmitButton
 						text="Register Now"

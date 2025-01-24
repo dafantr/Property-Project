@@ -16,13 +16,15 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
 
   const bookingId = searchParams.get('bookingId');
+  const transactionId = searchParams.get('trId');
 
   const fetchClientSecret = useCallback(async () => {
     const response = await axios.post('/api/payment', {
       bookingId,
+      transactionId,
     });
     return response.data.clientSecret;
-  }, [bookingId]);
+  }, [bookingId, transactionId]);
 
   const options = { fetchClientSecret };
 

@@ -1,63 +1,6 @@
-import { fetchProfile, fetchMember } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchDownlines } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import Downline from "@/components/member/Downline";
-
-const exampleData = {
-    id: "1",
-    name: "John Doe",
-    memberId: "REF1",
-    downlines: [
-      {
-        id: "2",
-        name: "Alice Smith",
-        memberId: "REF2",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF3" },
-          { id: "5", name: "Carol White", memberId: "REF4" }
-        ]
-      },
-      {
-        id: "3",
-        name: "David Brown",
-        memberId: "REF5",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF6" }
-        ]
-      },{
-        id: "7",
-        name: "Alice Smeagull",
-        memberId: "REF7",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF8" },
-          { id: "5", name: "Carol White", memberId: "REF9" }
-        ]
-      },
-      {
-        id: "8",
-        name: "David Smeagull",
-        memberId: "REF10",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF11" }
-        ]
-      },{
-        id: "9",
-        name: "Alice Treetops",
-        memberId: "REF12",
-        downlines: [
-          { id: "4", name: "Bob Johnson", memberId: "REF13" },
-          { id: "5", name: "Carol White", memberId: "REF14" }
-        ]
-      },
-      {
-        id: "10",
-        name: "David Brown",
-        memberId: "REF15",
-        downlines: [
-          { id: "6", name: "Eve Wilson", memberId: "REF16" }
-        ]
-      }
-    ]
-  };
 
 export default async function DownlinePage() {
 	const profile = await fetchProfile();
@@ -69,6 +12,11 @@ export default async function DownlinePage() {
 	if (member === null) {
 		redirect('/member/create');
 	}
+
+  const downlines = await fetchDownlines(member.id, 3);
+  if (downlines === null) {
+    return new Error('Failed to fetch downlines');
+  }
 	
 	return (
         <div className="grid grid-cols-1 gap-6">
@@ -76,7 +24,7 @@ export default async function DownlinePage() {
 				<h1 className="text-xl font-semibold mb-4 dark:text-white">Referral Tree</h1>
                 <div className="relative w-full overflow-auto p-8">
                     <div className="min-w-max flex justify-center">
-                    <Downline member={exampleData} />
+                    <Downline member={downlines} />
                     </div>
                 </div>
             </div>

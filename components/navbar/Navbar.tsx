@@ -3,9 +3,10 @@ import LinksDropdown from "./LinksDropdown";
 import DarkMode from "./DarkMode";
 import Logo from "./Logo";
 import NavMenu from "./NavMenu";
-import Link from "next/link";
 
-import DashboardNavbar from "./DashboardNavbar";
+import MemberNavbar from "./MemberNavbar";
+import AdminNavbar from "./AdminNavbar";
+import MarketingNavbar from "./MarketingNavbar";
 
 function Navbar() {
 	return (
@@ -29,7 +30,9 @@ function Navbar() {
 					</div>
 				</div>
 			</div>
-		<DashboardNavbar/>
+			<MemberNavbar />
+			<MarketingNavbar />
+			<AdminNavbar />
 		</nav>
 	);
 }

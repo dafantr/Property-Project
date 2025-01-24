@@ -39,7 +39,7 @@ async function ProfilePage() {
   return (
     <UpdateMemberForm
 			profile={profile}
-			member={{id: member.id, memberId: member.memberId, isActive: member.isActive}}
+			member={member}
 			citizenshipOptions={citizenshipOptions}
 		/>
   );

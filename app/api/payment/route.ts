@@ -8,7 +8,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     const requestHeaders = new Headers(req.headers);
     const origin = requestHeaders.get('origin');
 
-    const { bookingId } = await req.json();
+    const { bookingId, transactionId } = await req.json();
 
     const booking = await db.booking.findUnique({
         where: { id: bookingId },
@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     try {
         const session = await stripe.checkout.sessions.create({
             ui_mode: 'embedded',
-            metadata: { bookingId: booking.id },
+            metadata: { bookingId: booking.id, transactionId: transactionId },
             line_items: [
                 {
                     quantity: 1,

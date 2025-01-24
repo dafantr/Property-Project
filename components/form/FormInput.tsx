@@ -9,6 +9,8 @@ interface FormInputProps {
     className?: string;
     labelClassName?: string;
     readonly?: boolean;
+    placeholder?: any;
+    required?: boolean;
 }
 
 export default function FormInput({
@@ -18,7 +20,9 @@ export default function FormInput({
     defaultValue,
     className,
     labelClassName,
-    readonly
+    readonly,
+    required = true,
+    placeholder
 }: FormInputProps) {
     return (
         <div className="form-group">
@@ -34,8 +38,9 @@ export default function FormInput({
                 name={name}
                 defaultValue={defaultValue}
                 className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-black dark:border-gray-700 dark:text-white focus:ring-2 focus:ring-primary/50 ${className}`}
-                required
+                required={required}
                 readOnly={readonly}
+                placeholder={placeholder}
             />
         </div>
     );
