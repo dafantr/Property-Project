@@ -169,11 +169,11 @@ export const fetchProperties = async ({
 }) => {
   const properties = await db.property.findMany({
     where: {
-      category,
       OR: [
         { name: { contains: search, mode: 'insensitive' } },
         { tagline: { contains: search, mode: 'insensitive' } },
       ],
+      ...(category ? { category } : {}),
     },
     select: {
       id: true,
@@ -182,12 +182,30 @@ export const fetchProperties = async ({
       city: true,
       image: true,
       price: true,
+      createdAt: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
     orderBy: {
       createdAt: 'desc',
-    }
+    },
   });
-  return properties;
+
+  return properties.map((property) => {
+    const ratings = property.reviews.map((review) => review.rating);
+    const averageRating = ratings.length
+      ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1)
+      : null; // Default to null if no reviews
+
+    return {
+      ...property,
+      rating: averageRating ? parseFloat(averageRating) : null, // Ensure rating is null if no reviews
+      count: ratings.length,
+    };
+  });
 };
 
 export const fetchFavoriteId = async ({
@@ -259,11 +277,9 @@ export const fetchFavorites = async () => {
   return favorites.map((favorite: { property: any; }) => favorite.property);
 };
 
-export const fetchPropertyDetails = (id: string) => {
-  return db.property.findUnique({
-    where: {
-      id,
-    },
+export const fetchPropertyDetails = async (id: string) => {
+  const property = await db.property.findUnique({
+    where: { id },
     include: {
       profile: true,
       bookings: {
@@ -272,13 +288,35 @@ export const fetchPropertyDetails = (id: string) => {
           checkOut: true,
         },
       },
+      reviews: true, // Include reviews in the response to calculate rating
     },
   });
+
+  if (property) {
+    const totalReviews = property.reviews.length;
+
+    // Calculate the average rating if there are reviews
+    const averageRating =
+      totalReviews > 0
+        ? (property.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1)
+        : '0'; // Rounding to 1 decimal place
+
+    return {
+      ...property,
+      rating: parseFloat(averageRating), // Convert to float for numerical accuracy
+      count: totalReviews,
+    };
+  }
+
+  return null;
 };
+
+
 
 export async function createReviewAction(prevState: any, formData: FormData) {
   const user = await getAuthUser();
   try {
+    //console.log(Object.fromEntries(formData));
     const rawData = Object.fromEntries(formData);
 
     const validatedFields = validateWithZodSchema(createReviewSchema, rawData);
@@ -306,7 +344,7 @@ export async function fetchPropertyReviews(propertyId: string) {
       comment: true,
       profile: {
         select: {
-          firstName: true,
+          username: true,
           profileImage: true,
         },
       },
@@ -519,6 +557,7 @@ export const fetchRentals = async () => {
       id: true,
       name: true,
       price: true,
+      createdAt: true
     },
   });
 
@@ -764,7 +803,7 @@ export const fetchFiveStarReviews = async () => {
         rating: true,
         profile: {
           select: {
-            firstName: true,
+            username: true,
             profileImage: true,
           },
         },
@@ -877,7 +916,7 @@ export const createPromotionAction = async (
   try {
     const title = formData.get('title') as String;
     const subtitle = formData.get('subtitle') as String;
-    const category = formData.get('exclusive') as String;
+    const category = formData.get('category') as string;
     const description = formData.get('description') as String;
     const file = formData.get('image') as File;
 

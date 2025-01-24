@@ -1,5 +1,5 @@
 import EmptyList from '@/components/home/EmptyList';
-import { fetchGalleries, deleteGaleryAction } from '@/utils/actions';
+import { fetchGalleries } from '@/utils/actions';
 import Link from 'next/link';
 import {
   Table,
@@ -10,9 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import FormContainer from '@/components/form/FormContainer';
-import { IconButton } from '@/components/form/Buttons';
+import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
 
 async function GaleriesPage() {
   const galeries = await fetchGalleries();
@@ -55,7 +53,7 @@ async function GaleriesPage() {
                 </TableCell>
                 <TableCell>{title}</TableCell>
                 <TableCell>
-                  <DeleteGalery galeryId={id} />
+                  <DeleteItemButton itemId={id} itemType="gallery" />
                 </TableCell>
               </TableRow>
             );
@@ -63,15 +61,6 @@ async function GaleriesPage() {
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-function DeleteGalery({ galeryId }: { galeryId: string }) {
-  const deleteGalery = deleteGaleryAction.bind(null, { galeryId });
-  return (
-    <FormContainer action={deleteGalery}>
-      <IconButton actionType="delete" />
-    </FormContainer>
   );
 }
 
