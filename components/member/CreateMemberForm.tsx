@@ -15,12 +15,15 @@ import { Card, CardTitle } from "../ui/card";
 import { formatCurrency } from "@/utils/format";
 import { Separator } from '@/components/ui/separator';
 import { calculateRegistrationFee } from "@/utils/calculateTotals";
+import ErrorModal from "../ui/ErrorModal";
+import { useRouter } from "next/navigation";
 
 export default function CreateMemberForm({
 	profile,
 	citizenshipOptions,
 }: CreateMemberFormProps) {
 	const { theme } = useTheme();
+	const router = useRouter();
 	const [birthDate, setBirthDate] = useState<Date | null>(null);
 	const [isReferralValid, setIsReferralValid] = useState(false);
 	const [isCloserValid, setIsCloserValid] = useState(false);
@@ -30,6 +33,8 @@ export default function CreateMemberForm({
 	const [paymentMethod, setPaymentMethod] = useState('');
 	const [refCode, setRefCode] = useState('');
 	const [clsCode, setClsCode] = useState('');
+
+	const [showErrorModal, setShowErrorModal] = useState(false);
 
 	const [totals, setTotals] = useState<RegistrationDetails>({
 		subTotal: 0,
@@ -82,7 +87,7 @@ export default function CreateMemberForm({
 
 	const handleApplyReferralCode = () => {
 		//validate referalCode
-		validateReferalCode(refCode)
+		validateReferalCode(refCode, "member")
 		.then((isValid) => {
 		  if (isValid) {
 			setIsReferralValid(true);
@@ -97,7 +102,7 @@ export default function CreateMemberForm({
 
 	const handleApplyCloserCode = () => {
 		//validate referalCode
-		validateReferalCode(clsCode)
+		validateReferalCode(clsCode, "member")
 		.then((isValid) => {
 		  if (isValid) {
 			setIsCloserValid(true);
@@ -131,7 +136,16 @@ export default function CreateMemberForm({
 						formData.set("totalPrice", totals.orderTotal.toString());
 
 						// Pass the updated formData to the action
-						return createMemberAction(prevState, formData);
+						const result = await createMemberAction(prevState, formData);
+
+						if (result.status === 'error') {
+							setShowErrorModal(true);
+							setTimeout(() => {
+								setShowErrorModal(false);
+							}, 2000);
+						}
+
+						return { message: result.message, status: result.status };
 					}}>
 					<div className="grid gap-6">
 						<FormInput
@@ -356,6 +370,10 @@ export default function CreateMemberForm({
 					/>
 				</FormContainer>
 			</div>
+						
+            {showErrorModal && (
+                <ErrorModal message="Registration failed" />
+            )}
 		</section>
 	);
 }

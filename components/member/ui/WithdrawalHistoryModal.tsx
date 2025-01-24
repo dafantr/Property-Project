@@ -1,9 +1,9 @@
 import { useState } from "react";
-import SuccessModal from "./SuccessModal";
+import SuccessModal from "../../ui/SuccessModal";
 import ConfirmWithdrawModal from "./ConfirmWithdrawModal";
 import { WithdrawalHistoryModalProps } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
-import ErrorModal from "./ErrorModal";
+import ErrorModal from "../../ui/ErrorModal";
 
 export default function WithdrawalHistoryModal({
     setShowWithdrawalHistoryModal,

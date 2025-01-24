@@ -472,7 +472,7 @@ export const createBookingAction = async (prevState: {
 		if (!property) {
 			return { message: "Property not found" };
 		}
-		if (!(await validateReferalCode(referalCode, "booking"))) {
+		if (referalCode.length > 0 && !(await validateReferalCode(referalCode, "booking"))) {
 			return { message: "Referal code not valid" };
 		}
 		const { orderTotal, totalNights, discount } = calculateTotals({
@@ -1061,7 +1061,7 @@ export const updatePromotionImageAction = async (
 export const createMemberAction = async (
 	prevState: any,
 	formData: FormData
-): Promise<{ message: string }> => {
+): Promise<{ message: string, status: string }> => {
 	const citizen = formData.get("citizen") as string;
 	const phone = formData.get("phone") as string;
 	const address = formData.get("address") as string;
@@ -1089,28 +1089,28 @@ export const createMemberAction = async (
 		const profile = await fetchProfile();
 
 		if (!profile) {
-			return renderError("Profile not found");
+			return { message: "Profile not found", status: "error" };
 		}
 
 		await deleteIncompleteMember(profile?.clerkId);
 
 		// cek if member already exist
 		if (await fetchMember(profile?.clerkId)) {
-			throw new Error("Member already exist");
+			return { message: "Member already exist", status: "error" };
 		}
 
 		// cek referalCode
 		if (referalCode.length > 0 ) {
 			referalValid = await validateReferalCode(referalCode, "member");
 			if(!referalValid){
-				throw new Error("Invalid referral code");
+				return { message: "Invalid referral code", status: "error" };
 			}
 		}
 
 		if(closerCode.length > 0){
 			closerValid = await validateReferalCode(closerCode, "member");
 			if(!closerValid){
-				throw new Error("Invalid closer code");
+				return { message: "Invalid closer code", status: "error" };
 			}
 		}
 
@@ -1120,7 +1120,7 @@ export const createMemberAction = async (
 		}
 
 		const tier = await fetchTierByLevel(1);
-		if(tier === null) throw new Error("Tier not found");
+		if(tier === null) return { message: "Tier not found", status: "error" };
 
 		const parentMember = await fetchMember(undefined, referalCode);
 
@@ -1154,7 +1154,7 @@ export const createMemberAction = async (
 		transactionId = membershipCommissionTransactionId.toString();
 
 	} catch (error) {
-		return renderError(error);
+		return { message: "Failed to create member, " + error, status: "error" };
 	}
 
 	if(paymentMethod === "CC"){
@@ -1208,7 +1208,7 @@ const generateCode = () => {
 export const updateMemberAction = async (
 	prevState: any,
 	formData: FormData
-): Promise<{ message: string }> => {
+): Promise<{ message: string, status: string }> => {
 	try {
 		const memberId = formData.get("memberId") as string;
 		const email = formData.get("email") as string;
@@ -1223,7 +1223,7 @@ export const updateMemberAction = async (
 		const formattedDate = dob.slice(0, 10);
 
 		const member = await fetchMember(undefined, memberId);
-		if (member === null) throw new Error("Member not found");
+		if (member === null) return { message: "Member not found", status: "error" };
 
 		await db.profile.update({
 			where: {
@@ -1251,9 +1251,9 @@ export const updateMemberAction = async (
 			},
 		});
 		revalidatePath("/member/dashboard");
-		return { message: "Member profile updated successfully" };
+		return { message: "Member profile updated successfully", status: "success" };
 	} catch (error) {
-		return renderError(error);
+		return { message: "Failed to update member profile", status: "error" };
 	}
 };
 
@@ -1277,7 +1277,6 @@ export const validateReferalCode = async (
 				memberId: referalCode,
 			},
 		});
-
 		if (member != null) {
 			//penjagaan penggunaan referal code sendiri
 			if (member.profileId == profile?.clerkId) {

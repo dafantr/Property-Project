@@ -11,11 +11,9 @@ import MarketingNavbar from "./MarketingNavbar";
 function Navbar() {
 	return (
 		<nav
-			className="sticky top-0 border-b z-50 transition-colors duration-300
-      bg-white dark:bg-black">
+			className="sticky top-0 border-b z-50 transition-colors duration-300 bg-white dark:bg-black">
 			<div
-				className="container flex flex-col sm:flex-row
-        sm:justify-between sm:items-center flex-wrap gap-4 py-8">
+				className="container flex flex-col sm:flex-row sm:justify-between sm:items-center flex-wrap gap-4 py-8">
 				<div className="flex justify-center sm:justify-start w-full sm:w-auto">
 					<Logo />
 				</div>

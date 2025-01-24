@@ -47,6 +47,13 @@ export const GET = async (req: NextRequest) => {
         where: { id: transactionId },
         data: { paymentStatus: true },
       });
+
+        return new Response(null, {
+          status: 303, // See Other
+          headers: {
+            'Location': '/member/dashboard' // or wherever you want to redirect
+          },
+        });
     }
   } catch (err) {
     console.log(err);
@@ -55,6 +62,4 @@ export const GET = async (req: NextRequest) => {
       statusText: 'Internal Server Error',
     });
   }
-  revalidatePath('/member/dashboard');
-  redirect('/member/dashboard');
 };

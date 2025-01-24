@@ -5,16 +5,17 @@ import { dashboardMemberProps, reward } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
 import DownlinePreview from "./DownlinePreview";
 import { useState } from "react";
-import SuccessModal from "./ui/SuccessModal";
+import SuccessModal from "../ui/SuccessModal";
 import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
 import { fetchDownlines } from "@/utils/actions";
 
-export default async function DashboardMember({
+export default function DashboardMember({
     member,
     profile,
     rewards,
     referralDetails,
-	loyaltyPointDetails
+	loyaltyPointDetails,
+	downlines
 }: dashboardMemberProps) {
 
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -61,11 +62,6 @@ export default async function DashboardMember({
 		  navigator.clipboard.writeText(referralLink);
 		}
 	  };
-
-	  const downlines = await fetchDownlines(member.id, 3);
-	  if (downlines === null) {
-		return new Error('Failed to fetch downlines');
-	  }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 gap-6">

@@ -1,4 +1,4 @@
-import { fetchProfile, fetchMember, fetchRewards, fetchTierById, fetchReferralDetails, fetchLoyaltyPointDetails } from "@/utils/actions";
+import { fetchProfile, fetchMember, fetchRewards, fetchTierById, fetchReferralDetails, fetchLoyaltyPointDetails, fetchDownlines } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import DashboardMember from "@/components/member/DashboardMember";
 
@@ -36,7 +36,12 @@ export default async function DashboardPage() {
 		throw new Error(loyaltyPointDetails.message);
 	}
 
+	const downlines = await fetchDownlines(member.id, 3);
+	if (downlines === null) {
+	  return new Error('Failed to fetch downlines');
+	}
+
 	return (
-		<DashboardMember member={member} profile={profile} rewards={rewards} referralDetails={referralDetails} loyaltyPointDetails={loyaltyPointDetails} />
+		<DashboardMember member={member} profile={profile} rewards={rewards} referralDetails={referralDetails} loyaltyPointDetails={loyaltyPointDetails} downlines={downlines} />
 	);
 }

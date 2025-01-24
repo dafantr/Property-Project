@@ -54,7 +54,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 function NavMenu() {
     return (
-        <NavigationMenu>
+        <NavigationMenu className="relative z-[100]">
             <NavigationMenuList>
                 <NavigationMenuItem>
                     <NavigationMenuTrigger>Overview</NavigationMenuTrigger>

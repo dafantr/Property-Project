@@ -2,7 +2,7 @@
 import { LoyaltiPointsProps, reward } from "@/utils/types";
 import { useState } from "react";
 import ConfirmRedeemModal from "./ui/ConfirmRedeemModal";
-import SuccessModal from "./ui/SuccessModal";
+import SuccessModal from "../ui/SuccessModal";
 
 export default function LoyaltiPoints({
 	member,

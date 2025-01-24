@@ -25,7 +25,7 @@ function BookingForm() {
 
   const handleApplyReferralCode = () => {
     //validate referalCode
-    validateReferalCode(refCode)
+    validateReferalCode(refCode, 'booking')
     .then((isValid) => {
       if (isValid) {
         setIsReferralValid(true);

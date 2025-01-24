@@ -12,6 +12,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "next-themes";
 import { parse } from "date-fns";
 import { CitizenshipOption, UpdateMemberFormProps } from "@/utils/types";
+import { redirect, useRouter } from "next/navigation";
+import ErrorModal from "../ui/ErrorModal";
+import SuccessModal from "../ui/SuccessModal";
 
 export default function UpdateMemberForm({
 	profile,
@@ -19,7 +22,9 @@ export default function UpdateMemberForm({
 	citizenshipOptions,
 }: UpdateMemberFormProps) {
 	const { theme } = useTheme();
-
+	const router = useRouter();
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showErrorModal, setShowErrorModal] = useState(false);
 	const [birthDate, setBirthDate] = useState<Date | null>(
 		member.dob ? parse(member.dob, 'yyyy-MM-dd', new Date()) : null
     );
@@ -85,7 +90,21 @@ export default function UpdateMemberForm({
 							birthDate ? birthDate.toLocaleDateString('en-CA') : ""
 						);
 						// Pass the updated formData to the action
-						return updateMemberAction(prevState, formData);
+						const result = await updateMemberAction(prevState, formData);
+						if(result.status === 'success') {
+							setShowSuccessModal(true);
+							setTimeout(() => {
+								setShowSuccessModal(false);
+								
+							}, 2000);
+							redirect("/member/dashboard");
+						} else if (result.status === 'error') {
+							setShowErrorModal(true);
+							setTimeout(() => {
+								setShowErrorModal(false);
+							}, 2000);
+						}
+						return { message: result.message, status: result.status };
 					}}>
 					<div className="grid md:grid-cols-2 gap-4 mt-4">
 						<FormInput
@@ -228,6 +247,14 @@ export default function UpdateMemberForm({
 					/>
 				</FormContainer>
 			</div>
+			{showSuccessModal && (
+                <SuccessModal message="Profile updated successfully" />
+            )}
+
+            {showErrorModal && (
+                <ErrorModal message="Failed to update member profile" />
+            )}
 		</section>
 	);
 }
+

@@ -92,6 +92,7 @@ export type PropertyCardProps = {
     rewards: reward[];
     referralDetails: referralDetails[];
     loyaltyPointDetails: loyaltyPointDetails[];
+    downlines: Downline[];
 }
 
 export type LoyaltiPointsProps = {
