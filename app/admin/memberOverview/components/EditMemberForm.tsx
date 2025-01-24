@@ -2,7 +2,7 @@
 
 import FormContainer from "@/components/form/FormContainer";
 import FormInput from "@/components/form/FormInput";
-import { updateMemberAdminAction } from "@/utils/actions";
+import { updateMemberAction } from "@/utils/actions";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import Select from "react-select";
@@ -39,7 +39,9 @@ export default function EditMemberForm({
 
 	return (
 		<Card className="max-w-4xl mx-auto p-4 sm:p-6 dark:bg-black">
-			<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 dark:text-white">Member Profile</h2>
+			<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 dark:text-white">
+				Member Profile
+			</h2>
 			<FormContainer
 				action={async (prevState: any, formData: FormData) => {
 					formData.append("citizen", citizen?.value || "");
@@ -47,7 +49,7 @@ export default function EditMemberForm({
 						"birthDate",
 						birthDate ? birthDate.toLocaleDateString("en-CA") : ""
 					);
-					return updateMemberAdminAction(prevState, formData);
+					return updateMemberAction(prevState, formData);
 				}}>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 					<FormInput
@@ -76,7 +78,9 @@ export default function EditMemberForm({
 					/>
 
 					<div>
-						<label className="block text-sm font-medium mb-2 dark:text-white">Citizen</label>
+						<label className="block text-sm font-medium mb-2 dark:text-white">
+							Citizen
+						</label>
 						<Select
 							value={citizen}
 							onChange={setCitizen}
@@ -88,8 +92,8 @@ export default function EditMemberForm({
 								...theme,
 								colors: {
 									...theme.colors,
-									neutral0: 'var(--background)',
-									neutral80: 'var(--foreground)',
+									neutral0: "var(--background)",
+									neutral80: "var(--foreground)",
 								},
 							})}
 						/>

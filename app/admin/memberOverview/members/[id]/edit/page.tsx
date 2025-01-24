@@ -20,7 +20,7 @@ export default async function EditMemberPage({
 		<main className="flex min-h-screen flex-col p-4 sm:p-6 dark:bg-black">
 			<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
 				<Link
-					href="/cms"
+					href="/admin/memberOverview"
 					className="flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
 					<ArrowLeft className="w-4 h-4 mr-1" />
 					Back to Members

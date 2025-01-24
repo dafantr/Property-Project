@@ -9,7 +9,7 @@ export default function AdminNavbar() {
 	const adminPaths = [
 		"/admin/dashboard",
 		"/admin/memberOverview",
-		"/admin/referralCommissions",
+		"/admin/referralNcommision",
 		"/admin/memberLoyaltyOverview",
 		"/admin/downline",
 	];
@@ -41,10 +41,10 @@ export default function AdminNavbar() {
 						Member Overview
 					</Link>
 					<Link
-						href="/admin/referralCommissions"
+						href="/admin/referralNcommision"
 						className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap text-sm
 							${
-								pathname?.includes("/admin/referralCommissions")
+								pathname?.includes("/admin/referralNcommision")
 									? "text-blue-600 dark:text-blue-400 font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
