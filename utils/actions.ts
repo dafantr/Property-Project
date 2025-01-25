@@ -2355,4 +2355,47 @@ export const fetchCommissionStats = async (startDate?: Date | null, endDate?: Da
 	}
 };
 
+export const fetchPointTransactionHistory = async () => {
+	try {
+		const transactions = await db.pointTransaction.findMany({
+			select: {
+				id: true,
+				createdAt: true,
+				profile: {
+					select: {
+						firstName: true,
+						lastName: true,
+						members: {
+							select: {
+								memberId: true
+							}
+						}
+					}
+				},
+				reward: {
+					select: {
+						rewardName: true,
+						pointReq: true
+					}
+				}
+			},
+			orderBy: {
+				createdAt: 'desc'
+			}
+		});
+
+		return transactions.map(transaction => ({
+			id: transaction.id,
+			name: `${transaction.profile.firstName} ${transaction.profile.lastName}`,
+			memberId: transaction.profile.members[0]?.memberId || 'N/A',
+			pointsRedeemed: transaction.reward.pointReq,
+			rewardName: transaction.reward.rewardName,
+			dateTime: transaction.createdAt
+		}));
+	} catch (error) {
+		console.error('Error fetching point transaction history:', error);
+		return [];
+	}
+};
+
 export { getAdminUser };
