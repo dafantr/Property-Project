@@ -1710,9 +1710,17 @@ export const fetchReferralDetails = async (member: member) => {
 	}
 };
 
-export const fetchMemberAll = async () => {
+export const fetchMemberAll = async (startDate?: Date | null, endDate?: Date | null) => {
 	try {
+		const dateFilter = startDate && endDate ? {
+			createdAt: {
+				gte: startDate,
+				lte: endDate
+			}
+		} : {};
+
 		const members = await db.member.findMany({
+			where: dateFilter,
 			include: {
 				profile: true,
 				tier: true,
@@ -1728,58 +1736,43 @@ export const fetchMemberAll = async () => {
 	}
 };
 
-export const fetchMemberRequests = async () => {
+export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Date | null) => {
 	try {
-		const memberRequest = await db.membershipCommissionTransaction.findMany({
+		const dateFilter = startDate && endDate ? {
+			createdAt: {
+				gte: startDate,
+				lte: endDate
+			}
+		} : {};
+
+		const memberRequests = await db.membershipCommissionTransaction.findMany({
 			where: {
-				paymentStatus: false,
+				...dateFilter,
 				paymentMethod: "TRF",
+				paymentStatus: false,
 			},
-			select: {
-				id: true,
-				referalCode: true,
-				closerId: true,
-				paymentMethod: true,
-				paymentStatus: true,
+			include: {
 				member: {
-					select: {
+					include: {
 						profile: {
 							select: {
 								firstName: true,
 								lastName: true,
 								clerkId: true,
-							},
-						},
-					},
-				},
+							}
+						}
+					}
+				}
+			},
+			orderBy: {
+				createdAt: 'desc',
 			},
 		});
 
-		const profileIds = memberRequest.map((request: { member: { profile: { clerkId: any; }; } | null }) => request.member?.profile?.clerkId);
-
-		const members = await db.member.findMany({
-			where: {
-				profileId: {
-					in: profileIds,
-				},
-			},
-			select: {
-				profileId: true,
-				memberId: true,
-				createdAt: true,
-			},
-		});
-
-		const combinedData = memberRequest.map((request) => ({
-			...request,
-			member: members.find(
-				(member) => member.profileId === request.member?.profile.clerkId
-			),
-		}));
-		return combinedData;
+		return memberRequests;
 	} catch (error) {
-		console.error("Error fetching member request :", error);
-		throw new Error("Failed to fetch member request");
+		console.error("Error fetching member requests:", error);
+		throw new Error("Failed to fetch member requests");
 	}
 };
 
@@ -2403,6 +2396,7 @@ export async function fetchRedemptionRequests(period: DatePeriod = '') {
 			where: {
 				type: 'REDEEM',
 				...dateFilter
+
 			}
 		});
 
@@ -2412,5 +2406,83 @@ export async function fetchRedemptionRequests(period: DatePeriod = '') {
 		return 0;
 	}
 }
+
+export const approveMemberRequestAction = async (memberId: string) => {
+	try {
+		await getAdminUser(); // Ensure only admin can approve
+
+		// Get the member first
+		const member = await fetchMember(undefined, memberId);
+		if (!member) {
+			throw new Error("Member not found");
+		}
+
+		// Update the member status to active
+		await db.member.update({
+			where: {
+				memberId: memberId
+			},
+			data: {
+				isActive: 1
+			}
+		});
+
+		// Update the payment status of the membership transaction
+		await db.membershipCommissionTransaction.updateMany({
+			where: {
+				memberId: memberId,
+				paymentStatus: false // Only update pending transactions
+			},
+			data: {
+				paymentStatus: true
+			}
+		});
+
+		revalidatePath('/admin/memberOverview');
+		return { message: "Member request approved successfully" };
+	} catch (error) {
+		console.error("Error approving member:", error);
+		return renderError(error);
+	}
+};
+
+export const rejectMemberRequestAction = async (memberId: string) => {
+	try {
+		await getAdminUser(); // Ensure only admin can reject
+
+		// Get the member first
+		const member = await fetchMember(undefined, memberId);
+		if (!member) {
+			throw new Error("Member not found");
+		}
+
+		// Update the member status to inactive
+		await db.member.update({
+			where: {
+				memberId: memberId
+			},
+			data: {
+				isActive: 0
+			}
+		});
+
+		// Update the payment status of the membership transaction
+		await db.membershipCommissionTransaction.updateMany({
+			where: {
+				memberId: memberId,
+				paymentStatus: false // Only update pending transactions
+			},
+			data: {
+				paymentStatus: false
+			}
+		});
+
+		revalidatePath('/admin/memberOverview');
+		return { message: "Member request rejected successfully" };
+	} catch (error) {
+		console.error("Error rejecting member:", error);
+		return renderError(error);
+	}
+};
 
 export { getAdminUser };

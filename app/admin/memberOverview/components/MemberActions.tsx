@@ -8,12 +8,15 @@ import { useToast } from '@/components/ui/use-toast'
 import { useTransition } from 'react'
 
 interface MemberActionsProps {
-  memberId: string
+  member: any;
+  tierList: any[];
 }
 
-export function MemberActions({ memberId }: MemberActionsProps) {
+export function MemberActions({ member, tierList }: MemberActionsProps) {
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
+
+  const memberId = member.id;
 
   const handleClear = () => {
     startTransition(async () => {
@@ -38,48 +41,44 @@ export function MemberActions({ memberId }: MemberActionsProps) {
   }
 
   return (
-    <div className="grid grid-cols-4 gap-2 w-full">
+    <div className="flex items-center gap-1">
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         asChild
-        className="w-full"
+        className="h-8 w-8"
       >
         <Link href={`/admin/memberOverview/members/${memberId}`}>
-          <Eye className="w-4 h-4 mr-1" />
-          View
+          <Eye className="h-3.5 w-3.5" />
         </Link>
       </Button>
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         asChild
-        className="w-full"
+        className="h-8 w-8"
       >
         <Link href={`/admin/memberOverview/members/${memberId}/edit`}>
-          <Edit className="w-4 h-4 mr-1" />
-          Edit
+          <Edit className="h-3.5 w-3.5" />
         </Link>
       </Button>
       <Button
         variant="outline"
-        size="sm"
-        className="w-full"
+        size="icon"
+        className="h-8 w-8"
         onClick={handleClear}
         disabled={isPending}
       >
-        <RefreshCw className="w-4 h-4 mr-1" />
-        Clear
+        <RefreshCw className="h-3.5 w-3.5" />
       </Button>
       <Button
         variant="destructive"
-        size="sm"
-        className="w-full"
+        size="icon"
+        className="h-8 w-8"
         onClick={handleDelete}
         disabled={isPending}
       >
-        <Trash2 className="w-4 h-4 mr-1" />
-        Delete
+        <Trash2 className="h-3.5 w-3.5" />
       </Button>
     </div>
   )

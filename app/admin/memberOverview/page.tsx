@@ -15,27 +15,40 @@ import { MemberRequests } from "./components/MemberRequests";
 export default function CMSPage() {
 	const [selectedTab, setSelectedTab] = useState('memberList');
 	const [members, setMembers] = useState<any[]>([]);
-	const [memberRequests, setMemberRequests] = useState<any[]>([]);
 	const [tierList, setTierList] = useState<any[]>([]);
+	const [selectedPeriod, setSelectedPeriod] = useState('all');
 
 	useEffect(() => {
 		const getMembers = async () => {
-			const data = await fetchMemberAll();
+			let startDate = null;
+			let endDate = new Date();
+
+			if (selectedPeriod === 'today') {
+				startDate = new Date();
+				startDate.setHours(0, 0, 0, 0);
+			} else if (selectedPeriod === 'week') {
+				startDate = new Date();
+				startDate.setDate(startDate.getDate() - 7);
+			} else if (selectedPeriod === 'month') {
+				startDate = new Date();
+				startDate.setMonth(startDate.getMonth() - 1);
+			}
+
+			const data = await fetchMemberAll(startDate, endDate);
 			setMembers(data);
 		};
-		const getMemberRequests = async () => {
-			const data = await fetchMemberRequests();
-			setMemberRequests(data);
-		};
-		getMembers();
-		getMemberRequests();
-	}, []);
 
-	const getTierList = async () => {
-		const data = await fetchTierAll();
-		setTierList(data);
-	};
-	getTierList();
+		getMembers();
+	}, [selectedPeriod]);
+
+	useEffect(() => {
+		const getTierList = async () => {
+			const data = await fetchTierAll();
+			setTierList(data);
+		};
+
+		getTierList();
+	}, []);
 
 	// Calculate member statistics
 	const activeMembers = members.filter(
@@ -44,14 +57,17 @@ export default function CMSPage() {
 	const inactiveMembers = members.filter(
 		(member) => member.isActive === 0
 	).length;
-	const requestedMembers = memberRequests.length;
 
 	return (
-		<div className="space-y-6 p-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold">Member Overview</h1>
-				<Select defaultValue="all">
-					<SelectTrigger className="w-[180px]">
+		<div className="p-6 dark:bg-black">
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-4">
+				<h1 className="text-2xl font-bold dark:text-white">Member Overview</h1>
+				<Select
+					defaultValue="all"
+					value={selectedPeriod}
+					onValueChange={setSelectedPeriod}
+				>
+					<SelectTrigger className="w-full sm:w-48 p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700">
 						<SelectValue placeholder="Filter by Date Period" />
 					</SelectTrigger>
 					<SelectContent>
@@ -64,60 +80,51 @@ export default function CMSPage() {
 			</div>
 
 			{/* Statistics Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Total Active Member</h3>
-					<p className="text-3xl font-bold mt-2">{activeMembers}</p>
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+				<div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
+					<h3 className="text-gray-600 dark:text-gray-300">Total Active Member</h3>
+					<p className="text-2xl font-bold dark:text-white">{activeMembers}</p>
 				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Total Inactive Member</h3>
-					<p className="text-3xl font-bold mt-2">{inactiveMembers}</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">
-						Total New Requested Member
-					</h3>
-					<p className="text-3xl font-bold mt-2">{requestedMembers}</p>
+				<div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
+					<h3 className="text-gray-600 dark:text-gray-300">Total Inactive Member</h3>
+					<p className="text-2xl font-bold dark:text-white">{inactiveMembers}</p>
 				</div>
 			</div>
 
 			{/* Tabs */}
-			<div className="flex gap-4 border-b">
-				<button
-					onClick={() => setSelectedTab('memberList')}
-					className={`px-4 py-2 ${
-						selectedTab === 'memberList'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					} font-medium`}
-				>
-					Member List
-				</button>
-				<button
-					onClick={() => setSelectedTab('requests')}
-					className={`px-4 py-2 ${
-						selectedTab === 'requests'
-							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
-							: 'text-gray-500 hover:text-[#B69C71]'
-					}`}
-				>
-					New Member Requests
-				</button>
+			<div className="border-b border-gray-200 dark:border-gray-700 mb-4">
+				<div className="flex flex-col sm:flex-row w-full sm:w-auto">
+					<button
+						onClick={() => setSelectedTab('memberList')}
+						className={`py-2 px-4 whitespace-nowrap w-full sm:w-auto text-center ${
+							selectedTab === 'memberList'
+								? 'border-b-2 border-[#B5A17C] text-[#B5A17C]'
+								: 'text-gray-500 dark:text-gray-400 hover:text-[#B5A17C]'
+						}`}
+					>
+						Member List
+					</button>
+					<button
+						onClick={() => setSelectedTab('requests')}
+						className={`py-2 px-4 whitespace-nowrap w-full sm:w-auto text-center ${
+							selectedTab === 'requests'
+								? 'border-b-2 border-[#B5A17C] text-[#B5A17C]'
+								: 'text-gray-500 dark:text-gray-400 hover:text-[#B5A17C]'
+						}`}
+					>
+						New Member Requests
+					</button>
+				</div>
 			</div>
 
 			{/* Conditional Content */}
-			{selectedTab === 'memberList' ? (
-				<MemberList
-					initialMembers={members.map((member) => ({
-						...member,
-						joinDate: member.profile.createdAt.toISOString().split("T")[0],
-						parentId: member.parentId ?? '',
-					}))}
-					tierList={tierList}
-				/>
-			) : (
-				<MemberRequests memberRequests={memberRequests} />
-			)}
+			<div className="w-full">
+				{selectedTab === 'memberList' ? (
+					<MemberList initialMembers={members} tierList={tierList} />
+				) : (
+					<MemberRequests selectedPeriod={selectedPeriod} />
+				)}
+			</div>
 		</div>
 	);
 }

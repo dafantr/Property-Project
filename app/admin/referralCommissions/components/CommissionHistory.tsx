@@ -8,7 +8,7 @@ import ViewCommissionModal from './modals/ViewCommissionModal'
 interface CommissionData {
   id: string
   type: string
-  commissionRate: number
+  commissionRate?: number
   name: string
   memberId: string | null
   commission: number
