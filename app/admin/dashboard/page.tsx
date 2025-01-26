@@ -1,11 +1,9 @@
 'use client'
 
-import { fetchCommissionStats, fetchDashboardStats, fetchMemberAll, fetchMemberRequests, fetchTierAll } from "@/utils/actions";
+import { fetchDashboardStats, fetchMemberAll, fetchMemberRequests, fetchTierAll } from "@/utils/actions";
 import { MemberList } from "@/app/admin/memberOverview/components/MemberList";
 import {
 	Select,
-	SelectContent,
-	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
@@ -35,16 +33,16 @@ export default function AdminDashboard() {
 		const getMemberRequests = async () => {
 			const data = await fetchMemberRequests();
 			setMemberRequests(data);
+			console.log(data)
 		};
+		const getTierList = async () => {
+			const data = await fetchTierAll();
+			setTierList(data);
+		};
+		getTierList();
 		getMembers();
 		getMemberRequests();
 	}, []);
-
-	const getTierList = async () => {
-		const data = await fetchTierAll();
-		setTierList(data);
-	};
-	getTierList();
 
 	useEffect(() => {
 		const loadStats = async () => {
@@ -214,7 +212,7 @@ export default function AdminDashboard() {
 					tierList={tierList}
 				/>
 			) : selectedTab === 'requests' ? (
-				<MemberRequests memberRequests={memberRequests} />
+				<MemberRequests/>
 			) : selectedTab === 'commissionHistory' ? (
 				<CommissionHistory />
 			) : selectedTab === 'withdrawalRequests' ? (

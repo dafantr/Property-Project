@@ -165,7 +165,7 @@ export default function DashboardMarketing({
 							{referralDetails.map((referralDetail) => (
 								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
 									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
-									<td className="py-2 px-4">{referralDetail.member.profile.firstName} {referralDetail.member.profile.lastName}</td>
+									<td className="py-2 px-4">{referralDetail.member?.profile.firstName} {referralDetail.member?.profile.lastName}</td>
 									<td className="py-2 px-4">{formatCurrency(referralDetail.commission)}</td>
 									<td className="py-2 px-4">
 										<span className={`px-2 py-1 rounded text-sm ${
@@ -195,7 +195,7 @@ export default function DashboardMarketing({
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Referral</span>
-										<span>{referralDetail.member.profile.firstName} {referralDetail.member.profile.lastName}</span>
+										<span>{referralDetail.member?.profile.firstName} {referralDetail.member?.profile.lastName}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Amount</span>

@@ -95,7 +95,7 @@ export type PropertyCardProps = {
     rewards: reward[];
     referralDetails: referralDetails[];
     loyaltyPointDetails: loyaltyPointDetails[];
-    downlines: Downline[];
+    downlines: Downline;
 }
 
 export type LoyaltiPointsProps = {
@@ -154,11 +154,10 @@ export type RegistrationDetails = {
 
 export type membershipCommissionTransaction = {
   id: string;
-  profileId: string;
+  memberId: string;
   closerId: string | null;
-  commission: number;
-  closerCommission: number;
   referalCode: string | null;
+  totalPrice: number;
   proofOfPayment: string | null;
   paymentMethod: string;
   paymentStatus: boolean;
@@ -171,16 +170,16 @@ export type referralDetails = {
       firstName: string;
       lastName: string;
     };
-  };
+  } | null;
   commission: number;
   type: string;
   createdAt: Date;
   membershipCommissionTransaction: {
     paymentStatus: boolean;
-  };
+  } | null;
   booking: {
     paymentStatus: boolean;
-  };
+  } | null;
 }
 
 export type loyaltyPointDetails = {
@@ -208,7 +207,7 @@ export type WithdrawalRequestDetails = {
       firstName: string;
       lastName: string;
     };
-  }
+  } | null;
   amount: number;
   bankName: string;
   bankAccNumber: string;

@@ -1741,6 +1741,7 @@ export const fetchMemberRequests = async () => {
 				closerId: true,
 				paymentMethod: true,
 				paymentStatus: true,
+				memberId: true,
 				member: {
 					select: {
 						profile: {
@@ -1752,31 +1753,10 @@ export const fetchMemberRequests = async () => {
 						},
 					},
 				},
-			},
-		});
-
-		const profileIds = memberRequest.map((request: { member: { profile: { clerkId: any; }; } | null }) => request.member?.profile?.clerkId);
-
-		const members = await db.member.findMany({
-			where: {
-				profileId: {
-					in: profileIds,
-				},
-			},
-			select: {
-				profileId: true,
-				memberId: true,
 				createdAt: true,
 			},
 		});
-
-		const combinedData = memberRequest.map((request) => ({
-			...request,
-			member: members.find(
-				(member) => member.profileId === request.member?.profile.clerkId
-			),
-		}));
-		return combinedData;
+		return memberRequest;
 	} catch (error) {
 		console.error("Error fetching member request :", error);
 		throw new Error("Failed to fetch member request");
@@ -2337,6 +2317,43 @@ export const fetchTotalDistributedPoints = async () => {
 export const fetchRedemptionRequests = async () => {
 	const redemptionRequests = await db.pointTransaction.count();
 	return redemptionRequests;
+};
+
+export const fetchMemberData = async (memberId: string) => {
+	const member = await db.member.findFirst({
+		where: {
+			memberId: memberId
+		},
+		select: {
+			id: true,
+			memberId: true,
+			profile: true,
+			tier: true,
+			membershipCommissionTransactions: true,
+			dob: true,
+			citizen: true,
+			phone: true,
+			address: true,
+			gender: true,
+			bankName: true,
+			bankAccNum: true,
+			bankAccName: true,
+			isActive: true,
+		}
+	});
+	if(member === null) {
+		throw new Error('Member not found');
+	}
+	return member;
+};
+
+export const fetchCitizenshipOptions = async () => {
+	const response = await fetch("https://countriesnow.space/api/v0.1/countries");
+	const data = await response.json();
+	return data.data.map((item: { country: string , iso2: string }) => ({
+		value: item.iso2, // Using iso2 code (e.g., "AF", "AL")
+		label: item.country, // Using country name (e.g., "Afghanistan", "Albania")
+	}));
 };
 
 export { getAdminUser };

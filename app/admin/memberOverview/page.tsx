@@ -27,15 +27,14 @@ export default function CMSPage() {
 			const data = await fetchMemberRequests();
 			setMemberRequests(data);
 		};
+		const getTierList = async () => {
+			const data = await fetchTierAll();
+			setTierList(data);
+		};
+		getTierList();
 		getMembers();
 		getMemberRequests();
 	}, []);
-
-	const getTierList = async () => {
-		const data = await fetchTierAll();
-		setTierList(data);
-	};
-	getTierList();
 
 	// Calculate member statistics
 	const activeMembers = members.filter(
@@ -116,7 +115,7 @@ export default function CMSPage() {
 					tierList={tierList}
 				/>
 			) : (
-				<MemberRequests memberRequests={memberRequests} />
+				<MemberRequests />
 			)}
 		</div>
 	);
