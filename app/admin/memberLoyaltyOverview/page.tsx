@@ -7,12 +7,13 @@ import { fetchTotalDistributedPoints, fetchRedemptionRequests } from '@/utils/ac
 export default function MemberLoyaltyOverview() {
   const [totalDistributedPoints, setTotalDistributedPoints] = useState(0);
   const [redemptionRequests, setRedemptionRequests] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState<'' | 'today' | 'week' | 'month'>('');
 
   useEffect(() => {
     const fetchLoyaltyOverviewData = async () => {
       try {
-        const totalDistributedPoints = await fetchTotalDistributedPoints()
-        const redemptionRequests = await fetchRedemptionRequests()
+        const totalDistributedPoints = await fetchTotalDistributedPoints(selectedPeriod)
+        const redemptionRequests = await fetchRedemptionRequests(selectedPeriod)
         setTotalDistributedPoints(totalDistributedPoints)
         setRedemptionRequests(redemptionRequests)
       } catch (error) {
@@ -20,16 +21,23 @@ export default function MemberLoyaltyOverview() {
       }
     }
     fetchLoyaltyOverviewData()
-  }, [])
+  }, [selectedPeriod])
 
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPeriod(e.target.value as '' | 'today' | 'week' | 'month');
+  };
 
   return (
     <div className="p-6 dark:bg-black">
       <h1 className="text-2xl font-bold mb-4 dark:text-white">Member Loyalty Points Overview</h1>
 
       <div className="mb-4">
-        <select className="w-full sm:w-48 p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700">
-          <option value="">Filter by Date Period</option>
+        <select
+          value={selectedPeriod}
+          onChange={handlePeriodChange}
+          className="w-full sm:w-48 p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700"
+        >
+          <option value="">All Time</option>
           <option value="today">Today</option>
           <option value="week">This Week</option>
           <option value="month">This Month</option>
