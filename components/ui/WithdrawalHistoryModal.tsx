@@ -69,7 +69,7 @@ export default function WithdrawalHistoryModal({
                         <tbody className="dark:text-gray-300">
                             {filteredWithdrawalRequestDetails.map((withdrawalRequestDetail) => (
                                 <tr key={withdrawalRequestDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
-                                    <td className="py-2 px-4">{withdrawalRequestDetail.profile.firstName} {withdrawalRequestDetail.profile.lastName}</td>
+                                    <td className="py-2 px-4">{withdrawalRequestDetail.member.profile.firstName} {withdrawalRequestDetail.member.profile.lastName}</td>
                                     <td className="py-2 px-4">{member.memberId}</td>
                                     <td className="py-2 px-4">{formatCurrency(withdrawalRequestDetail.amount)}</td>
                                     <td className="py-2 px-4">
@@ -111,7 +111,7 @@ export default function WithdrawalHistoryModal({
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600 dark:text-gray-400">Name</span>
-                                        <span>{withdrawalRequestDetail.profile.firstName} {withdrawalRequestDetail.profile.lastName}</span>
+                                        <span>{withdrawalRequestDetail.member.profile.firstName} {withdrawalRequestDetail.member.profile.lastName}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600 dark:text-gray-400">Member ID</span>

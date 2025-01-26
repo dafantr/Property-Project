@@ -165,15 +165,15 @@ export default function DashboardMarketing({
 							{referralDetails.map((referralDetail) => (
 								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
 									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
-									<td className="py-2 px-4">{referralDetail.profile.firstName} {referralDetail.profile.lastName}</td>
+									<td className="py-2 px-4">{referralDetail.member.profile.firstName} {referralDetail.member.profile.lastName}</td>
 									<td className="py-2 px-4">{formatCurrency(referralDetail.commission)}</td>
 									<td className="py-2 px-4">
 										<span className={`px-2 py-1 rounded text-sm ${
-											referralDetail.paymentStatus 
+											referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
+											{(referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus) ? 'Approved' : 'Pending'}
 										</span>
 									</td>
 								</tr>
@@ -195,7 +195,7 @@ export default function DashboardMarketing({
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Referral</span>
-										<span>{referralDetail.profile.firstName} {referralDetail.profile.lastName}</span>
+										<span>{referralDetail.member.profile.firstName} {referralDetail.member.profile.lastName}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Amount</span>
@@ -204,11 +204,11 @@ export default function DashboardMarketing({
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Status</span>
 										<span className={`px-2 py-1 rounded text-sm ${
-											referralDetail.paymentStatus 
+											(referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus)
 											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
 											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
 										}`}>
-											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
+											{(referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus) ? 'Approved' : 'Pending'}
 										</span>
 									</div>
 								</div>

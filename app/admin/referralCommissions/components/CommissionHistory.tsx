@@ -7,10 +7,11 @@ import ViewCommissionModal from './modals/ViewCommissionModal'
 
 interface CommissionData {
   id: string
-  type: 'Booking' | 'Membership' | 'Closer'
-  memberName: string
+  type: string
+  commissionRate: number
+  name: string
   memberId: string | null
-  amount: number
+  commission: number
   dateTime: Date
 }
 
@@ -36,7 +37,6 @@ export default function CommissionHistory() {
         console.error('Error fetching commission data:', error)
       }
     }
-
     fetchCommissionData()
   }, [])
 
@@ -47,7 +47,7 @@ export default function CommissionHistory() {
     if (searchTerm) {
       filtered = filtered.filter(
         (item) =>
-          item.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.memberId?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
@@ -118,9 +118,9 @@ export default function CommissionHistory() {
           onChange={(e) => setTypeFilter(e.target.value)}
         >
           <option value="all">All Commission Types</option>
-          <option value="Booking">Booking Commission</option>
-          <option value="Membership">Membership Commission</option>
-          <option value="Closer">Closer Commission</option>
+          <option value="booking">Booking Commission</option>
+          <option value="membership">Membership Commission</option>
+          <option value="closer">Closer Commission</option>
         </select>
         <div className="flex flex-col sm:flex-row items-center gap-2">
           <input
@@ -166,10 +166,10 @@ export default function CommissionHistory() {
                 {currentItems.length > 0 ? (
                   currentItems.map((item) => (
                     <tr key={item.id} className="border-t dark:border-gray-800">
-                      <td className="py-3 px-4 dark:text-gray-300">{item.memberName}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{item.name}</td>
                       <td className="py-3 px-4 dark:text-gray-300">{item.memberId}</td>
-                      <td className="py-3 px-4 dark:text-gray-300">-</td>
-                      <td className="py-3 px-4 dark:text-gray-300">{formatCurrency(item.amount)}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{item.commissionRate}</td>
+                      <td className="py-3 px-4 dark:text-gray-300">{formatCurrency(item.commission)}</td>
                       <td className="py-3 px-4 dark:text-gray-300">{item.type}</td>
                       <td className="py-3 px-4 dark:text-gray-300">
                         {new Date(item.dateTime).toLocaleString('en-GB', {

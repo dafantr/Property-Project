@@ -25,10 +25,6 @@ model Profile {
   reviews      Review[]
   bookings     Booking[]
   members      Member[]
-  bookingCommissionTransactions BookingCommissionTransaction[]
-  membershipCommissionTransactions MembershipCommissionTransaction[]
-  pointTransactions PointTransaction[]
-  withdrawCommissionRequests WithdrawCommissionRequest[]
 }
 
 model Property {
@@ -89,10 +85,12 @@ model Booking {
   totalNights   Int
   checkIn       DateTime
   checkOut      DateTime
+  referred      Member?   @relation("BookingReferrals", fields: [referalCode], references: [memberId], onDelete: NoAction)
+  referalCode   String?
   paymentStatus Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  bookingCommissionTransactions BookingCommissionTransaction[]
+  commissionDistribution CommissionDistribution[]
 }
 
 model Gallery {
@@ -117,21 +115,21 @@ model Promotion {
 }
 
 model Tier {
-  id           String     @id @default(uuid()) @map("_id")
-  tierName     String
-  tierLevel    Int 
-  commission   Int
+  id              String    @id @default(uuid()) @map("_id")
+  tierName        String    @unique
+  tierLevel       Int       @unique
+  commission      Int
   requiredDownline Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  members      Member[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  members         Member[]
 }
 
 model Member {
-  id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId    String
-  memberId     String
+  id           String    @id @default(uuid()) @map("_id")
+  profile      Profile   @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId    String    @unique
+  memberId     String    @unique
   parentMemberId String?
   parentId     String?
   dob          String?
@@ -142,83 +140,123 @@ model Member {
   bankName     String?
   bankAccNum   String?
   bankAccName  String?
-  isMarketing  Boolean @default(false)
-  point        Int     @default(0)
+  isMarketing  Boolean   @default(false)
+  point        Int       @default(0)
   commission   Float     @default(0)
-  tier         Tier     @relation(fields: [tierId], references: [id], onDelete: Cascade)
+  tier         Tier      @relation(fields: [tierId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   tierId       String
-  isActive     Int     @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  parent       Member?    @relation("Downline", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  downlines    Member[]   @relation("Downline")
-}
+  isActive     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  parent       Member?   @relation("Downline", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  downlines    Member[]  @relation("Downline")
+  closedTransactions     MembershipCommissionTransaction[] @relation("CloserTransactions")
+  membershipReferrals    MembershipCommissionTransaction[] @relation("MembershipReferrals")
+  membershipCommissionTransactions MembershipCommissionTransaction[]
+  bookingReferrals       Booking[]    @relation("BookingReferrals")
+  pointTransactions PointTransaction[]
+  pointDistributionHistory PointDistributionHistory[]
+  withdrawCommissionRequests WithdrawCommissionRequest[]
+  commissionDistribution CommissionDistribution[]
 
-model BookingCommissionTransaction {
-  id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId    String
-  booking      Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  bookingId    String
-  commission   Float     @default(0)
-  referalCode  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  @@index([tierId])
+  @@index([parentId])
 }
 
 model MembershipCommissionTransaction {
-  id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId    String
-  commission   Float     @default(0)
-  closerId     String?
-  closerCommission Float  @default(0)
-  referalCode  String?
-  paymentMethod String
-  proofOfPayment String?
-  paymentStatus Boolean @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(uuid()) @map("_id")
+  member          Member?   @relation(fields: [memberId], references: [memberId], onDelete: NoAction)
+  memberId        String?
+  closer          Member?   @relation("CloserTransactions", fields: [closerId], references: [memberId], onDelete: NoAction)
+  closerId        String?
+  referred        Member?   @relation("MembershipReferrals", fields: [referalCode], references: [memberId], onDelete: NoAction)
+  referalCode     String?
+  totalPrice      Float
+  paymentMethod   String
+  proofOfPayment  String?
+  paymentStatus   Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  pointDistributionHistory PointDistributionHistory[]
+  commissionDistribution CommissionDistribution[]
+
+  @@index([memberId])
+  @@index([closerId])
+  @@index([referalCode])
+}
+
+model CommissionDistribution {
+  id              String    @id @default(uuid()) @map("_id")
+  member          Member?   @relation(fields: [memberId], references: [memberId], onDelete: NoAction)
+  memberId        String?
+  membershipCommissionTransaction MembershipCommissionTransaction? @relation(fields: [membershipCommissionTransactionId], references: [id], onDelete: NoAction)
+  membershipCommissionTransactionId String?
+  booking           Booking?   @relation(fields: [bookingId], references: [id], onDelete: NoAction)
+  bookingId         String?
+  commission      Float     @default(0)
+  type            String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Reward {
-  id           String    @id @default(uuid()) @map("_id")
-  rewardName   String
-  pointReq     Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(uuid()) @map("_id")
+  rewardName      String    @unique
+  pointReq        Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   pointTransactions PointTransaction[]
 }
 
 model PointTransaction {
-  id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId    String
-  reward       Reward     @relation(fields: [rewardId], references: [id])
+  id           String    @id @default(uuid()) @map("_id")
+  member       Member?    @relation(fields: [memberId], references: [memberId], onDelete: NoAction)
+  memberId     String
+  reward       Reward    @relation(fields: [rewardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   rewardId     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([memberId])
+  @@index([rewardId])
+}
+
+model PointDistributionHistory {
+  id                                 String    @id @default(uuid()) @map("_id")
+  member                           Member?   @relation(fields: [memberId], references: [memberId], onDelete: NoAction)
+  memberId                         String
+  point                            Int
+  type                             String
+  membershipCommissionTransaction   MembershipCommissionTransaction? @relation(fields: [membershipCommissionTransactionId], references: [id], onDelete: NoAction)
+  membershipCommissionTransactionId String?
+  createdAt                        DateTime  @default(now())
+  updatedAt                        DateTime  @updatedAt
+
+  @@index([memberId])
+  @@index([membershipCommissionTransactionId])
 }
 
 model GeneralVariable {
-  id           String     @id @default(uuid()) @map("_id")
-  variableName String
+  id            String    @id @default(uuid()) @map("_id")
+  variableName  String    @unique
   variableValue String
-  variableType String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  variableType  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model WithdrawCommissionRequest {
-  id           String     @id @default(uuid()) @map("_id")
-  profile      Profile     @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId    String
-  bankName     String
-  bankAccNumber   String
-  bankAccName  String
-  amount       Float     
-  status       String
-  notes        String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String    @id @default(uuid()) @map("_id")
+  member         Member?    @relation(fields: [memberId], references: [memberId], onDelete: NoAction)
+  memberId       String
+  bankName       String
+  bankAccNumber  String
+  bankAccName    String
+  amount         Float     
+  status         String
+  notes          String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([memberId])
 }

@@ -1,6 +1,7 @@
 'use client'
 
-import { member, membershipCommissionTransaction } from "@/utils/types";
+import ViewNewMemberModal from "./modals/ViewNewMemberModal";
+import { useState } from "react";
 
 type MemberRequest = {
   member: {
@@ -25,6 +26,14 @@ interface MemberRequestsProps {
 }
 
 export function MemberRequests({ memberRequests }: MemberRequestsProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState<MemberRequest | null>(null)
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedRequest(null)
+  }
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="overflow-x-auto">
@@ -83,6 +92,11 @@ export function MemberRequests({ memberRequests }: MemberRequestsProps) {
           </tbody>
         </table>
       </div>
+      <ViewNewMemberModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        request={selectedRequest}
+      />
     </div>
   );
 }

@@ -1,16 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PointDistributionHistory from './components/PointDistributionHistory';
+import { fetchTotalDistributedPoints, fetchRedemptionRequests } from '@/utils/actions';
 
 export default function MemberLoyaltyOverview() {
-  // Remove the activeTab state since we're only showing distribution
+  const [totalDistributedPoints, setTotalDistributedPoints] = useState(0);
+  const [redemptionRequests, setRedemptionRequests] = useState(0);
 
-  // Mock data - replace with actual data fetching
-  const stats = {
-    totalPoints: 125,
-    redemptionRequests: 23,
-  };
+  useEffect(() => {
+    const fetchLoyaltyOverviewData = async () => {
+      try {
+        const totalDistributedPoints = await fetchTotalDistributedPoints()
+        const redemptionRequests = await fetchRedemptionRequests()
+        setTotalDistributedPoints(totalDistributedPoints)
+        setRedemptionRequests(redemptionRequests)
+      } catch (error) {
+        console.error('Error fetching loyalty overview data:', error)
+      }
+    }
+    fetchLoyaltyOverviewData()
+  }, [])
+
 
   return (
     <div className="p-6 dark:bg-black">
@@ -28,11 +39,11 @@ export default function MemberLoyaltyOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
           <h3 className="text-gray-600 dark:text-gray-300">Total Point Distributed</h3>
-          <p className="text-2xl font-bold dark:text-white">{stats.totalPoints}</p>
+          <p className="text-2xl font-bold dark:text-white">{totalDistributedPoints}</p>
         </div>
         <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
           <h3 className="text-gray-600 dark:text-gray-300">Reward Redemption Request</h3>
-          <p className="text-2xl font-bold dark:text-white">{stats.redemptionRequests}</p>
+          <p className="text-2xl font-bold dark:text-white">{redemptionRequests}</p>
         </div>
       </div>
 

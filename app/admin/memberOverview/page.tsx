@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchMemberAll, fetchMemberRequests } from "@/utils/actions";
+import { fetchMemberAll, fetchMemberRequests, fetchTierAll } from "@/utils/actions";
 import { MemberList } from "./components/MemberList";
 import {
 	Select,
@@ -16,6 +16,7 @@ export default function CMSPage() {
 	const [selectedTab, setSelectedTab] = useState('memberList');
 	const [members, setMembers] = useState<any[]>([]);
 	const [memberRequests, setMemberRequests] = useState<any[]>([]);
+	const [tierList, setTierList] = useState<any[]>([]);
 
 	useEffect(() => {
 		const getMembers = async () => {
@@ -29,6 +30,12 @@ export default function CMSPage() {
 		getMembers();
 		getMemberRequests();
 	}, []);
+
+	const getTierList = async () => {
+		const data = await fetchTierAll();
+		setTierList(data);
+	};
+	getTierList();
 
 	// Calculate member statistics
 	const activeMembers = members.filter(
@@ -106,6 +113,7 @@ export default function CMSPage() {
 						joinDate: member.profile.createdAt.toISOString().split("T")[0],
 						parentId: member.parentId ?? '',
 					}))}
+					tierList={tierList}
 				/>
 			) : (
 				<MemberRequests memberRequests={memberRequests} />

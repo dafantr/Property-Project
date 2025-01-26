@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { fetchPointTransactionHistory } from '@/utils/actions';
+import { fetchPointDistributionHistory } from '@/utils/actions';
 import TransactionDetailsDialog from './TransactionDetailsDialog';
 
 interface DistributionData {
   id: string;
   name: string;
   memberId: string;
-  pointsRedeemed: number;
-  rewardName: string;
+  type: string;
+  point: number;
   dateTime: Date;
 }
 
@@ -20,10 +20,11 @@ const PointDistributionHistory = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchPointTransactionHistory();
+      const data = await fetchPointDistributionHistory();
       setDistributionData(data);
     };
     fetchData();
+    console.log(distributionData);
   }, []);
 
   const handleView = (transaction: DistributionData) => {
@@ -45,9 +46,6 @@ const PointDistributionHistory = () => {
           <option value="">Filter by Points Range</option>
         </select>
         <select className="p-2 border rounded-md dark:bg-black dark:border-gray-800 dark:text-white">
-          <option value="">Filter by Reward</option>
-        </select>
-        <select className="p-2 border rounded-md dark:bg-black dark:border-gray-800 dark:text-white">
           <option value="">Filter by Date</option>
         </select>
       </div>
@@ -59,7 +57,7 @@ const PointDistributionHistory = () => {
               <th className="text-left p-3 dark:text-white">Name</th>
               <th className="text-left p-3 dark:text-white">Member ID</th>
               <th className="text-left p-3 dark:text-white">Points Redeemed</th>
-              <th className="text-left p-3 dark:text-white">Reward Name</th>
+              <th className="text-left p-3 dark:text-white">Type</th>
               <th className="text-left p-3 dark:text-white">Date / Time</th>
               <th className="text-left p-3 dark:text-white">Action</th>
             </tr>
@@ -69,8 +67,8 @@ const PointDistributionHistory = () => {
               <tr key={item.id} className="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
                 <td className="p-3 dark:text-gray-300">{item.name}</td>
                 <td className="p-3 dark:text-gray-300">{item.memberId}</td>
-                <td className="p-3 dark:text-gray-300">{item.pointsRedeemed}</td>
-                <td className="p-3 dark:text-gray-300">{item.rewardName}</td>
+                <td className="p-3 dark:text-gray-300">{item.point}</td>
+                <td className="p-3 dark:text-gray-300">{item.type}</td>
                 <td className="p-3 dark:text-gray-300">
                   {new Date(item.dateTime).toLocaleString('en-GB', {
                     day: '2-digit',

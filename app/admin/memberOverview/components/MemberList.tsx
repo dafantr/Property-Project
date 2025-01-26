@@ -20,10 +20,11 @@ type Member = member & {
 }
 
 interface MemberListProps {
-  initialMembers: Member[]
+  initialMembers: Member[],
+  tierList: tier[],
 }
 
-export function MemberList({ initialMembers }: MemberListProps) {
+export function MemberList({ initialMembers, tierList }: MemberListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [memberLevel, setMemberLevel] = useState('all')
   const [memberStatus, setMemberStatus] = useState('all')
@@ -73,8 +74,9 @@ export function MemberList({ initialMembers }: MemberListProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Levels</SelectItem>
-            <SelectItem value="1">Level 1</SelectItem>
-            <SelectItem value="2">Level 2</SelectItem>
+            {tierList.map((tier) => (
+              <SelectItem key={tier.id} value={tier.tierLevel.toString()}>{tier.tierName}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={memberStatus} onValueChange={setMemberStatus}>
@@ -119,7 +121,7 @@ export function MemberList({ initialMembers }: MemberListProps) {
                   {member.profile.firstName} {member.profile.lastName}
                 </td>
                 <td className="px-4 py-3 text-sm">{member.memberId}</td>
-                <td className="px-4 py-3 text-sm">{member.parentId || 'N/A'}</td>
+                <td className="px-4 py-3 text-sm">{member.parentMemberId || 'N/A'}</td>
                 <td className="px-4 py-3 text-sm">{member.tier.tierName}</td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs ${
