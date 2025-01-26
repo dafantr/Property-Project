@@ -1751,7 +1751,6 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 				paymentMethod: "TRF",
 				paymentStatus: false,
 			},
-<<<<<<< HEAD
 			select: {
 				id: true,
 				referalCode: true,
@@ -1759,9 +1758,6 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 				paymentMethod: true,
 				paymentStatus: true,
 				memberId: true,
-=======
-			include: {
->>>>>>> 68fe3098e837ecc064dda6f580746ebcf9ba2162
 				member: {
 					include: {
 						profile: {
@@ -1769,7 +1765,6 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 								firstName: true,
 								lastName: true,
 								clerkId: true,
-<<<<<<< HEAD
 							},
 						},
 					},
@@ -1777,20 +1772,8 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 				createdAt: true,
 			},
 		});
-		return memberRequest;
-=======
-							}
-						}
-					}
-				}
-			},
-			orderBy: {
-				createdAt: 'desc',
-			},
-		});
-
+		
 		return memberRequests;
->>>>>>> 68fe3098e837ecc064dda6f580746ebcf9ba2162
 	} catch (error) {
 		console.error("Error fetching member requests:", error);
 		throw new Error("Failed to fetch member requests");
