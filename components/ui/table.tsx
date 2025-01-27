@@ -108,6 +108,25 @@ const TableCaption = React.forwardRef<
 ))
 TableCaption.displayName = "TableCaption"
 
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  variant?: 'default' | 'deleted'
+}
+
+const TableRowMember = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, variant = 'default', ...props }, ref) => (
+    <tr
+      ref={ref}
+      className={cn(
+        "border-b transition-colors",
+        variant === 'default' && "hover:bg-muted/50",
+        variant === 'deleted' && "opacity-70 bg-gray-100 dark:bg-gray-800/50",
+        className
+      )}
+      {...props}
+    />
+  )
+)
+
 export {
   Table,
   TableHeader,
@@ -117,4 +136,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  TableRowMember,
 }

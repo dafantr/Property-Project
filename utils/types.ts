@@ -113,6 +113,7 @@ export type Downline = {
   },
   memberId: string;
   isActive: number;
+  isDeleted: number;
   downlines: Downline[];
 };
 
