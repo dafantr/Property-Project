@@ -1058,10 +1058,14 @@ export const createMemberAction = async (
 	const formattedDate = dob.slice(0, 10);
 	const totalPrice = formData.get("totalPrice") as string;
 	const paymentMethod = formData.get("paymentMethod") as string;
-	const proofOfPayment = formData.get("image") as File;
 
-	const validatedFile = validateWithZodSchema(imageSchema, { image: proofOfPayment });
-	const fullPath = await uploadImage(validatedFile.image);
+	let fullPath = null;
+	if(paymentMethod === 'TRF'){
+		const proofOfPayment = formData.get("image") as File;
+		const validatedFile = validateWithZodSchema(imageSchema, { image: proofOfPayment });
+		fullPath = await uploadImage(validatedFile.image);
+	}
+	
 
 
 	let closerCode = formData.get("closerCode") as string;
@@ -1536,7 +1540,7 @@ export const createMembershipCommissionTransaction = async (
 	closerCode: string,
 	referalCode: string,
 	paymentMethod: string,
-	proofOfPayment: string,
+	proofOfPayment: string | null,
 	totalPrice: number,
 ) => {
 	try {
