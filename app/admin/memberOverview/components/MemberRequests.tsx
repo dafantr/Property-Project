@@ -5,31 +5,39 @@ import ViewNewMemberModal from "./modals/ViewNewMemberModal";
 import { useEffect, useState } from "react";
 
 type MemberRequest = {
+  id: string,
+  memberId: string,
   member: {
     profile: {
-      clerkId: string;
-      firstName: string;
-      lastName: string;
-    };
-    
-  }
-  memberId: string;
-  id: string;
-  referalCode: string | null;
-  closerId: string | null;
-  paymentMethod: string;
-  paymentStatus: boolean;
-  createdAt: Date;
-}
-
-interface MemberRequestsProps {
-  memberRequests: MemberRequest;
+      firstName: string,
+      lastName: string,
+      email: string,
+    },
+    tier: {
+      tierName: string,
+    },
+    dob: string | null,
+    citizen: string | null,
+    phone: string | null,
+    address: string | null,
+    gender: string | null,
+    bankName: string | null,
+    bankAccNum: string | null,
+    bankAccName: string | null,
+    isActive: number,
+  },
+  referalCode: string | null,
+  closerId: string | null,
+  paymentMethod: string,
+  proofOfPayment: string | null,
+  paymentStatus: boolean,
+  createdAt: Date,
 }
 
 export function MemberRequests() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedRequest, setSelectedRequest] = useState<any | null>(null)
-  const [memberRequests, setMemberRequests] = useState<any[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<MemberRequest | null>(null)
+  const [memberRequests, setMemberRequests] = useState<MemberRequest[]>([]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
@@ -37,14 +45,14 @@ export function MemberRequests() {
   }
 
   const handleViewClick = (memberId: string) => {
-    setSelectedRequest(memberId)
+    setSelectedRequest(memberRequests.find(request => request.memberId === memberId) || null)
     setIsModalOpen(true)
   }
 
   useEffect(() => {
 		const getMemberRequests = async () => {
 			const data = await fetchMemberRequests();
-			setMemberRequests(data);
+			setMemberRequests(data as MemberRequest[]);
 		};
 		getMemberRequests();
 	}, []);
@@ -88,12 +96,6 @@ export function MemberRequests() {
                   <button onClick={() => handleViewClick(request.memberId)} className="text-green-600 border border-green-600 rounded-md px-2 py-1 hover:text-green-900 mr-3">
                     View
                   </button>
-                  <button className="text-green-600 border border-green-600 rounded-md px-2 py-1 hover:text-green-900 mr-3">
-                    Approve
-                  </button>
-                  <button className="text-red-600 border border-red-600 rounded-md px-2 py-1 hover:text-red-900">
-                    Reject
-                  </button>
                 </td>
               </tr>
             ))}
@@ -110,7 +112,7 @@ export function MemberRequests() {
       <ViewNewMemberModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        memberId={selectedRequest}
+        memberData={selectedRequest}
       />
     </div>
   );

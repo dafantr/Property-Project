@@ -1058,7 +1058,11 @@ export const createMemberAction = async (
 	const formattedDate = dob.slice(0, 10);
 	const totalPrice = formData.get("totalPrice") as string;
 	const paymentMethod = formData.get("paymentMethod") as string;
-	const proofOfPayment = formData.get("paymentProof") as File;
+	const proofOfPayment = formData.get("image") as File;
+
+	const validatedFile = validateWithZodSchema(imageSchema, { image: proofOfPayment });
+	const fullPath = await uploadImage(validatedFile.image);
+
 
 	let closerCode = formData.get("closerCode") as string;
 
@@ -1139,7 +1143,7 @@ export const createMemberAction = async (
 				closerCode,
 				referalCode,
 				paymentMethod,
-				proofOfPayment.name,
+				fullPath,
 				parseInt(totalPrice),
 			);
 		transactionId = membershipCommissionTransactionId.toString();
@@ -1753,25 +1757,42 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 			},
 			select: {
 				id: true,
-				referalCode: true,
-				closerId: true,
-				paymentMethod: true,
-				paymentStatus: true,
 				memberId: true,
 				member: {
-					include: {
+					select: {
 						profile: {
 							select: {
 								firstName: true,
 								lastName: true,
-								clerkId: true,
-							},
+								email: true,
+							}
 						},
-					},
+						tier: {
+							select: {
+								tierName: true,
+							}
+						},
+						dob: true,
+						citizen: true,
+						phone: true,
+						address: true,
+						gender: true,
+						bankName: true,
+						bankAccNum: true,
+						bankAccName: true,
+						isActive: true,
+					}	
 				},
+				referalCode: true,
+				closerId: true,
+				paymentMethod: true,
+				proofOfPayment: true,
+				paymentStatus: true,
 				createdAt: true,
-			},
+			}
 		});
+
+		console.log(memberRequests);
 		
 		return memberRequests;
 	} catch (error) {
@@ -2417,7 +2438,7 @@ export const approveMemberRequestAction = async (memberId: string) => {
 
 		// Get the member first
 		const member = await fetchMember(undefined, memberId);
-		if (!member) {
+		if (member === null) {
 			throw new Error("Member not found");
 		}
 
@@ -2442,11 +2463,9 @@ export const approveMemberRequestAction = async (memberId: string) => {
 			}
 		});
 
-		revalidatePath('/admin/memberOverview');
-		return { message: "Member request approved successfully" };
+		return { message: "Member request approved successfully", status: "success" };
 	} catch (error) {
-		console.error("Error approving member:", error);
-		return renderError(error);
+		return { message: "Failed to approve member request," + error, status: "error" };
 	}
 };
 
