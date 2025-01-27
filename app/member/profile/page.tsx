@@ -2,29 +2,10 @@ import {
   fetchProfile,
   fetchMember,
   fetchTierById,
+  fetchCitizenshipOptions,
 } from "@/utils/actions";
 import { redirect } from "next/navigation";
 import UpdateMemberForm from "@/components/member/UpdateMemberForm";
-//import { profile } from "console";
-
-type Country = {
-	cca2: string; // Country code
-	name: {
-		common: string; // Common name of the country
-	};
-};
-
-async function fetchCitizenshipOptions() {
-	// Option 3: Using Countries Now API
-	const response = await fetch("https://countriesnow.space/api/v0.1/countries");
-	const data = await response.json();
-
-	// The API returns { data: [ { iso2: "AF", country: "Afghanistan", ... }, ... ] }
-	return data.data.map((item: { country: string , iso2: string }) => ({
-		value: item.iso2, // Using iso2 code (e.g., "AF", "AL")
-		label: item.country, // Using country name (e.g., "Afghanistan", "Albania")
-	}));
-}
 
 async function ProfilePage() {
   const profile = await fetchProfile();

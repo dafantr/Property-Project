@@ -1,11 +1,9 @@
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-import { redirect } from 'next/navigation';
 
-import { type NextRequest, type NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 import db from '@/utils/db';
-import { updateCloserCommission, updateMemberCommission, updateMemberTier } from '@/utils/actions';
-import { revalidatePath } from 'next/cache';
+import { distributeCommission, updateMemberTier } from '@/utils/actions';
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -17,7 +15,7 @@ export const GET = async (req: NextRequest) => {
 
     const memberId = session.metadata?.memberId;
     const transactionId = session.metadata?.transactionId;
-    if (session.status === 'complete' && memberId) {
+    if (session.status === 'complete' && memberId && transactionId) {
 
       const membershipCommissionTransaction = await db.membershipCommissionTransaction.findFirst({
         where: { id: transactionId }
@@ -35,12 +33,12 @@ export const GET = async (req: NextRequest) => {
         data: { isActive: 1},
       });
 
-      if(membershipCommissionTransaction?.referalCode) {
-        await updateMemberCommission(membershipCommissionTransaction?.referalCode as string, membershipCommissionTransaction?.commission, 'membership');
-        await updateMemberTier(membershipCommissionTransaction?.referalCode as string);
+      if(membershipCommissionTransaction.referalCode) {
+        await distributeCommission(transactionId, 'membership');
+        await updateMemberTier(membershipCommissionTransaction.referalCode as string);
       }
-      if(membershipCommissionTransaction?.closerId) {
-        await updateCloserCommission(membershipCommissionTransaction?.closerId as string, membershipCommissionTransaction?.closerCommission);
+      if(membershipCommissionTransaction.closerId) {
+        await distributeCommission(transactionId, 'closer');
       }
 
       await db.membershipCommissionTransaction.update({

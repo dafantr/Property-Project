@@ -69,14 +69,16 @@ export default function WithdrawalHistoryModal({
                         <tbody className="dark:text-gray-300">
                             {filteredWithdrawalRequestDetails.map((withdrawalRequestDetail) => (
                                 <tr key={withdrawalRequestDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
-                                    <td className="py-2 px-4">{withdrawalRequestDetail.profile.firstName} {withdrawalRequestDetail.profile.lastName}</td>
+                                    <td className="py-2 px-4">{withdrawalRequestDetail.member?.profile.firstName} {withdrawalRequestDetail.member?.profile.lastName}</td>
                                     <td className="py-2 px-4">{member.memberId}</td>
                                     <td className="py-2 px-4">{formatCurrency(withdrawalRequestDetail.amount)}</td>
                                     <td className="py-2 px-4">
                                         <span className={`px-2 py-1 rounded text-sm ${
-                                            withdrawalRequestDetail.status 
+                                            withdrawalRequestDetail.status === 'Approved'
                                             ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                                            : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                            : withdrawalRequestDetail.status === 'Pending'
+                                            ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                            : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
                                         }`}>
                                             {withdrawalRequestDetail.status}
                                         </span>
@@ -111,7 +113,7 @@ export default function WithdrawalHistoryModal({
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600 dark:text-gray-400">Name</span>
-                                        <span>{withdrawalRequestDetail.profile.firstName} {withdrawalRequestDetail.profile.lastName}</span>
+                                        <span>{withdrawalRequestDetail.member?.profile.firstName} {withdrawalRequestDetail.member?.profile.lastName}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600 dark:text-gray-400">Member ID</span>
@@ -124,9 +126,11 @@ export default function WithdrawalHistoryModal({
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600 dark:text-gray-400">Status</span>
                                         <span className={`px-2 py-1 rounded text-sm ${
-                                            withdrawalRequestDetail.status 
+                                            withdrawalRequestDetail.status === 'Approved'
                                             ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                                            : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                            : withdrawalRequestDetail.status === 'Pending'
+                                            ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                            : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
                                         }`}>
                                             {withdrawalRequestDetail.status}
                                         </span>

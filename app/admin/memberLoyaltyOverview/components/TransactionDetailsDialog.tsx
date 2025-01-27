@@ -9,8 +9,8 @@ interface TransactionDetailsProps {
     id: string;
     name: string;
     memberId: string;
-    pointsRedeemed: number;
-    rewardName: string;
+    type: string;
+    point: number;
     dateTime: Date;
   } | null;
 }
@@ -41,12 +41,12 @@ const TransactionDetailsDialog = ({ isOpen, onClose, transaction }: TransactionD
             <p className="mt-1 dark:text-white">{transaction.memberId}</p>
           </div>
           <div className="bg-gray-50 dark:bg-black/40 p-3 rounded border dark:border-gray-800">
-            <label className="text-sm font-semibold dark:text-gray-300">Points Redeemed</label>
-            <p className="mt-1 dark:text-white">{transaction.pointsRedeemed}</p>
+            <label className="text-sm font-semibold dark:text-gray-300">Type</label>
+            <p className="mt-1 dark:text-white">{transaction.type}</p>
           </div>
           <div className="bg-gray-50 dark:bg-black/40 p-3 rounded border dark:border-gray-800">
-            <label className="text-sm font-semibold dark:text-gray-300">Reward</label>
-            <p className="mt-1 dark:text-white">{transaction.rewardName}</p>
+            <label className="text-sm font-semibold dark:text-gray-300">Points Redeemed</label>
+            <p className="mt-1 dark:text-white">{transaction.point}</p>
           </div>
           <div className="bg-gray-50 dark:bg-black/40 p-3 rounded border dark:border-gray-800">
             <label className="text-sm font-semibold dark:text-gray-300">Date/Time</label>

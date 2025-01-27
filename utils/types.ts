@@ -45,6 +45,7 @@ export type PropertyCardProps = {
     id: string;
     profileId: string;
     parentMemberId: string | null;
+    parentId: string | null;
     memberId: string;
     createdAt: Date;
     isActive: number;
@@ -59,6 +60,7 @@ export type PropertyCardProps = {
     bankName?: string | null;
     bankAccNum?: string | null;
     bankAccName?: string | null;
+    isMarketing: boolean;
   }
 
   export type profile = {
@@ -93,7 +95,7 @@ export type PropertyCardProps = {
     rewards: reward[];
     referralDetails: referralDetails[];
     loyaltyPointDetails: loyaltyPointDetails[];
-    downlines: Downline[];
+    downlines: Downline;
 }
 
 export type LoyaltiPointsProps = {
@@ -152,11 +154,10 @@ export type RegistrationDetails = {
 
 export type membershipCommissionTransaction = {
   id: string;
-  profileId: string;
+  memberId: string;
   closerId: string | null;
-  commission: number;
-  closerCommission: number;
   referalCode: string | null;
+  totalPrice: number;
   proofOfPayment: string | null;
   paymentMethod: string;
   paymentStatus: boolean;
@@ -164,14 +165,21 @@ export type membershipCommissionTransaction = {
 
 export type referralDetails = {
   id: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
+  member: {
+    profile: {
+      firstName: string;
+      lastName: string;
+    };
+  } | null;
   commission: number;
+  type: string;
   createdAt: Date;
-  paymentStatus: boolean;
-  type: 'Membership' | 'Booking';
+  membershipCommissionTransaction: {
+    paymentStatus: boolean;
+  } | null;
+  booking: {
+    paymentStatus: boolean;
+  } | null;
 }
 
 export type loyaltyPointDetails = {
@@ -194,10 +202,12 @@ export type ConfirmWithdrawModalProps = {
 
 export type WithdrawalRequestDetails = {
   id: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
+  member: {
+    profile: {
+      firstName: string;
+      lastName: string;
+    };
+  } | null;
   amount: number;
   bankName: string;
   bankAccNumber: string;

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { fetchAdminWithdrawalRequests, updateWithdrawalStatus } from '@/utils/actions'
 import ViewWithdrawalModal from './modals/ViewWithdrawalModal'
+import { formatCurrency } from '@/utils/format'
 
 interface WithdrawalRequest {
   name: string
@@ -215,7 +216,7 @@ export default function WithdrawalRequest() {
                     <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.name}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.memberId}</td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.amount}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{formatCurrency(Number(request.amount))}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.status}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.bank}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.requestDate}</td>

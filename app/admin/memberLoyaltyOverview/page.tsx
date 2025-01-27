@@ -1,15 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PointDistributionHistory from './components/PointDistributionHistory';
+import { fetchTotalDistributedPoints, fetchRedemptionRequests } from '@/utils/actions';
 
 export default function MemberLoyaltyOverview() {
-  // Remove the activeTab state since we're only showing distribution
+  const [totalDistributedPoints, setTotalDistributedPoints] = useState(0);
+  const [redemptionRequests, setRedemptionRequests] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState<'' | 'today' | 'week' | 'month'>('');
 
-  // Mock data - replace with actual data fetching
-  const stats = {
-    totalPoints: 125,
-    redemptionRequests: 23,
+  useEffect(() => {
+    const fetchLoyaltyOverviewData = async () => {
+      try {
+        const totalDistributedPoints = await fetchTotalDistributedPoints(selectedPeriod)
+        const redemptionRequests = await fetchRedemptionRequests(selectedPeriod)
+        setTotalDistributedPoints(totalDistributedPoints)
+        setRedemptionRequests(redemptionRequests)
+      } catch (error) {
+        console.error('Error fetching loyalty overview data:', error)
+      }
+    }
+    fetchLoyaltyOverviewData()
+  }, [selectedPeriod])
+
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPeriod(e.target.value as '' | 'today' | 'week' | 'month');
   };
 
   return (
@@ -17,8 +32,12 @@ export default function MemberLoyaltyOverview() {
       <h1 className="text-2xl font-bold mb-4 dark:text-white">Member Loyalty Points Overview</h1>
 
       <div className="mb-4">
-        <select className="w-full sm:w-48 p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700">
-          <option value="">Filter by Date Period</option>
+        <select
+          value={selectedPeriod}
+          onChange={handlePeriodChange}
+          className="w-full sm:w-48 p-2 border rounded-md dark:bg-black dark:text-white dark:border-gray-700"
+        >
+          <option value="">All Time</option>
           <option value="today">Today</option>
           <option value="week">This Week</option>
           <option value="month">This Month</option>
@@ -28,11 +47,11 @@ export default function MemberLoyaltyOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
           <h3 className="text-gray-600 dark:text-gray-300">Total Point Distributed</h3>
-          <p className="text-2xl font-bold dark:text-white">{stats.totalPoints}</p>
+          <p className="text-2xl font-bold dark:text-white">{totalDistributedPoints}</p>
         </div>
         <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
           <h3 className="text-gray-600 dark:text-gray-300">Reward Redemption Request</h3>
-          <p className="text-2xl font-bold dark:text-white">{stats.redemptionRequests}</p>
+          <p className="text-2xl font-bold dark:text-white">{redemptionRequests}</p>
         </div>
       </div>
 

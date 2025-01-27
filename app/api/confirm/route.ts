@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { type NextRequest, type NextResponse } from 'next/server';
 import db from '@/utils/db';
-import { updateMemberCommission } from '@/utils/actions';
+import { distributeCommission } from '@/utils/actions';
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -12,22 +12,16 @@ export const GET = async (req: NextRequest) => {
 
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    // console.log(session);
 
     const bookingId = session.metadata?.bookingId;
-    const transactionId = session.metadata?.transactionId;
     if (session.status === 'complete' && bookingId) {
-
-      const bookingCommissionTransaction = await db.bookingCommissionTransaction.findFirst({
-        where: { id: transactionId }
-      });
 
       await db.booking.update({
         where: { id: bookingId },
         data: { paymentStatus: true },
       });
 
-      await updateMemberCommission(bookingCommissionTransaction?.referalCode as string, bookingCommissionTransaction?.commission as number, 'booking');
+      await distributeCommission(bookingId, 'booking');
     }
   } catch (err) {
     console.log(err);

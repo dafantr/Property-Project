@@ -2,10 +2,10 @@ import { formatCurrency } from '@/utils/format'
 
 interface CommissionData {
   id: string
-  type: 'Booking' | 'Membership' | 'Closer'
-  memberName: string
+  type: string
+  name: string
   memberId: string | null
-  amount: number
+  commission: number
   dateTime: Date
 }
 
@@ -34,7 +34,7 @@ export default function ViewCommissionModal({ isOpen, onClose, commission }: Vie
         <div className="space-y-4">
           <div>
             <p className="font-semibold">Name</p>
-            <p>{commission.memberName}</p>
+            <p>{commission.name}</p>
           </div>
           <div>
             <p className="font-semibold">Member ID</p>
@@ -42,7 +42,7 @@ export default function ViewCommissionModal({ isOpen, onClose, commission }: Vie
           </div>
           <div>
             <p className="font-semibold">Commission Amount</p>
-            <p>{formatCurrency(commission.amount)}</p>
+            <p>{formatCurrency(commission.commission)}</p>
           </div>
           <div>
             <p className="font-semibold">Commission Category</p>

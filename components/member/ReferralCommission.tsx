@@ -44,8 +44,7 @@ export default function ReferralCommission({
 			  url: referralLink,
 			});
 		  } catch (error) {
-			// User cancelled or share failed
-			console.log('Share failed:', error);
+
 		  }
 		} else {
 		  // Fallback to copying to clipboard
@@ -57,8 +56,8 @@ export default function ReferralCommission({
 
 	  const filteredReferrals = referralDetails.filter(detail => 
 		statusFilter === 'all' || 
-		(statusFilter === 'approved' && detail.paymentStatus) ||
-		(statusFilter === 'pending' && !detail.paymentStatus)
+		(statusFilter === 'approved' && (detail.booking?.paymentStatus || detail.membershipCommissionTransaction?.paymentStatus)) ||
+		(statusFilter === 'pending' && !(detail.booking?.paymentStatus || detail.membershipCommissionTransaction?.paymentStatus))
 	  );
 	  
 	return (
@@ -93,13 +92,13 @@ export default function ReferralCommission({
 					<p>{referralDetails.length}</p>
 				</div>
 				<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
-					<div className="flex justify-between items-center">
+					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
 						<div>
 							<h3 className="font-semibold mb-2 dark:text-white">Total Commissions Earned</h3>
 							<p>{formatCurrency(member.commission)}</p>
 						</div>
 						<button 
-							className="px-4 py-2 bg-[#C4A777] hover:bg-[#B39665] text-white text-sm rounded transition-colors"
+							className="w-full sm:w-auto px-4 py-2 bg-[#C4A777] hover:bg-[#B39665] text-white text-sm rounded transition-colors"
 							onClick={onWithdrawClick}
 							>
 							Withdraw
@@ -140,15 +139,18 @@ export default function ReferralCommission({
 							{filteredReferrals.map((referralDetail) => (
 								<tr key={referralDetail.id} className="border-b border-gray-100 dark:border-zinc-800">
 									<td className="py-2 px-4">{referralDetail.createdAt.toLocaleDateString()}</td>
-									<td className="py-2 px-4">{referralDetail.profile.firstName} {referralDetail.profile.lastName}</td>
+									<td className="py-2 px-4">{referralDetail.member?.profile.firstName} {referralDetail.member?.profile.lastName}</td>
 									<td className="py-2 px-4">{formatCurrency(referralDetail.commission)}</td>
 									<td className="py-2 px-4">
 										<span className={`px-2 py-1 rounded text-sm ${
-											referralDetail.paymentStatus 
-											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
-										}`}>
-											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
+											(referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus)
+												? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+												: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+											}`}>
+											{referralDetail.booking 
+												? referralDetail.booking.paymentStatus ? 'Approved' : 'Pending'
+												: referralDetail.membershipCommissionTransaction?.paymentStatus ? 'Approved' : 'Pending'
+											}
 										</span>
 									</td>
 									<td className="py-2 px-4">
@@ -188,7 +190,7 @@ export default function ReferralCommission({
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Referral</span>
-										<span>{referralDetail.profile.firstName} {referralDetail.profile.lastName}</span>
+										<span>{referralDetail.member?.profile.firstName} {referralDetail.member?.profile.lastName}</span>
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Amount</span>
@@ -197,11 +199,14 @@ export default function ReferralCommission({
 									<div className="flex justify-between items-center">
 										<span className="text-gray-600 dark:text-gray-400">Status</span>
 										<span className={`px-2 py-1 rounded text-sm ${
-											referralDetail.paymentStatus 
-											? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-											: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
-										}`}>
-											{referralDetail.paymentStatus ? 'Approved' : 'Pending'}
+											(referralDetail.booking?.paymentStatus || referralDetail.membershipCommissionTransaction?.paymentStatus)
+												? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+												: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+											}`}>
+											{referralDetail.booking 
+												? referralDetail.booking.paymentStatus ? 'Approved' : 'Pending'
+												: referralDetail.membershipCommissionTransaction?.paymentStatus ? 'Approved' : 'Pending'
+											}
 										</span>
 									</div>
 									<div className="flex justify-between items-center">
