@@ -18,6 +18,7 @@ import { calculateRegistrationFee } from "@/utils/calculateTotals";
 import ErrorModal from "@/components/ui/ErrorModal";
 import { useRouter } from "next/navigation";
 import SuccessModal from "../ui/SuccessModal";
+import ImageInput from "../form/ImageInput";
 
 export default function CreateMemberForm({
 	profile,
@@ -357,16 +358,7 @@ export default function CreateMemberForm({
 								Upload Payment Proof
 								<span className="text-red-500 ml-1">*</span>
 								</label>
-								<input
-								type="file"
-								name="paymentProof"
-								accept="image/*"
-								required
-								className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-black dark:border-gray-700 dark:text-white 
-									file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-									file:text-sm file:bg-[#C4A777] file:text-white
-									hover:file:bg-[#B39665]"
-								/>
+								<ImageInput />
 								<p className="text-xs text-gray-500 dark:text-gray-400">
 								Accepted formats: JPG, PNG, JPEG (Max 5MB)
 								</p>

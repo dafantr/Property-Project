@@ -122,7 +122,7 @@ export default function CMSPage() {
 				{selectedTab === 'memberList' ? (
 					<MemberList initialMembers={members} tierList={tierList} />
 				) : (
-					<MemberRequests selectedPeriod={selectedPeriod} />
+					<MemberRequests/>
 				)}
 			</div>
 		</div>
