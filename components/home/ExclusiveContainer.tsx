@@ -66,9 +66,14 @@ function ExclusiveContainer({
 
             {/* View More Button - Always shown */}
             <div className="flex justify-end mt-4 px-4">
-                <a
-                    href="/promotions/more"
-                    className="flex items-center text-orange-600 border border-orange-500 py-2 px-6 gap-2 rounded inline-flex hover:bg-orange-100 transition"
+            <a
+                    href="/gallery/more"
+                    className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
+                    style={{
+                        color: 'rgba(194, 171, 125, 1)', // Text and icon color
+                        borderColor: 'rgba(194, 171, 125, 1)', // Border color
+                        backgroundColor: 'transparent',
+                    }}
                 >
                     <span>View More</span>
                     <svg

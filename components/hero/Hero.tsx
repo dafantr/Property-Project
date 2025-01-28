@@ -30,14 +30,14 @@ function Hero() {
         </SwiperSlide>
         <SwiperSlide>
           <img
-            src="/icons/hero2.jpg"
+            src="/icons/hero2.png"
             alt="Hero Slide 2"
             className="w-full h-full object-cover"
           />
         </SwiperSlide>
         <SwiperSlide>
           <img
-            src="/icons/hero3.jpg"
+            src="/icons/hero3.png"
             alt="Hero Slide 3"
             className="w-full h-full object-cover"
           />

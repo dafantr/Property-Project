@@ -77,11 +77,15 @@ function BookingForm() {
                       placeholder="Enter referal code"
                     />
                     <button
-                      type="button"
-                      onClick={handleApplyReferralCode}
-                      className="ml-2 px-2 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        type="button"
+                        onClick={handleApplyReferralCode}
+                        className="ml-2 px-2 py-1 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        style={{
+                          backgroundColor: 'rgba(194, 171, 125, 1)',
+                          hoverBackgroundColor: 'rgba(234, 227, 216, 1)',
+                      }}
                     >
-                    Apply
+                      Apply
                     </button>
                 </div>
             </div>

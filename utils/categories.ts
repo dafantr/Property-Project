@@ -14,22 +14,22 @@ type Category = {
 };
 
 export type CategoryLabel =
-  | 'cabin'
+  // | 'cabin'
   //| 'tent'
   //| 'airstream'
-  | 'cottage'
+  | 'Lovina'
   //| 'container'
-  | 'caravan'
-  | 'tiny'
+  // | 'caravan'
+  // | 'tiny'
   //| 'magic'
-  | 'warehouse'
-  | 'lodge';
+  | 'Canggu'
+  | 'Ubud';
 
 export const categories: Category[] = [
-  {
-    label: 'cabin',
-    icon: MdCabin,
-  },
+  // {
+  //   label: 'cabin',
+  //   icon: MdCabin,
+  // },
 //   {
 //     label: 'airstream',
 //     icon: PiVan,
@@ -39,11 +39,11 @@ export const categories: Category[] = [
 //     icon: TbTent,
 //   },
   {
-    label: 'warehouse',
+    label: 'Canggu',
     icon: PiWarehouse,
   },
   {
-    label: 'cottage',
+    label: 'Lovina',
     icon: TbBuildingCottage,
   },
 //   {
@@ -54,17 +54,17 @@ export const categories: Category[] = [
 //     label: 'container',
 //     icon: GoContainer,
 //   },
-  {
-    label: 'caravan',
-    icon: TbCaravan,
-  },
+  // {
+  //   label: 'caravan',
+  //   icon: TbCaravan,
+  // },
 
+  // {
+  //   label: 'tiny',
+  //   icon: PiLighthouse,
+  // },
   {
-    label: 'tiny',
-    icon: PiLighthouse,
-  },
-  {
-    label: 'lodge',
+    label: 'Ubud',
     icon: GiWoodCabin,
   },
 ];
