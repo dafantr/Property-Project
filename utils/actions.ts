@@ -1522,14 +1522,23 @@ const createDownlineSelect = (depth: number) => {
 	};
 };
 
-// First, create a fetch function in your actions.ts
+// Fetch Rewards Action
 export const fetchRewards = async () => {
 	try {
-		const rewards = await db.reward.findMany({});
+		const rewards = await db.reward.findMany({
+			select: {
+				id: true,
+				rewardName: true,
+				pointReq: true,
+			},
+			orderBy: {
+				createdAt: 'desc',
+			},
+		});
 		return rewards;
 	} catch (error) {
-		console.error("Error fetching rewards:", error);
-		return { message: "Error fetching rewards" };
+		console.error('Error fetching rewards:', error);
+		return [];
 	}
 };
 
@@ -2463,9 +2472,7 @@ export async function fetchRedemptionRequests(period: DatePeriod = '') {
 
 		const redemptionCount = await db.pointTransaction.count({
 			where: {
-				type: 'REDEEM',
 				...dateFilter
-
 			}
 		});
 
@@ -2618,3 +2625,65 @@ export const fetchAdminMemberDownline = async (memberId: string) => {
 };
 
 export { getAdminUser };
+
+// Create Reward Action
+export const createRewardAction = async (prevState: any, formData: FormData) => {
+  await getAdminUser(); // Ensure only admin can create rewards
+
+  try {
+    const rewardName = formData.get('name') as string;
+    const pointReq = parseInt(formData.get('points') as string);
+
+    await db.reward.create({
+      data: {
+        rewardName,
+        pointReq,
+      },
+    });
+
+    revalidatePath('/admin/memberLoyaltyOverview');
+    return { message: 'Reward created successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+// Delete Reward Action
+export const deleteRewardAction = async (id: string) => {
+  await getAdminUser(); // Ensure only admin can delete rewards
+
+  try {
+    await db.reward.delete({
+      where: { id },
+    });
+
+    revalidatePath('/admin/memberLoyaltyOverview');
+    return { message: 'Reward deleted successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+// Update Reward Action
+export const updateRewardAction = async (prevState: any, formData: FormData) => {
+  await getAdminUser(); // Ensure only admin can update rewards
+
+  try {
+    const id = formData.get('id') as string;
+    const rewardName = formData.get('name') as string;
+    const pointReq = parseInt(formData.get('points') as string);
+
+    await db.reward.update({
+      where: { id },
+      data: {
+        rewardName,
+        pointReq,
+      },
+    });
+
+    revalidatePath('/admin/memberLoyaltyOverview');
+    return { message: 'Reward updated successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
