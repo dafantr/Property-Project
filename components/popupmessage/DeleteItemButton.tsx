@@ -34,7 +34,7 @@ function DeleteConfirmationModal({
           </button>
           <button
             onClick={onConfirm}
-            className="flex items-center px-4 py-2 text-white bg-orange-500 dark:bg-orange-800 rounded-lg hover:bg-orange-600 dark:hover:bg-orange-500"
+            className="flex items-center px-4 py-2 text-white bg-primary dark:bg-primary rounded-lg hover:bg-red-600 dark:hover:bg-red-600"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Yes, Delete
