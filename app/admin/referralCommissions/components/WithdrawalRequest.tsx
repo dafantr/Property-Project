@@ -76,9 +76,9 @@ export default function WithdrawalRequest() {
     setCurrentPage(1)
   }, [searchTerm, statusFilter, bankFilter, startDate, endDate])
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (id: string, point: number) => {
     try {
-      const result = await updateWithdrawalStatus(id, 'Approved')
+      const result = await updateWithdrawalStatus(id, point, 'Approved')
       if (result.status === 'success') {
         // Refresh the list after successful update
         const data = await fetchAdminWithdrawalRequests()
@@ -93,9 +93,9 @@ export default function WithdrawalRequest() {
     }
   }
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (id: string, point: number) => {
     try {
-      const result = await updateWithdrawalStatus(id, 'Rejected')
+      const result = await updateWithdrawalStatus(id, point, 'Rejected')
       if (result.status === 'success') {
         // Refresh the list after successful update
         const data = await fetchAdminWithdrawalRequests()
@@ -231,7 +231,7 @@ export default function WithdrawalRequest() {
                           {request.status !== 'Approved' && request.status !== 'Rejected' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
-                              onClick={() => handleApprove(request.id)}
+                              onClick={() => handleApprove(request.id, Number(request.amount))}
                             >
                               Approve
                             </button>
@@ -239,7 +239,7 @@ export default function WithdrawalRequest() {
                           {request.status !== 'Rejected' && request.status !== 'Approved' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
-                              onClick={() => handleReject(request.id)}
+                              onClick={() => handleReject(request.id, Number(request.amount))}
                             >
                               Reject
                             </button>

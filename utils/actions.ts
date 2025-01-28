@@ -1065,7 +1065,7 @@ export const createMemberAction = async (
 		const validatedFile = validateWithZodSchema(imageSchema, { image: proofOfPayment });
 		fullPath = await uploadImage(validatedFile.image);
 	}
-	
+
 
 
 	let closerCode = formData.get("closerCode") as string;
@@ -1803,7 +1803,7 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 						bankAccNum: true,
 						bankAccName: true,
 						isActive: true,
-					}	
+					}
 				},
 				referalCode: true,
 				closerId: true,
@@ -1815,7 +1815,7 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 		});
 
 		console.log(memberRequests);
-		
+
 		return memberRequests;
 	} catch (error) {
 		console.error("Error fetching member requests:", error);
@@ -2167,18 +2167,36 @@ export const fetchAdminWithdrawalRequests = async () => {
 
 export const updateWithdrawalStatus = async (
 	id: string,
+	point: number,
 	status: "Approved" | "Rejected"
 ) => {
 	try {
-		await getAdminUser(); // Ensure only admin can update Sstatus
+		await getAdminUser(); // Ensure only admin can update status
 
-		await db.withdrawCommissionRequest.update({
-			where: {
-				id: id,
-			},
-			data: {
-				status: status,
-			},
+		await db.$transaction(async (tx) => {
+			// Update withdrawal request and member commission in a single transaction
+			const withdrawalRequest = await tx.withdrawCommissionRequest.update({
+				where: { id },
+				data: {
+					status,
+					...(status === "Approved" && {
+						member: {
+							update: {
+								commission: {
+									decrement: point
+								}
+							}
+						}
+					})
+				},
+				include: {
+					member: true
+				}
+			});
+
+			if (!withdrawalRequest.member) {
+				throw new Error("Member not found");
+			}
 		});
 
 		revalidatePath("/admin/referralNcommision");
@@ -2591,7 +2609,7 @@ export const fetchAdminMemberDownline = async (memberId: string) => {
         profile: true
       }
     });
-    
+
     return member;
   } catch (error) {
     console.error('Error fetching member:', error);
