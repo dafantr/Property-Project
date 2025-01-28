@@ -2129,19 +2129,22 @@ export const fetchAdminWithdrawalRequests = async () => {
 				amount: true,
 				status: true,
 				bankName: true,
+				bankAccNumber: true,
+				bankAccName: true,
+				notes: true,
 				createdAt: true,
 				member: {
 					select: {
-						profileId: true,
 						profile: {
 							select: {
 								firstName: true,
 								lastName: true,
-								clerkId: true,
-							},
+								email: true,
+							}
 						},
-					},
-				},
+						phone: true,
+					}
+				}
 			},
 			orderBy: {
 				createdAt: "desc",
@@ -2149,11 +2152,18 @@ export const fetchAdminWithdrawalRequests = async () => {
 		});
 
 		return withdrawalRequests.map((request) => ({
+			id: request.id,
 			name: `${request.member?.profile.firstName} ${request.member?.profile.lastName}`,
 			memberId: request.memberId || "No Member ID",
+			email: request.member?.profile.email || "N/A",
+			phone: request.member?.phone || "N/A",
 			amount: request.amount.toString(),
+			netAmount: request.amount.toString(), // Add if there's any processing fee
 			status: request.status,
 			bank: request.bankName,
+			accountNumber: request.bankAccNumber,
+			accountName: request.bankAccName,
+			notes: request.notes || "",
 			requestDate: new Date(request.createdAt)
 				.toLocaleString("en-GB", {
 					day: "2-digit",
@@ -2166,7 +2176,6 @@ export const fetchAdminWithdrawalRequests = async () => {
 				})
 				.replace(",", "")
 				.replace(/\//g, "-"),
-			id: request.id,
 		}));
 	} catch (error) {
 		console.error("Error fetching withdrawal requests:", error);

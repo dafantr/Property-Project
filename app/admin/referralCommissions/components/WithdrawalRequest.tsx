@@ -6,13 +6,19 @@ import ViewWithdrawalModal from './modals/ViewWithdrawalModal'
 import { formatCurrency } from '@/utils/format'
 
 interface WithdrawalRequest {
+  id: string
   name: string
   memberId: string
+  email: string
+  phone: string
   amount: string
+  netAmount: string
   status: string
   bank: string
+  accountNumber: string
+  accountName: string
+  notes: string
   requestDate: string
-  id: string
 }
 
 export default function WithdrawalRequest() {
