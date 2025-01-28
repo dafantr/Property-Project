@@ -27,21 +27,18 @@ const Galleries = () => {
 
     return (
         <div className="mt-5 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-                {galleries.slice(0, 4).map((gallery) => (
-                    <div className="group">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 p-4">
+                {galleries.slice(0, 8).map((gallery) => (
+                    <div key={gallery.id} className="group">
                         <img
-                            key={gallery.id}
                             src={gallery.media}
                             alt={gallery.title}
                             className="w-full h-52 object-cover rounded-md shadow-lg cursor-pointer transform group-hover:scale-110 transition-transform duration-500"
                             onClick={() => setSelectedImage(gallery)}
                         />
                     </div>
-
                 ))}
             </div>
-
             {/* Modal for viewing image */}
             {selectedImage && (
                 <div
@@ -79,7 +76,12 @@ const Galleries = () => {
             <div className="flex justify-end mt-4 px-4">
                 <a
                     href="/gallery/more"
-                    className="flex items-center text-orange-600 border border-orange-500 py-2 px-6 gap-2 rounded inline-flex hover:bg-orange-100 transition"
+                    className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
+                    style={{
+                        color: 'rgba(194, 171, 125, 1)', // Text and icon color
+                        borderColor: 'rgba(194, 171, 125, 1)', // Border color
+                        backgroundColor: 'transparent',
+                    }}
                 >
                     <span>View More</span>
                     <svg

@@ -27,8 +27,8 @@ function FeatureHighlights() {
         <div className="w-[80%] mx-auto">
           <SectionHeading
             heading={
-              <h2 className="text-center text-3xl font-bold mb-4 text-dark dark:text-light">
-                Million Dollar View Villas promises
+              <h2 className="text-center text-3xl font-bold mb-4 text-dark dark:text-light font-playfair">
+                 Million Dollar View Villas Promises
               </h2>
             }
             paragraph={

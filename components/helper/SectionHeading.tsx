@@ -8,7 +8,7 @@ type Props = {
 function SectionHeading({ heading, paragraph }: Props) {
     return (
         <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800 dark:text-white font-playfair">
                 {heading}
             </h1>
             <div className="text-sm text-gray-700 dark:text-gray-300 mx-auto text-center">

@@ -20,7 +20,7 @@
     --card-foreground: 20 14.3% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 14.3% 4.1%;
-    --primary: 24.6 95% 53.1%;
+    --primary: 38 38% 62%;
     --primary-foreground: 60 9.1% 97.8%;
     --secondary: 60 4.8% 95.9%;
     --secondary-foreground: 24 9.8% 10%;
@@ -86,7 +86,7 @@
 }
 
 :root {
-  --icon-filter-light: brightness(0) saturate(100%) invert(53%) sepia(94%) saturate(694%) hue-rotate(1deg) brightness(103%) contrast(104%);
+  --icon-filter-light: invert(66%) sepia(34%) saturate(538%) hue-rotate(15deg) brightness(90%) contrast(87%);
 }
 
 .icon-color {

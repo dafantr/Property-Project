@@ -26,3 +26,6 @@ npm i react-multi-carousel
 
 npx shadcn@latest add navigation-menu
 
+npm install react-select
+
+

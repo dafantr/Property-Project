@@ -84,18 +84,29 @@ const ListItem = React.forwardRef<
     const router = useRouter();
     const pathname = usePathname(); // Get the current path
 
-    const handleClick = (e: React.MouseEvent) => {
+    const handleClick = async (e: React.MouseEvent) => {
         e.preventDefault();
+
         if (pathname !== "/") {
-            // Redirect to the home page with the section hash
-            router.push(`/${href}`);
-        } else {
-            // Scroll to the section if already on the home page
+            // Redirect to the home page with the hash
+            await router.push(`/${href}`);
+        }
+
+        // Use a timeout to ensure the scroll happens after the page is rendered
+        setTimeout(() => {
             const target = document.querySelector(href || "");
             if (target) {
-                target.scrollIntoView({ behavior: "smooth" });
+                const windowHeight = window.innerHeight;
+                const elementHeight = target.getBoundingClientRect().height;
+                const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                const offsetPosition = elementPosition - (windowHeight / 2) + (elementHeight / 2);
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth",
+                });
             }
-        }
+        }, pathname !== "/" ? 500 : 0); // Add delay if navigating to another page
     };
 
     return (
@@ -119,6 +130,7 @@ const ListItem = React.forwardRef<
         </li>
     );
 });
+
 ListItem.displayName = "ListItem";
 
 export default NavMenu;

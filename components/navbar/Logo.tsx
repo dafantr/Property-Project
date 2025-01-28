@@ -1,15 +1,17 @@
 import Link from 'next/link';
-import { LuTent } from 'react-icons/lu';
 import { Button } from '../ui/button';
 
 function Logo() {
   return (
-    <Button size='icon' asChild>
-      <Link href='/'>
-      <LuTent className='w-6 h-6'/>
-      </Link>
-    </Button>
-  )
+    <Link href="/">
+      <img
+        src="/icons/logo1.png"
+        alt="Million Dollar View Villas Logo"
+        className="object-contain"
+        style={{ height: '100x', width: '100px' }}
+      />
+    </Link>
+  );
 }
 
-export default Logo
+export default Logo;

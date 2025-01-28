@@ -5,6 +5,9 @@ export const formattedCities = [
   { code: 'BN', name: 'Banjarmasin', region: 'South Kalimantan', location: [-3.3194, 114.5908] },
   { code: 'ML', name: 'Malang', region: 'East Java', location: [-7.9819, 112.6265] },
   { code: 'DS', name: 'Denpasar', region: 'Bali', location: [-8.65, 115.216667] },
+  { code: 'CG', name: 'Canggu', region: 'Bali', location: [-8.65, 115.216667] },
+  { code: 'UD', name: 'Ubud', region: 'Bali', location: [-8.65, 115.216667] },
+  { code: 'LV', name: 'Lovina', region: 'Bali', location: [-8.65, 115.216667] }
 ];
 
 export const findCityByCode = (code: string) =>
