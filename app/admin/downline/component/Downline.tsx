@@ -25,8 +25,9 @@ export default function Downline({
               )}
               <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
                   {member.profile.firstName}</p>
-              <p className={`text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px] ${member.isDeleted === 1 ? 'text-red-500' : ''}`}>
+              <p className="text-xs sm:text-sm font-medium truncate max-w-[70px] sm:max-w-[80px] md:max-w-[90px] lg:max-w-[100px]">
                   {member.memberId}</p>
+            
               {hasDownlines && (
               <button 
                   onClick={() => setIsOpen(!isOpen)}

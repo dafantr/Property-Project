@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { clearMemberPointsAndCommission, deleteMember } from '@/utils/actions'
 import { useToast } from '@/components/ui/use-toast'
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface MemberActionsProps {
   member: any;
@@ -15,6 +16,7 @@ interface MemberActionsProps {
 export function MemberActions({ member, tierList }: MemberActionsProps) {
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
+  const router = useRouter();
 
   const memberId = member.id;
 
@@ -25,6 +27,7 @@ export function MemberActions({ member, tierList }: MemberActionsProps) {
         title: result.message,
         variant: result.message.includes('error') ? 'destructive' : 'default',
       })
+      router.refresh();
     })
   }
 
@@ -36,6 +39,7 @@ export function MemberActions({ member, tierList }: MemberActionsProps) {
           title: result.message,
           variant: result.message.includes('error') ? 'destructive' : 'default',
         })
+        router.refresh();
       })
     }
   }

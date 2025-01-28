@@ -228,7 +228,7 @@ export default function WithdrawalRequest() {
                           >
                             View
                           </button>
-                          {request.status !== 'Approved' && (
+                          {request.status !== 'Approved' && request.status !== 'Rejected' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
                               onClick={() => handleApprove(request.id)}
@@ -236,7 +236,7 @@ export default function WithdrawalRequest() {
                               Approve
                             </button>
                           )}
-                          {request.status !== 'Rejected' && (
+                          {request.status !== 'Rejected' && request.status !== 'Approved' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
                               onClick={() => handleReject(request.id)}

@@ -7,6 +7,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
+    TableRowMember,
 } from "@/components/ui/table";
 import { MemberActions } from "./MemberActions";
 import { Input } from "@/components/ui/input";
@@ -113,7 +114,7 @@ export function MemberList({ initialMembers, tierList }: MemberListProps) {
                     </TableHeader>
                     <TableBody>
                         {paginatedMembers.map((member) => (
-                            <TableRow key={member.id}>
+                            <TableRowMember key={member.id} variant={member.isDeleted === 1 ? 'deleted' : 'default'}>
                                 <TableCell>
                                     {member.profile.firstName} {member.profile.lastName}
                                 </TableCell>
@@ -136,7 +137,7 @@ export function MemberList({ initialMembers, tierList }: MemberListProps) {
                                 <TableCell>
                                     <MemberActions member={member} tierList={tierList} />
                                 </TableCell>
-                            </TableRow>
+                            </TableRowMember>
                         ))}
                     </TableBody>
                 </Table>

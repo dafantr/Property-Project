@@ -1276,6 +1276,8 @@ export const validateReferalCode = async (
 		const member = await db.member.findFirst({
 			where: {
 				memberId: referalCode,
+				isDeleted: 0,
+				isActive: 1,
 			},
 		});
 		if (member !== null) {
@@ -1283,11 +1285,6 @@ export const validateReferalCode = async (
 			// if (member.profileId == profile?.clerkId) {
 			// 	return false;
 			// }
-
-			//penjagaan penggunaan referal code member yang tidak aktif
-			if(member.isActive === 0) {
-				return false;
-			}
 
 			//penjagaan referal code marketing untuk booking
 			if (from === "booking" && member.isMarketing === true) {
@@ -1347,7 +1344,7 @@ export const distributeCommission = async (
 			const memberTier = await fetchTierById(member.tierId);
 			if(memberTier === null) throw new Error("Tier Not Found!");
 
-			if(member.parentMemberId) {
+			if(member.parentMemberId && member.isActive === 1 && member.isDeleted === 0) {
 				const parentMember = await fetchMember(undefined, member.parentMemberId);
 				if(parentMember === null) throw new Error("Parent Member Not Found!");
 
@@ -1518,6 +1515,7 @@ const createDownlineSelect = (depth: number) => {
 		profile: { select: profileSelect },
 		memberId: true,
 		isActive: true,
+		isDeleted: true,
 		downlines: {
 			select: buildSelect(depth - 1),
 		},
@@ -1728,7 +1726,10 @@ export const fetchMemberAll = async (startDate?: Date | null, endDate?: Date | n
 		} : {};
 
 		const members = await db.member.findMany({
-			where: dateFilter,
+			where: {
+				...dateFilter,
+				isDeleted: 0,
+			},
 			include: {
 				profile: true,
 				tier: true,
@@ -1737,7 +1738,24 @@ export const fetchMemberAll = async (startDate?: Date | null, endDate?: Date | n
 				createdAt: "desc",
 			},
 		});
-		return members;
+
+		const deletedMembers = await db.member.findMany({
+			where: {
+				...dateFilter,
+				isDeleted: 1,
+			},
+			include: {
+				profile: true,
+				tier: true,
+			},
+			orderBy: {
+				createdAt: "desc",
+			},
+		});
+
+		const allMembers = [...members, ...deletedMembers];
+		console.log(allMembers);
+		return allMembers;
 	} catch (error) {
 		console.error("Error fetching members:", error);
 		throw new Error("Failed to fetch members");
@@ -1825,9 +1843,13 @@ export const clearMemberPointsAndCommission = async (memberId: string) => {
 
 export const deleteMember = async (memberId: string) => {
 	try {
-		await db.member.delete({
+		await db.member.update({
 			where: {
 				id: memberId,
+			},
+			data: {
+				isDeleted: 1,
+				isActive: 0,
 			},
 		});
 		revalidatePath("/cms");
@@ -2547,6 +2569,34 @@ export const fetchCitizenshipOptions = async () => {
 		value: item.iso2, // Using iso2 code (e.g., "AF", "AL")
 		label: item.country, // Using country name (e.g., "Afghanistan", "Albania")
 	}));
+};
+
+export const fetchAdminMemberDownline = async (memberId: string) => {
+  try {
+    const member = await db.member.findFirst({
+      where: {
+        OR: [
+          { memberId: memberId },
+          {
+            profile: {
+              OR: [
+                { firstName: { contains: memberId, mode: 'insensitive' } },
+                { lastName: { contains: memberId, mode: 'insensitive' } }
+              ]
+            }
+          }
+        ],
+      },
+      include: {
+        profile: true
+      }
+    });
+    
+    return member;
+  } catch (error) {
+    console.error('Error fetching member:', error);
+    return null;
+  }
 };
 
 export { getAdminUser };

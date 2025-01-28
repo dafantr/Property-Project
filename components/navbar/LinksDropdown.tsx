@@ -194,7 +194,7 @@ async function LinksDropdown() {
 									}
 								}
 								if (isNonMemberPage && isMember !== null && isMember.isActive === 1) return null;
-
+								if (isMember?.isDeleted === 1) return null;
 								return (
 									<DropdownMenuItem key={link.href}>
 										<Link href={link.href} className="capitalize w-full">
@@ -226,7 +226,7 @@ async function LinksDropdown() {
 										}
 									}
 								}
-
+								if (isMember?.isDeleted === 1) return null;
 								return (
 									<DropdownMenuItem key={link.href}>
 										<Link href={link.href} className="capitalize w-full">

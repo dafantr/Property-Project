@@ -146,6 +146,7 @@ model Member {
   tier         Tier      @relation(fields: [tierId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   tierId       String
   isActive     Int       @default(0)
+  isDeleted    Int       @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   parent       Member?   @relation("Downline", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
