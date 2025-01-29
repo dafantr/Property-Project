@@ -4,34 +4,79 @@ import { fetchPromotions } from '@/utils/actions';
 import ExclusiveList from '@/components/home/ExclusiveList';
 import Link from 'next/link';
 import Image from 'next/image';
+import MorePropertiesLoading from './loading';
+import EmptyList from './EmptyList';
+import LoadingSkeleton from './loading'; // Importing the LoadingSkeleton
 
 const MorePage = () => {
     const [promotions, setPromotions] = useState([]);
     const [filteredPromotions, setFilteredPromotions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [isLoading, setIsLoading] = useState(true); // Loading state
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchPromotions();
-            const sortedData = data.sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
+            try {
+                // Fetch promotions data
+                const data = await fetchPromotions();
 
-            setPromotions(sortedData);
-            setFilteredPromotions(sortedData);
+                // Sort the data by the createdAt field
+                const sortedData = data.sort(
+                    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                );
+
+                // Set the promotions data
+                setPromotions(sortedData);
+                setFilteredPromotions(sortedData);
+            } catch (error) {
+                console.error("Error fetching promotions:", error);
+            } finally {
+                setIsLoading(false); // Set loading to false once data is fetched
+            }
         };
 
         fetchData();
     }, []);
 
     const handleCategoryChange = (category) => {
+        setIsLoading(true); // Start loading when category changes
         setSelectedCategory(category);
-        if (category === '') {
-            setFilteredPromotions(promotions);
-        } else {
-            setFilteredPromotions(promotions.filter((item) => item.category === category));
-        }
+
+        setTimeout(() => {
+            if (category === '') {
+                setFilteredPromotions(promotions);
+            } else {
+                setFilteredPromotions(promotions.filter((item) => item.category === category));
+            }
+            setIsLoading(false); // Stop loading once the data is filtered
+        }, 500); // Set timeout for a short duration to simulate loading effect
     };
+
+    if (isLoading) {
+        return <LoadingSkeleton />; // Always show skeleton while loading
+    }
+
+    if (filteredPromotions.length === 0) {
+        return (
+            <div className="relative">
+                <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
+                    <h3 className="capitalize text-2xl font-bold px-4 py-2">
+                        All Exclusive Categories
+                    </h3>
+                    <ExclusiveList
+                        exclusive={selectedCategory}
+                        onCategorySelect={handleCategoryChange}
+                    />
+                </div>
+                <EmptyList
+                    heading="No results."
+                    message="Try finding a different property or removing some filters."
+                    btnText="Clear Filters"
+                    onButtonClick={() => handleCategoryChange("")} // Clear filters
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="relative">

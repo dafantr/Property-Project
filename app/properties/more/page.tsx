@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { fetchProperties, fetchPropertyRating } from "@/utils/actions";
 import Image from "next/image";
@@ -8,26 +9,36 @@ import PropertyRating from "@/components/card/PropertyRating";
 import CityFlagAndName from "@/components/card/CityFlagAndName";
 import MorePropertiesList from "@/components/home/MorePropertiesList";
 import FavoriteToggleButton from "@/components/card/FavoriteToggleButton";
+import MorePropertiesLoading from "./loading";
+import EmptyList from "./EmptyList";
 
 const MorePropertiesPage = () => {
     const [properties, setProperties] = useState([]);
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchProperties({ search: "", category: selectedCategory || undefined });
+            setIsLoading(true); // Start loading
+            try {
+                const data = await fetchProperties({ search: "", category: selectedCategory || undefined });
 
-            // Fetch ratings for all properties
-            const propertiesWithRatings = await Promise.all(
-                data.map(async (property) => {
-                    const { rating, count } = await fetchPropertyRating(property.id);
-                    return { ...property, rating, count };
-                })
-            );
+                // Fetch ratings for all properties
+                const propertiesWithRatings = await Promise.all(
+                    data.map(async (property) => {
+                        const { rating, count } = await fetchPropertyRating(property.id);
+                        return { ...property, rating, count };
+                    })
+                );
 
-            setProperties(propertiesWithRatings);
-            setFilteredProperties(propertiesWithRatings);
+                setProperties(propertiesWithRatings);
+                setFilteredProperties(propertiesWithRatings);
+            } catch (error) {
+                console.error("Error fetching properties:", error);
+            } finally {
+                setIsLoading(false); // End loading
+            }
         };
 
         fetchData();
@@ -42,6 +53,30 @@ const MorePropertiesPage = () => {
             setFilteredProperties(filtered);
         }
     };
+
+    if (isLoading) {
+        return <MorePropertiesLoading />;
+    }
+
+    if (filteredProperties.length === 0) {
+        return (
+            <div className="relative">
+                <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
+                    <h3 className="capitalize text-2xl font-bold px-4 py-2">All Property Categories</h3>
+                    <MorePropertiesList
+                        category={selectedCategory}
+                        onCategorySelect={handleCategoryChange}
+                    />
+                </div>
+                <EmptyList
+                    heading="No results."
+                    message="Try finding a different property or removing some filters."
+                    btnText="Clear Filters"
+                    onButtonClick={() => handleCategoryChange("")} // Clear filters
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="relative">
