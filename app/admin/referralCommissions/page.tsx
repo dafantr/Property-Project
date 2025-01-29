@@ -98,10 +98,6 @@ export default function ReferralCommissionPage() {
         ))}
       </div>
 
-      <button className="bg-[#B69C6C] text-white px-4 py-2 rounded mb-6 hover:bg-[#A58B5B] w-full sm:w-auto">
-        Manage Commission
-      </button>
-
       <div className="mb-6">
         <div className="flex border-b dark:border-gray-700">
           <button

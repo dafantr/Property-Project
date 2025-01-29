@@ -49,7 +49,7 @@ export default function AdminDashboard() {
 		  try {
 			let startDate, endDate;
 			const now = new Date()
-	
+
 			switch (selectedPeriod) {
 			  case 'today':
 				startDate = new Date(now.setHours(0, 0, 0, 0))
@@ -67,14 +67,14 @@ export default function AdminDashboard() {
 				startDate = null
 				endDate = null
 			}
-	
+
 			const data = await fetchDashboardStats(startDate, endDate)
 			setStats(data)
 		  } catch (error) {
 			console.error('Error loading stats:', error)
 		  }
 		}
-	
+
 		loadStats()
 	  }, [selectedPeriod])
 
@@ -100,48 +100,11 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="space-y-6 p-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold">Admin Dashboard Overview</h1>
-				<Select defaultValue="all">
-					<SelectTrigger className="w-[180px]">
-						<SelectValue placeholder="Filter by Date Period" />
-					</SelectTrigger>
-					<select
-					className="w-full sm:w-auto border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
-					value={selectedPeriod}
-					onChange={(e) => setSelectedPeriod(e.target.value)}
-					>
-					<option value="all">All Time</option>
-					<option value="today">Today</option>
-					<option value="week">This Week</option>
-					<option value="month">This Month</option>
-					</select>
-				</Select>
-			</div>
-
-			{/* Statistics Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Total Member</h3>
-					<p className="text-3xl font-bold mt-2">{members.length}</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">Referral Commission Payouts</h3>
-					<p className="text-3xl font-bold mt-2">{stats.referralCommission.toLocaleString()}</p>
-				</div>
-				<div className="bg-white rounded-lg shadow p-6">
-					<h3 className="text-gray-600 font-medium">
-						Loyalty Points Overview
-					</h3>
-					<p className="text-3xl font-bold mt-2">{stats.loyaltyPoints.toLocaleString()}</p>
-				</div>
-			</div>
-
 			{/* Tabs */}
-			<div className="flex gap-4 border-b">
+			<div className="flex flex-wrap gap-2 border-b overflow-x-auto pb-2 justify-center">
 				<button
 					onClick={() => setSelectedTab('memberList')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'memberList'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -151,7 +114,7 @@ export default function AdminDashboard() {
 				</button>
 				<button
 					onClick={() => setSelectedTab('requests')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'requests'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -161,7 +124,7 @@ export default function AdminDashboard() {
 				</button>
 				<button
 					onClick={() => setSelectedTab('commissionHistory')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'commissionHistory'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -171,7 +134,7 @@ export default function AdminDashboard() {
 				</button>
 				<button
 					onClick={() => setSelectedTab('withdrawalRequests')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'withdrawalRequests'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -181,7 +144,7 @@ export default function AdminDashboard() {
 				</button>
 				<button
 					onClick={() => setSelectedTab('pointDistribution')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'pointDistribution'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -191,7 +154,7 @@ export default function AdminDashboard() {
 				</button>
 				<button
 					onClick={() => setSelectedTab('redemptionHistory')}
-					className={`px-4 py-2 ${
+					className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
 						selectedTab === 'redemptionHistory'
 							? 'border-b-2 border-[#B69C71] text-[#B69C71]'
 							: 'text-gray-500 hover:text-[#B69C71]'
@@ -199,6 +162,44 @@ export default function AdminDashboard() {
 				>
 					Redemption History
 				</button>
+			</div>
+
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+				<h1 className="text-2xl font-bold">Admin Dashboard Overview</h1>
+				<Select defaultValue="all">
+					<SelectTrigger className="w-full sm:w-[180px]">
+						<SelectValue placeholder="Filter by Date Period" />
+					</SelectTrigger>
+					<select
+						className="w-full sm:w-auto border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+						value={selectedPeriod}
+						onChange={(e) => setSelectedPeriod(e.target.value)}
+					>
+						<option value="all">All Time</option>
+						<option value="today">Today</option>
+						<option value="week">This Week</option>
+						<option value="month">This Month</option>
+					</select>
+				</Select>
+			</div>
+
+			{/* Statistics Cards */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
+					<h3 className="text-gray-600 dark:text-gray-300 font-medium">Total Member</h3>
+					<p className="text-3xl font-bold mt-2 dark:text-white">{members.length}</p>
+				</div>
+				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
+					<h3 className="text-gray-600 dark:text-gray-300 font-medium">Referral Commission Payouts</h3>
+					<p className="text-3xl font-bold mt-2 dark:text-white">{stats.referralCommission.toLocaleString()}</p>
+				</div>
+				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
+					<h3 className="text-gray-600 dark:text-gray-300 font-medium">
+						Loyalty Points Overview
+					</h3>
+					<p className="text-3xl font-bold mt-2 dark:text-white">{stats.loyaltyPoints.toLocaleString()}</p>
+				</div>
 			</div>
 
 			{/* Conditional Content */}

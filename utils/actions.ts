@@ -2133,15 +2133,16 @@ export const fetchAdminWithdrawalRequests = async () => {
 				createdAt: true,
 				member: {
 					select: {
-						profileId: true,
 						profile: {
 							select: {
 								firstName: true,
 								lastName: true,
+								clerkId: true,
 							},
 						},
-					},
-				},
+						phone: true,
+					}
+				}
 			},
 			orderBy: {
 				createdAt: "desc",
@@ -2667,5 +2668,86 @@ export const updateRewardAction = async (prevState: any, formData: FormData) => 
     return { message: 'Reward updated successfully' };
   } catch (error) {
     return renderError(error);
+  }
+};
+
+export const fetchGeneralVariables = async () => {
+  await getAdminUser(); // Ensure only admin can access
+
+  try {
+    const variables = await db.generalVariable.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    return variables;
+  } catch (error) {
+    console.error('Error fetching general variables:', error);
+    throw new Error('Failed to fetch general variables');
+  }
+};
+
+export const updateGeneralVariableAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string; status: string }> => {
+  await getAdminUser();
+
+  try {
+    const id = formData.get('id') as string;
+    const value = formData.get('value') as string;
+
+    await db.generalVariable.update({
+      where: { id },
+      data: {
+        variableValue: value
+      }
+    });
+
+    revalidatePath('/admin/generalVariable');
+    return { message: 'Variable updated successfully', status: 'success' };
+  } catch (error) {
+    return { message: 'Failed to update variable', status: 'error' };
+  }
+};
+
+export const createGeneralVariableAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string; status: string }> => {
+  await getAdminUser();
+
+  try {
+    const name = formData.get('name') as string;
+    const value = formData.get('value') as string;
+    const type = formData.get('type') as string;
+
+    await db.generalVariable.create({
+      data: {
+        variableName: name,
+        variableValue: value,
+        variableType: type
+      }
+    });
+
+    revalidatePath('/admin/generalVariable');
+    return { message: 'Variable created successfully', status: 'success' };
+  } catch (error) {
+    return { message: 'Failed to create variable', status: 'error' };
+  }
+};
+
+export const deleteGeneralVariableAction = async (id: string): Promise<{ message: string; status: string }> => {
+  await getAdminUser();
+
+  try {
+    await db.generalVariable.delete({
+      where: { id }
+    });
+
+    revalidatePath('/admin/generalVariable');
+    return { message: 'Variable deleted successfully', status: 'success' };
+  } catch (error) {
+    return { message: 'Failed to delete variable', status: 'error' };
   }
 };

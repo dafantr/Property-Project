@@ -1,8 +1,5 @@
 
-import SuccessModal from "@/components/ui/SuccessModal";
-import { ConfirmWithdrawalRejectionModalProps, WithdrawalRequestDetails } from "@/utils/types";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ConfirmWithdrawalRejectionModalProps } from "@/utils/types";
 
 export default function ConfirmWithdrawalRejectionModal(
     {

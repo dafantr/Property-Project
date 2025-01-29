@@ -12,6 +12,8 @@ export default function AdminNavbar() {
 		"/admin/referralCommissions",
 		"/admin/memberLoyaltyOverview",
 		"/admin/downline",
+		"/admin/generalVariable",
+		"/admin/manageCommission",
 	];
 
 	const isAdminPage = adminPaths.some((path) => pathname?.startsWith(path));
@@ -51,6 +53,16 @@ export default function AdminNavbar() {
 						Referral & Commissions
 					</Link>
 					<Link
+						href="/admin/manageCommission"
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-xs sm:text-sm
+							${
+								pathname?.includes("/admin/manageCommission")
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
+									: "text-gray-600 dark:text-white"
+							}`}>
+						Manage Commission
+					</Link>
+					<Link
 						href="/admin/memberLoyaltyOverview"
 						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-xs sm:text-sm
 							${
@@ -69,6 +81,16 @@ export default function AdminNavbar() {
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Downline Tree
+					</Link>
+					<Link
+						href="/admin/generalVariable"
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-xs sm:text-sm
+							${
+								pathname?.includes("/admin/generalVariable")
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
+									: "text-gray-600 dark:text-white"
+							}`}>
+						General Variable
 					</Link>
 				</div>
 			</nav>

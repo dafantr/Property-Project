@@ -1,11 +1,5 @@
 
-import SuccessModal from "@/components/ui/SuccessModal";
-import { updateWithdrawalStatus } from "@/utils/actions";
-import { fetchAdminWithdrawalRequests } from "@/utils/actions";
-import { ConfirmWithdrawalApprovalModalProps, WithdrawalRequestDetails } from "@/utils/types";
-import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ConfirmWithdrawalApprovalModalProps } from "@/utils/types";
 
 export default function ConfirmWithdrawalApprovalModal(
     {
