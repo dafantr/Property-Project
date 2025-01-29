@@ -6,12 +6,13 @@ import { useState, useEffect } from 'react';
 
 function NavSearch() {
   const searchParams = useSearchParams();
-
   const pathname = usePathname();
   const { replace } = useRouter();
+
   const [search, setSearch] = useState(
     searchParams.get('search')?.toString() || ''
   );
+
   const handleSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams);
     if (value) {
@@ -19,18 +20,20 @@ function NavSearch() {
     } else {
       params.delete('search');
     }
-    replace(`${pathname}?${params.toString()}`);
+    replace(`${pathname}?${params.toString()}`, { scroll: false }); // Prevents scrolling to the top
   }, 300);
+
   useEffect(() => {
     if (!searchParams.get('search')) {
       setSearch('');
     }
   }, [searchParams.get('search')]);
+
   return (
     <Input
       type='search'
       placeholder='Find a property...'
-      className='max-w-xs dark:bg-muted '
+      className='max-w-xs dark:bg-muted'
       onChange={(e) => {
         setSearch(e.target.value);
         handleSearch(e.target.value);
@@ -39,4 +42,5 @@ function NavSearch() {
     />
   );
 }
+
 export default NavSearch;

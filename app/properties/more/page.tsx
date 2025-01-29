@@ -11,8 +11,12 @@ import MorePropertiesList from "@/components/home/MorePropertiesList";
 import FavoriteToggleButton from "@/components/card/FavoriteToggleButton";
 import MorePropertiesLoading from "./loading";
 import EmptyList from "./EmptyList";
+import { useSearchParams } from "next/navigation";
 
 const MorePropertiesPage = () => {
+    const searchParams = useSearchParams();
+    const searchQuery = searchParams.get("search") || ""; // Get the search query from the URL
+
     const [properties, setProperties] = useState([]);
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -22,7 +26,10 @@ const MorePropertiesPage = () => {
         const fetchData = async () => {
             setIsLoading(true); // Start loading
             try {
-                const data = await fetchProperties({ search: "", category: selectedCategory || undefined });
+                const data = await fetchProperties({
+                    search: searchQuery, // Pass search query from URL
+                    category: selectedCategory || undefined,
+                });
 
                 // Fetch ratings for all properties
                 const propertiesWithRatings = await Promise.all(
@@ -42,7 +49,7 @@ const MorePropertiesPage = () => {
         };
 
         fetchData();
-    }, [selectedCategory]);
+    }, [searchQuery, selectedCategory]); // Refetch when search query or category changes
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
@@ -63,10 +70,7 @@ const MorePropertiesPage = () => {
             <div className="relative">
                 <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
                     <h3 className="capitalize text-2xl font-bold px-4 py-2">All Property Categories</h3>
-                    <MorePropertiesList
-                        category={selectedCategory}
-                        onCategorySelect={handleCategoryChange}
-                    />
+                    <MorePropertiesList category={selectedCategory} onCategorySelect={handleCategoryChange} />
                 </div>
                 <EmptyList
                     heading="No results."
@@ -82,10 +86,7 @@ const MorePropertiesPage = () => {
         <div className="relative">
             <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
                 <h3 className="capitalize text-2xl font-bold px-4 py-2">All Property Categories</h3>
-                <MorePropertiesList
-                    category={selectedCategory}
-                    onCategorySelect={handleCategoryChange}
-                />
+                <MorePropertiesList category={selectedCategory} onCategorySelect={handleCategoryChange} />
             </div>
             <section className="mt-4 gap-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
                 {filteredProperties.map((property) => (
@@ -112,9 +113,6 @@ const MorePropertiesPage = () => {
                                 </p>
                                 <CityFlagAndName cityCode={property.city} />
                             </div>
-                            {/* <div className="absolute top-5 right-5 z-5">
-                                <FavoriteToggleButton propertyId={property.id} />
-                            </div> */}
                         </Link>
                     </article>
                 ))}
