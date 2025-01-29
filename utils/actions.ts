@@ -1761,7 +1761,7 @@ export const fetchMemberAll = async (startDate?: Date | null, endDate?: Date | n
 		});
 
 		const allMembers = [...members, ...deletedMembers];
-		console.log(allMembers);
+
 		return allMembers;
 	} catch (error) {
 		console.error("Error fetching members:", error);
@@ -1820,8 +1820,6 @@ export const fetchMemberRequests = async (startDate?: Date | null, endDate?: Dat
 				createdAt: true,
 			}
 		});
-
-		console.log(memberRequests);
 
 		return memberRequests;
 	} catch (error) {
@@ -2056,8 +2054,7 @@ export const fetchWithdrawalRequest = async (memberId: string) => {
 			createdAt: true,
 		},
 	});
-
-	console.log(withdrawalRequest);
+	
 	return withdrawalRequest;
 };
 
@@ -2163,8 +2160,7 @@ export const updateWithdrawalStatus = async (
 ) => {
 	try {
 		await getAdminUser(); // Ensure only admin can update status
-
-		console.log(id);
+		
 		await db.$transaction(async (tx) => {
 			// Update withdrawal request and member commission in a single transaction
 			const withdrawalRequest = await tx.withdrawCommissionRequest.update({

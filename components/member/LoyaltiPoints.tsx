@@ -100,7 +100,7 @@ export default function LoyaltiPoints({
 				<div className="overflow-x-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 					{rewards.map((reward) => (
 						<div key={reward.id} className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700 space-y-2">
-							<h4>{reward.rewardName}</h4>
+							<h4 className="font-semibold dark:text-white mb-2 truncate" title={reward.rewardName}>{reward.rewardName}</h4>
 							<p>Requires {reward.pointReq} Points</p>
 							<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
 							<div 

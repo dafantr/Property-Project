@@ -280,24 +280,28 @@ export default function DashboardMember({
 				
 				<br />
 				<h3 className="font-semibold mb-2 dark:text-white">Available Rewards</h3>
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-					{rewards?.map((reward) => (
-					<div key={reward.id} className="text-center p-3 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
-						<p className="font-semibold">{reward.rewardName}</p>
-						<p className="text-sm mb-2">{reward.pointReq} points</p>
-						{member.point >= reward.pointReq ? (
-						<button 
-							className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
-							onClick={() => onRedeemClick(reward)}
-						>
-							Redeem
-						</button>
-						) : (
-						<button className="bg-gray-300 text-gray-600 px-4 py-1 rounded text-sm cursor-not-allowed">
-							Not Enough
-						</button>
-						)}
-					</div>
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+					{rewards?.slice(0, 3).map((reward) => (
+						<div key={reward.id} className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700 space-y-2">
+							<div className="flex-1 justify-between items-center">
+								<h4 className="font-semibold dark:text-white mb-2 truncate" title={reward.rewardName}>{reward.rewardName}</h4>
+								<p className="text-sm text-gray-500 dark:text-gray-400">
+									{member.point} / {reward.pointReq} points ({Math.round((member.point / reward.pointReq) * 100)}%)
+								</p>
+							</div>
+							{member.point >= reward.pointReq ? (
+							<button 
+								className="bg-[#C4A777] text-white px-4 py-1 rounded text-sm hover:bg-[#B39665] transition-colors"
+								onClick={() => onRedeemClick(reward)}
+							>
+								Redeem
+							</button>
+							) : (
+							<button className="w-full bg-[#C4A777] bg-opacity-50 text-white px-4 py-2 rounded text-sm cursor-not-allowed">
+								Not Enough
+							</button>
+							)}
+						</div>
 					))}
 				</div>
 			</div>
