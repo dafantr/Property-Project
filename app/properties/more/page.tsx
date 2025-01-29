@@ -51,15 +51,19 @@ const MorePropertiesPage = () => {
         fetchData();
     }, [searchQuery, selectedCategory]); // Refetch when search query or category changes
 
-    const handleCategoryChange = (category) => {
-        setSelectedCategory(category);
-        if (category === "") {
-            setFilteredProperties(properties);
+    const handleCategoryChange = (category: string) => {
+        if (category === selectedCategory) {
+            // If the same category is clicked, reset to show all properties
+            setSelectedCategory("");
+            setFilteredProperties(properties); // Reset the filter to show all properties
         } else {
+            // Otherwise, filter properties by the selected category
+            setSelectedCategory(category);
             const filtered = properties.filter((item) => item.category === category);
             setFilteredProperties(filtered);
         }
     };
+    
 
     if (isLoading) {
         return <MorePropertiesLoading />;

@@ -6,54 +6,73 @@ import Link from 'next/link';
 import Image from 'next/image';
 import MorePropertiesLoading from './loading';
 import EmptyList from './EmptyList';
-import LoadingSkeleton from './loading'; // Importing the LoadingSkeleton
+import LoadingSkeleton from './loading';
+import MoreExclusiveList from '@/components/home/MoreExclusiveList';
 
 const MorePage = () => {
     const [promotions, setPromotions] = useState([]);
     const [filteredPromotions, setFilteredPromotions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
-    const [isLoading, setIsLoading] = useState(true); // Loading state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch promotions data
                 const data = await fetchPromotions();
 
-                // Sort the data by the createdAt field
                 const sortedData = data.sort(
                     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
 
-                // Set the promotions data
                 setPromotions(sortedData);
                 setFilteredPromotions(sortedData);
             } catch (error) {
                 console.error("Error fetching promotions:", error);
             } finally {
-                setIsLoading(false); // Set loading to false once data is fetched
+                setIsLoading(false);
             }
         };
 
         fetchData();
     }, []);
 
-    const handleCategoryChange = (category) => {
-        setIsLoading(true); // Start loading when category changes
-        setSelectedCategory(category);
+    const handleCategoryChange = (category: string) => {
+        if (category === selectedCategory) {
+            // If the same category is clicked, clear the search and reset filter
+            setSelectedCategory('');
+            setSearchQuery('');
+            setFilteredPromotions(promotions); // Show all promotions again
+        } else {
+            setSelectedCategory(category);
+            filterPromotions(category, searchQuery); // Filter by the selected category
+        }
+    };
 
-        setTimeout(() => {
-            if (category === '') {
-                setFilteredPromotions(promotions);
-            } else {
-                setFilteredPromotions(promotions.filter((item) => item.category === category));
-            }
-            setIsLoading(false); // Stop loading once the data is filtered
-        }, 500); // Set timeout for a short duration to simulate loading effect
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+        filterPromotions(selectedCategory, query);
+    };
+
+    const filterPromotions = (category: string, query: string) => {
+        let filtered = promotions;
+
+        if (category) {
+            filtered = filtered.filter((item) => item.category === category);
+        }
+
+        if (query) {
+            filtered = filtered.filter((item) =>
+                item.title.toLowerCase().includes(query.toLowerCase()) ||
+                item.subtitle.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
+        setFilteredPromotions(filtered);
     };
 
     if (isLoading) {
-        return <LoadingSkeleton />; // Always show skeleton while loading
+        return <LoadingSkeleton />;
     }
 
     if (filteredPromotions.length === 0) {
@@ -63,35 +82,28 @@ const MorePage = () => {
                     <h3 className="capitalize text-2xl font-bold px-4 py-2">
                         All Exclusive Categories
                     </h3>
-                    <ExclusiveList
-                        exclusive={selectedCategory}
+                    <MoreExclusiveList
+                        selectedCategory={selectedCategory}
                         onCategorySelect={handleCategoryChange}
                     />
                 </div>
-                <EmptyList
-                    heading="No results."
-                    message="Try finding a different property or removing some filters."
-                    btnText="Clear Filters"
-                    onButtonClick={() => handleCategoryChange("")} // Clear filters
-                />
+                <EmptyList heading="No results." message="Try different filters or clear them." />
             </div>
         );
     }
 
     return (
         <div className="relative">
-            {/* Sticky Section, shifted down by 'top-16' */}
             <div className="sticky top-10 z-10 rounded-xl bg-white dark:bg-[#0c0a09]">
                 <h3 className="capitalize text-2xl font-bold px-4 py-2">
                     All Exclusive Categories
                 </h3>
-                <ExclusiveList
-                    exclusive={selectedCategory}
+                <MoreExclusiveList
+                    selectedCategory={selectedCategory}
                     onCategorySelect={handleCategoryChange}
                 />
             </div>
 
-            {/* Promotions Grid */}
             <section className="mt-4 gap-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
                 {filteredPromotions.map((promotion) => (
                     <article key={promotion.id} className="group relative">
