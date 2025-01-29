@@ -19,7 +19,7 @@ export default async function ReferralComPage() {
 		throw new Error(referralDetails.message);
 	}
 
-	const withdrawalRequestDetails = await fetchWithdrawalRequest(member.profileId);
+	const withdrawalRequestDetails = await fetchWithdrawalRequest(member.memberId);
 	if('message' in withdrawalRequestDetails) {
 		throw new Error(withdrawalRequestDetails.message as string);
 	}

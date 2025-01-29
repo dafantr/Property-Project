@@ -1,5 +1,5 @@
 "use client"
-import { Copy, Share2 } from "lucide-react";
+import { Check, Copy, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { dashboardMarketingProps } from "@/utils/types";
 import { formatCurrency } from "@/utils/format";
@@ -9,6 +9,7 @@ export default function DashboardMarketing({
     member,
     profile,
     referralDetails,
+	tier,
 }: dashboardMarketingProps) {
  
     const router = useRouter();
@@ -58,6 +59,10 @@ export default function DashboardMarketing({
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Member ID:</span>
                             <span className="font-medium">{member.memberId || 'noId'}</span>
+                        </div>
+						<div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">Tier:</span>
+                            <span className="font-medium">{tier.tierName || 'noTier'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-gray-600 dark:text-gray-400">Membership Status:</span>
@@ -125,21 +130,19 @@ export default function DashboardMarketing({
 			<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 				<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Referral & Commission Overview</h2>
 				<div className="mb-4">
-					<p className="mb-2 dark:text-gray-300">Unique Referral Code: {member.memberId}</p>
 					<div className="flex flex-col sm:flex-row gap-2">
+						<p className="dark:text-gray-300">Unique Referral Code: {member.memberId} </p>
 						<button 
 							onClick={copyToClipboard}
-							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							className=""
 							>
-							<Copy className="h-4 w-4" />
-							{copied ? "Copied!" : "Copy Referral Code"}
+							{copied ? <Check className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> : <Copy className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" />}
 						</button>
 						<button 
 							onClick={handleShare}
-							className="w-full sm:w-auto bg-[#C4A777] text-white px-4 py-2 rounded flex items-center justify-center gap-2 hover:bg-[#B39665] transition-colors"
+							className=""
 							>
-							<Share2 className="h-4 w-4" /> 
-							Share Referral Link
+							<Share2 className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> 
 						</button>
 					</div>
 				</div>

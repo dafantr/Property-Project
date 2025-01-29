@@ -28,6 +28,6 @@ export default async function DashboardPage() {
 	}
 
 	return (
-		<DashboardMarketing member={member as member} profile={profile} referralDetails={referralDetails} />
+		<DashboardMarketing member={member as member} profile={profile} referralDetails={referralDetails} tier={tier} />
 	);
 }

@@ -4,18 +4,18 @@ import Link from "next/link";
 
 import { usePathname } from "next/navigation";
 
-export default function MemberNavbar() {
+export default function MarketingNavbar() {
 	const pathname = usePathname();
-	const memberPaths = [
+	const marketingPaths = [
 		"/marketing/dashboard",
 		"/marketing/profile",
 		"/marketing/referrals",
 	];
 
-	const isMemberPage = memberPaths.some(path => pathname?.startsWith(path));
+	const isMarketingPage = marketingPaths.some(path => pathname?.startsWith(path));
 
 	return (
-		isMemberPage && (
+		isMarketingPage && (
 			<nav className="px-8 py-4 flex items-center justify-center bg-white dark:bg-black shadow-sm sticky top-0 z-50 transition-colors duration-300">
 				<div className="flex items-center space-x-8 overflow-x-auto max-w-[calc(100vw-200px)] no-scrollbar">
 					<Link

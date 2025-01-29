@@ -68,7 +68,7 @@ export default function ReferralCommission({
 			<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Referral & Commission Overview</h2>
 				<div className="mb-4">
 					<div className="flex flex-col sm:flex-row gap-2">
-					<p className="dark:text-gray-300">Unique Referral Code: {member.memberId} </p>
+						<p className="dark:text-gray-300">Unique Referral Code: {member.memberId} </p>
 						<button 
 							onClick={copyToClipboard}
 							className=""

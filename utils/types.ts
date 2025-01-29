@@ -201,8 +201,23 @@ export type ConfirmWithdrawModalProps = {
   setShowErrorModal: (show: boolean) => void;
 }
 
+export type ConfirmWithdrawalApprovalModalProps = {
+  request: WithdrawalRequestDetails | null;
+  setConfirmWithdrawalApprovalModal: (show: boolean) => void;
+  handleCloseWithdrawalModal: () => void;
+  handleApprove: (id: string, amount: number) => void;
+}
+
+export type ConfirmWithdrawalRejectionModalProps = {
+  request: WithdrawalRequestDetails | null;
+  setConfirmWithdrawalRejectionModal: (show: boolean) => void;
+  handleCloseWithdrawalModal: () => void;
+  handleReject: (id: string, amount: number) => void;
+}
+
 export type WithdrawalRequestDetails = {
   id: string;
+  memberId: string;
   member: {
     profile: {
       firstName: string;
@@ -227,6 +242,7 @@ export type dashboardMarketingProps = {
   member: member;
   profile: profile;
   referralDetails: referralDetails[];
+	tier: tier;
 }
 
 export type generalVariable = {

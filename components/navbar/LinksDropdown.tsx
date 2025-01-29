@@ -194,7 +194,6 @@ async function LinksDropdown() {
 									}
 								}
 								if (isNonMemberPage && isMember !== null && isMember.isActive === 1) return null;
-								if (isMember?.isDeleted === 1) return null;
 								return (
 									<DropdownMenuItem key={link.href}>
 										<Link href={link.href} className="capitalize w-full">
@@ -206,18 +205,18 @@ async function LinksDropdown() {
 						</>
 					)}
 
-					{/* Member Links */}
+					{/* Marketing Links */}
 					{ !isAdminUser && isMember?.isMarketing && hasVisibleLinks(groupedLinks.marketing) && (
 						<>
 							<DropdownMenuSeparator />
 							{groupedLinks.marketing.map((link) => {
-								const isMemberPage = [
+								const isMarketingPage = [
 									"member profile",
 									"dashboard",
 									"referrals & commissions",
 								].includes(link.label);
 
-								if (isMemberPage) {
+								if (isMarketingPage) {
 									if (isMember === null) {
 										return null;
 									} else {

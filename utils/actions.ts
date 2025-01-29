@@ -1066,8 +1066,6 @@ export const createMemberAction = async (
 		fullPath = await uploadImage(validatedFile.image);
 	}
 
-
-
 	let closerCode = formData.get("closerCode") as string;
 
 	let closerValid = false;
@@ -1087,9 +1085,9 @@ export const createMemberAction = async (
 		const member = await fetchMember(profile.clerkId, undefined);
 
 		if(member !== null){
-			if(member.isActive === 0) {
+			if(member.isActive === 0 && member.isDeleted === 0) {
 				await deleteIncompleteMember(profile.clerkId, member.memberId);
-			} else {
+			} else if (member.isActive === 1 && member.isDeleted === 0) {
 				return { message: "Member already exist", status: "error" };
 			}
 		}
@@ -2029,8 +2027,8 @@ export const createWithdrawalRequest = async (
 	}
 };
 
-export const fetchWithdrawalRequest = async (profileId: string) => {
-	const member = await fetchMember(profileId);
+export const fetchWithdrawalRequest = async (memberId: string) => {
+	const member = await fetchMember(undefined, memberId);
 	if (member === null) throw new Error("Member not found");
 
 	const withdrawalRequest = await db.withdrawCommissionRequest.findMany({
@@ -2039,6 +2037,7 @@ export const fetchWithdrawalRequest = async (profileId: string) => {
 		},
 		select: {
 			id: true,
+			memberId: true,
 			member: {
 				select: {
 					profile: {
@@ -2129,6 +2128,8 @@ export const fetchAdminWithdrawalRequests = async () => {
 				amount: true,
 				status: true,
 				bankName: true,
+				bankAccNumber: true,
+				bankAccName: true,
 				createdAt: true,
 				member: {
 					select: {
@@ -2137,7 +2138,6 @@ export const fetchAdminWithdrawalRequests = async () => {
 							select: {
 								firstName: true,
 								lastName: true,
-								clerkId: true,
 							},
 						},
 					},
@@ -2148,26 +2148,7 @@ export const fetchAdminWithdrawalRequests = async () => {
 			},
 		});
 
-		return withdrawalRequests.map((request) => ({
-			name: `${request.member?.profile.firstName} ${request.member?.profile.lastName}`,
-			memberId: request.memberId || "No Member ID",
-			amount: request.amount.toString(),
-			status: request.status,
-			bank: request.bankName,
-			requestDate: new Date(request.createdAt)
-				.toLocaleString("en-GB", {
-					day: "2-digit",
-					month: "2-digit",
-					year: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
-					second: "2-digit",
-					hour12: false,
-				})
-				.replace(",", "")
-				.replace(/\//g, "-"),
-			id: request.id,
-		}));
+		return withdrawalRequests;
 	} catch (error) {
 		console.error("Error fetching withdrawal requests:", error);
 		throw new Error("Failed to fetch withdrawal requests");
@@ -2176,12 +2157,13 @@ export const fetchAdminWithdrawalRequests = async () => {
 
 export const updateWithdrawalStatus = async (
 	id: string,
-	point: number,
+	amount: number,
 	status: "Approved" | "Rejected"
 ) => {
 	try {
 		await getAdminUser(); // Ensure only admin can update status
 
+		console.log(id);
 		await db.$transaction(async (tx) => {
 			// Update withdrawal request and member commission in a single transaction
 			const withdrawalRequest = await tx.withdrawCommissionRequest.update({
@@ -2192,7 +2174,7 @@ export const updateWithdrawalStatus = async (
 						member: {
 							update: {
 								commission: {
-									decrement: point
+									decrement: amount
 								}
 							}
 						}

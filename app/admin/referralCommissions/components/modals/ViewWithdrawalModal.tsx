@@ -1,14 +1,9 @@
+import { WithdrawalRequestDetails } from "@/utils/types"
+
 interface ViewWithdrawalModalProps {
   isOpen: boolean
   onClose: () => void
-  request: {
-    name: string
-    memberId: string
-    amount: string
-    status: string
-    bank: string
-    requestDate: string
-  } | null
+  request : WithdrawalRequestDetails | null
 }
 
 export default function ViewWithdrawalModal({ isOpen, onClose, request }: ViewWithdrawalModalProps) {
@@ -30,7 +25,7 @@ export default function ViewWithdrawalModal({ isOpen, onClose, request }: ViewWi
         <div className="space-y-4">
           <div>
             <label className="font-semibold block text-gray-700 dark:text-gray-300">Member Name</label>
-            <p className="dark:text-white">{request.name}</p>
+            <p className="dark:text-white">{request.member?.profile.firstName} {request.member?.profile.lastName}</p>
           </div>
 
           <div>
@@ -50,12 +45,12 @@ export default function ViewWithdrawalModal({ isOpen, onClose, request }: ViewWi
 
           <div>
             <label className="font-semibold block text-gray-700 dark:text-gray-300">Bank</label>
-            <p className="dark:text-white">{request.bank}</p>
+            <p className="dark:text-white">{request.bankName}</p>
           </div>
 
           <div>
             <label className="font-semibold block text-gray-700 dark:text-gray-300">Request Date</label>
-            <p className="dark:text-white">{request.requestDate}</p>
+            <p className="dark:text-white">{request.createdAt.toLocaleDateString('en-GB')}</p>
           </div>
         </div>
 

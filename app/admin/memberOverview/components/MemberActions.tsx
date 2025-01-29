@@ -19,6 +19,7 @@ export function MemberActions({ member, tierList }: MemberActionsProps) {
   const router = useRouter();
 
   const memberId = member.id;
+  const isDeleted = member.isDeleted === 1 ? true : false;
 
   const handleClear = () => {
     startTransition(async () => {
@@ -56,22 +57,33 @@ export function MemberActions({ member, tierList }: MemberActionsProps) {
           <Eye className="h-3.5 w-3.5" />
         </Link>
       </Button>
+      {isDeleted ? (
       <Button
-        variant="outline"
-        size="icon"
-        asChild
-        className="h-8 w-8"
-      >
-        <Link href={`/admin/memberOverview/members/${memberId}/edit`}>
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 opacity-50 cursor-not-allowed"
+          disabled
+        >
           <Edit className="h-3.5 w-3.5" />
-        </Link>
-      </Button>
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="icon"
+          asChild
+          className="h-8 w-8"
+        >
+          <Link href={`/admin/memberOverview/members/${memberId}/edit`}>
+            <Edit className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
+      )}
       <Button
         variant="outline"
         size="icon"
         className="h-8 w-8"
         onClick={handleClear}
-        disabled={isPending}
+        disabled={isPending || isDeleted}
       >
         <RefreshCw className="h-3.5 w-3.5" />
       </Button>
@@ -80,7 +92,7 @@ export function MemberActions({ member, tierList }: MemberActionsProps) {
         size="icon"
         className="h-8 w-8"
         onClick={handleDelete}
-        disabled={isPending}
+        disabled={isPending || isDeleted}
       >
         <Trash2 className="h-3.5 w-3.5" />
       </Button>

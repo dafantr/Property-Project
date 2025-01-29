@@ -116,6 +116,15 @@ export default function UpdateMemberForm({
 							labelClassName={darkModeStyles.label}
 							readonly
 						/>
+						<FormInput
+							type="text"
+							name="tier"
+							defaultValue={tier.tierName || 'noTier'}
+							label="Tier"
+							className={`${darkModeStyles.input} transition-colors ${darkModeStyles.inputReadOnly}`}
+							labelClassName={darkModeStyles.label}
+							readonly
+						/>
 
 						<div className="form-group">
 							<label

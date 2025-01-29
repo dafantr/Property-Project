@@ -1,22 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchAdminWithdrawalRequests, updateWithdrawalStatus } from '@/utils/actions'
 import ViewWithdrawalModal from './modals/ViewWithdrawalModal'
 import { formatCurrency } from '@/utils/format'
-
-interface WithdrawalRequest {
-  name: string
-  memberId: string
-  amount: string
-  status: string
-  bank: string
-  requestDate: string
-  id: string
-}
+import { useRouter } from 'next/navigation'
+import ConfirmWithdrawalApprovalModal from './modals/ConfirmWithdrawalApprovalModal'
+import ConfirmWithdrawalRejectionModal from './modals/ConfirmWithdrawalRejectionModal'
+import { WithdrawalRequestDetails } from '@/utils/types'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 export default function WithdrawalRequest() {
-  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([])
+  const router = useRouter();
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequestDetails[]>([])
   const [message, setMessage] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -25,35 +21,40 @@ export default function WithdrawalRequest() {
   const [bankFilter, setBankFilter] = useState<string>('')
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
-  const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequest | null>(null)
+  const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequestDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [confirmWithdrawalApprovalModal, setConfirmWithdrawalApprovalModal] = useState(false);
+  const [confirmWithdrawalRejectionModal, setConfirmWithdrawalRejectionModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  useEffect(() => {
-    const loadWithdrawalRequests = async () => {
+    // Create a reusable function to fetch data
+    const loadWithdrawalRequests = useCallback(async () => {
       try {
-        const data = await fetchAdminWithdrawalRequests()
-        setWithdrawalRequests(data)
+        const data = await fetchAdminWithdrawalRequests();
+        setWithdrawalRequests(data);
       } catch (error) {
-        console.error('Error loading withdrawal requests:', error)
+        console.error('Error loading withdrawal requests:', error);
       }
-    }
+    }, []);
 
-    loadWithdrawalRequests()
-  }, [])
+    useEffect(() => {
+      loadWithdrawalRequests();
+    }, [loadWithdrawalRequests]);
 
-  const uniqueBanks = Array.from(new Set(withdrawalRequests.map(request => request.bank)))
+  const uniqueBanks = Array.from(new Set(withdrawalRequests.map(request => request.bankName)))
   const uniqueStatuses = Array.from(new Set(withdrawalRequests.map(request => request.status)))
 
   const filteredRequests = withdrawalRequests.filter((request) => {
     const matchesSearch =
-      request.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.member?.profile.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.member?.profile.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.memberId.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = statusFilter ? request.status === statusFilter : true
-    const matchesBank = bankFilter ? request.bank === bankFilter : true
+    const matchesBank = bankFilter ? request.bankName === bankFilter : true
 
     // Parse the request date properly
-    const [datePart] = request.requestDate.split(' ') // Split date and time
+    const [datePart] = request.createdAt.toLocaleDateString('en-GB').split(' ') // Split date and time
     const [day, month, year] = datePart.split('-')
     const requestDate = new Date(+year, +month - 1, +day)
 
@@ -76,16 +77,26 @@ export default function WithdrawalRequest() {
     setCurrentPage(1)
   }, [searchTerm, statusFilter, bankFilter, startDate, endDate])
 
-  const handleApprove = async (id: string, point: number) => {
+  const handleConfirmApproval = (request: WithdrawalRequestDetails) => {
+		setSelectedRequest(request);
+		setConfirmWithdrawalApprovalModal(true);
+	  };
+
+  const handleApprove = async (id: string, amount: number) => {
     try {
-      const result = await updateWithdrawalStatus(id, point, 'Approved')
+      const result = await updateWithdrawalStatus(id, amount, 'Approved')
       if (result.status === 'success') {
-        // Refresh the list after successful update
-        const data = await fetchAdminWithdrawalRequests()
-        setWithdrawalRequests(data)
-        setMessage('Request approved successfully')
+      setShowSuccessModal(true);
+
+      await loadWithdrawalRequests();
+      setConfirmWithdrawalApprovalModal(false);
+      setSelectedRequest(null);
+
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2000);
       } else {
-        setMessage(result.message)
+      setMessage(result.message)
       }
     } catch (error) {
       console.error('Error approving request:', error)
@@ -93,16 +104,27 @@ export default function WithdrawalRequest() {
     }
   }
 
-  const handleReject = async (id: string, point: number) => {
+  const handleConfirmRejection = (request: WithdrawalRequestDetails) => {
+    setSelectedRequest(request);
+    setConfirmWithdrawalRejectionModal(true);
+  }
+
+  const handleReject = async (id: string, amount: number) => {
     try {
-      const result = await updateWithdrawalStatus(id, point, 'Rejected')
+      const result = await updateWithdrawalStatus(id, amount, 'Rejected')
       if (result.status === 'success') {
-        // Refresh the list after successful update
-        const data = await fetchAdminWithdrawalRequests()
-        setWithdrawalRequests(data)
-        setMessage('Request rejected successfully')
+      setShowSuccessModal(true);
+
+      await loadWithdrawalRequests();
+      setConfirmWithdrawalRejectionModal(false);
+      setSelectedRequest(null);
+
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2000);
+
       } else {
-        setMessage(result.message)
+      setMessage(result.message)
       }
     } catch (error) {
       console.error('Error rejecting request:', error)
@@ -110,7 +132,7 @@ export default function WithdrawalRequest() {
     }
   }
 
-  const handleView = (request: WithdrawalRequest) => {
+  const handleView = (request: WithdrawalRequestDetails) => {
     setSelectedRequest(request)
     setIsModalOpen(true)
   }
@@ -120,6 +142,11 @@ export default function WithdrawalRequest() {
     setSelectedRequest(null)
   }
 
+  const handleCloseWithdrawalModal = () => {
+    setConfirmWithdrawalApprovalModal(false)
+    setConfirmWithdrawalRejectionModal(false)
+    setSelectedRequest(null)
+  }
   // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
@@ -214,12 +241,12 @@ export default function WithdrawalRequest() {
                 {currentItems.length > 0 ? (
                   currentItems.map((request) => (
                     <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.name}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.member?.profile.firstName} {request.member?.profile.lastName}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.memberId}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{formatCurrency(Number(request.amount))}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.status}</td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.bank}</td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.requestDate}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.bankName}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm dark:text-white whitespace-nowrap">{request.createdAt.toLocaleDateString('en-GB')}</td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3">
                         <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                           <button
@@ -231,7 +258,7 @@ export default function WithdrawalRequest() {
                           {request.status !== 'Approved' && request.status !== 'Rejected' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
-                              onClick={() => handleApprove(request.id, Number(request.amount))}
+                              onClick={() => handleConfirmApproval(request)}
                             >
                               Approve
                             </button>
@@ -239,7 +266,7 @@ export default function WithdrawalRequest() {
                           {request.status !== 'Rejected' && request.status !== 'Approved' && (
                             <button
                               className="bg-[#B69C6C] text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-[#A58B5B]"
-                              onClick={() => handleReject(request.id, Number(request.amount))}
+                              onClick={() => handleConfirmRejection(request)}
                             >
                               Reject
                             </button>
@@ -310,6 +337,28 @@ export default function WithdrawalRequest() {
         onClose={handleCloseModal}
         request={selectedRequest}
       />
+
+      {confirmWithdrawalApprovalModal && (
+        <ConfirmWithdrawalApprovalModal
+          request={selectedRequest}
+          setConfirmWithdrawalApprovalModal={setConfirmWithdrawalApprovalModal}
+          handleCloseWithdrawalModal={handleCloseWithdrawalModal}
+          handleApprove={handleApprove}
+        />
+      )}
+
+      {confirmWithdrawalRejectionModal && (
+        <ConfirmWithdrawalRejectionModal
+          request={selectedRequest}
+          setConfirmWithdrawalRejectionModal={setConfirmWithdrawalRejectionModal}
+          handleCloseWithdrawalModal={handleCloseWithdrawalModal}
+          handleReject={handleReject}
+        />
+      )}
+
+      {showSuccessModal && (
+				<SuccessModal message="Request rejected successfully" />
+			)}
     </div>
   )
 }
