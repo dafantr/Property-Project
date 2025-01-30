@@ -54,6 +54,13 @@ async function EditRentalPage({ params }: { params: { id: string } }) {
                         <PriceInput defaultValue={property.price} />
                         <CategoriesInput defaultValue={property.category} />
                         <CitiesInput defaultValue={property.city} />
+                        <FormInput
+                            name='googleMapsUrl'
+                            type='text'
+                            label='Google Maps URL'
+                            defaultValue={property.googleMapsUrl}
+                        />
+
                     </div>
 
                     <TextAreaInput

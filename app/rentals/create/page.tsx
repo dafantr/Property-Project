@@ -40,6 +40,13 @@ function CreatePropertyPage() {
           />
           <div className='grid sm:grid-cols-2 gap-8 mt-4'>
             <CitiesInput />
+            <FormInput
+              name="googleMapsUrl"
+              type="text"
+              label="Google Maps URL"
+              placeholder="Paste the Google Maps Embed URL here"
+              required
+            />
             <ImageInput />
           </div>
           <h3 className='text-lg mt-8 mb-4 font-medium'>
