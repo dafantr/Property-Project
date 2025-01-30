@@ -10,8 +10,6 @@ export default async function EditMemberPage({
 	params: { id: string };
 }) {
 	const memberDatas = await fetchMemberById(params.id);
-	console.log("a");
-	console.log(memberDatas);
 	if (!memberDatas) redirect("/admin/memberOverview");
 
 	const citizenshipOptions = await fetchCitizenshipOptions();

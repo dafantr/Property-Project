@@ -40,7 +40,7 @@ export default function AdminNavbar() {
 									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
 									: "text-gray-600 dark:text-white"
 							}`}>
-						Member Overview
+						Members
 					</Link>
 					<Link
 						href="/admin/referralCommissions"
@@ -51,16 +51,6 @@ export default function AdminNavbar() {
 									: "text-gray-600 dark:text-white"
 							}`}>
 						Referral & Commissions
-					</Link>
-					<Link
-						href="/admin/manageCommission"
-						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-xs sm:text-sm
-							${
-								pathname?.includes("/admin/manageCommission")
-									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
-									: "text-gray-600 dark:text-white"
-							}`}>
-						Manage Commission
 					</Link>
 					<Link
 						href="/admin/memberLoyaltyOverview"

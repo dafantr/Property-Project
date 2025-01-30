@@ -1,23 +1,24 @@
-'use client';
+import { fetchRedemptionHistory } from '@/utils/actions';
+import React, { useMemo, useState, useEffect } from 'react';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { fetchPointDistributionHistory } from '@/utils/actions';
-import TransactionDetailsDialog from './TransactionDetailsDialog';
-import { Slider } from '@mui/material';
-
-interface DistributionData {
+type RedemptionHistoryData = {
   id: string;
-  name: string;
-  memberId: string;
-  type: string;
-  point: number;
-  dateTime: Date;
+  member: {
+    profile: {  
+      firstName: string;
+      lastName: string;
+    };
+    memberId: string;
+  } | null;
+  reward: {
+    rewardName: string;
+    pointReq: number;
+  };
+  createdAt: Date;
 }
 
-const PointDistributionHistory = () => {
-  const [distributionData, setDistributionData] = useState<DistributionData[]>([]);
-  const [selectedTransaction, setSelectedTransaction] = useState<DistributionData | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+const RedemptionHistory = () => {
+  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistoryData[]>();
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -28,28 +29,29 @@ const PointDistributionHistory = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchPointDistributionHistory();
-      setDistributionData(data);
+      const data = await fetchRedemptionHistory();
+      setRedemptionHistory(data);
 
     };
     fetchData();
   }, []);
 
   const filteredData = useMemo(() => {
-    return distributionData.filter((item) => {
+    return redemptionHistory ?.filter((item) => {
       const searchMatches = searchQuery
-        ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.memberId.toLowerCase().includes(searchQuery.toLowerCase())
+        ? item.member?.profile?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.member?.profile?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.member?.memberId.toLowerCase().includes(searchQuery.toLowerCase())
         : true;
 
       const dateMatches = startDate && endDate
-        ? new Date(item.dateTime) >= new Date(startDate) &&
-          new Date(item.dateTime) <= new Date(endDate)
+        ? new Date(item.createdAt) >= new Date(startDate) &&
+          new Date(item.createdAt) <= new Date(endDate)
         : true;
 
       return searchMatches && dateMatches;
     }) || [];
-  }, [distributionData, searchQuery, startDate, endDate]);
+  }, [redemptionHistory, searchQuery, startDate, endDate]);
 
   // Add paginated data calculation
   const paginatedData = useMemo(() => {
@@ -66,20 +68,16 @@ const PointDistributionHistory = () => {
     setPage(0);
   };
 
-  const handleView = (transaction: DistributionData) => {
-    setSelectedTransaction(transaction);
-    setIsDialogOpen(true);
-  };
-
   const resetFilters = () => {
     setSearchQuery('')
     setStartDate('')
     setEndDate('')
   }
 
+
   return (
     <div className="bg-white dark:bg-black rounded-lg p-4 mt-4">
-      <h2 className="text-xl font-bold mb-4 dark:text-white">Point Distribution History</h2>
+      <h2 className="text-xl font-bold mb-4 dark:text-white">Reward Redemption History</h2>
 
       <div className="flex flex-col md:flex-row gap-4 mb-4 items-end">
         <div className="w-full md:w-1/5">
@@ -127,18 +125,17 @@ const PointDistributionHistory = () => {
                   <th className="text-left p-3 dark:text-white">Points Redeemed</th>
                   <th className="text-left p-3 dark:text-white">Type</th>
                   <th className="text-left p-3 dark:text-white">Date / Time</th>
-                  <th className="text-left p-3 dark:text-white">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedData.map((item) => (
                   <tr key={item.id} className="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
-                    <td className="p-3 dark:text-gray-300">{item.name}</td>
-                    <td className="p-3 dark:text-gray-300">{item.memberId}</td>
-                    <td className="p-3 dark:text-gray-300">{item.point}</td>
-                    <td className="p-3 dark:text-gray-300">{item.type}</td>
+                    <td className="p-3 dark:text-gray-300">{item.member?.profile?.firstName} {item.member?.profile?.lastName}</td>
+                    <td className="p-3 dark:text-gray-300">{item.member?.memberId}</td>
+                    <td className="p-3 dark:text-gray-300">{item.reward?.pointReq}</td>
+                    <td className="p-3 dark:text-gray-300">{item.reward?.rewardName}</td>
                     <td className="p-3 dark:text-gray-300">
-                      {new Date(item.dateTime).toLocaleString('en-GB', {
+                      {new Date(item.createdAt).toLocaleString('en-GB', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
@@ -147,14 +144,6 @@ const PointDistributionHistory = () => {
                         second: '2-digit',
                         hour12: false,
                       }).replace(',', '/').replace(/\//g, '-').replace('-/', '/')}
-                    </td>
-                    <td className="p-3">
-                      <button
-                        onClick={() => handleView(item)}
-                        className="px-3 py-1 text-sm border rounded hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-900"
-                      >
-                        View
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -202,14 +191,8 @@ const PointDistributionHistory = () => {
           </div>
         </div>
       </div>
-
-      <TransactionDetailsDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        transaction={selectedTransaction}
-      />
     </div>
   );
 };
 
-export default PointDistributionHistory;
+export default RedemptionHistory;

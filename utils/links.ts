@@ -25,10 +25,11 @@ export const groupedLinks = {
   admin: <NavLink[]>[
     { href: '/reservations', label: 'reservations' },
     { href: '/admin/dashboard', label: 'admin dashboard' },
-    { href: '/admin/memberOverview', label: 'member overview' },
+    { href: '/admin/memberOverview', label: 'members' },
     { href: '/admin/referralCommissions', label: 'referral & commissions' },
     { href: '/admin/memberLoyaltyOverview', label: 'loyalty points & rewards' },
     { href: '/admin/downline', label: 'downline tree' },
+    { href: '/admin/generalVariable', label: 'general variable' },
   ],
   profile: <NavLink[]>[
     { href: '/profile', label: 'profile' },

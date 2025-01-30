@@ -56,14 +56,16 @@ export default function EditMemberForm({
 						type="text"
 						name="memberId"
 						label="Member ID"
-						defaultValue={memberData.id}
+						defaultValue={memberData.memberId}
+						readonly
 					/>
 
 					<FormInput
 						type="text"
 						name="membershipStatus"
 						label="Membership Status"
-						defaultValue={memberData.isActive == 1 ? "Active" : "Inactive"}
+						defaultValue={memberData.isActive === 1 ? "Active" : "Inactive"}
+						readonly
 					/>
 
 					<FormInput
@@ -75,6 +77,7 @@ export default function EditMemberForm({
 								? `${memberData.profile.firstName} ${memberData.profile.lastName}`
 								: ""
 						}
+						readonly
 					/>
 
 					<div>
@@ -163,20 +166,6 @@ export default function EditMemberForm({
 
 					<FormInput
 						type="text"
-						name="referralCode"
-						label="Referral Code"
-						defaultValue={memberData.memberId || ""}
-					/>
-
-					<FormInput
-						type="text"
-						name="memberJoinDate"
-						label="Member Join Date"
-						defaultValue={memberData.createdAt || ""}
-					/>
-
-					<FormInput
-						type="text"
 						name="memberLevel"
 						label="Member Level"
 						defaultValue={memberData.tier?.tierName || ""}
@@ -184,31 +173,10 @@ export default function EditMemberForm({
 
 					<FormInput
 						type="text"
-						name="totalCommission"
-						label="Total Commission"
-						defaultValue={memberData.commission}
-					/>
-
-					<FormInput
-						type="text"
-						name="totalPoints"
-						label="Total Points"
-						defaultValue={memberData.point}
-					/>
-
-					<FormInput
-						type="text"
 						name="uplineId"
 						label="Upline ID"
-						defaultValue={memberData.parentId || "N/A"}
+						defaultValue={memberData.parentMemberId || "N/A"}
 					/>
-
-					{/* <FormInput
-						type="text"
-						name="totalDownline"
-						label="Total Downline"
-						defaultValue={member.totalDownline?.toString() || "N/A" || ""}
-					/> */}
 
 					<div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4 justify-end">
 						<button

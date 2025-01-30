@@ -81,11 +81,11 @@ export default function CMSPage() {
 
 			{/* Statistics Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-				<div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
+				<div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
 					<h3 className="text-gray-600 dark:text-gray-300">Total Active Member</h3>
 					<p className="text-2xl font-bold dark:text-white">{activeMembers}</p>
 				</div>
-				<div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
+				<div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
 					<h3 className="text-gray-600 dark:text-gray-300">Total Inactive Member</h3>
 					<p className="text-2xl font-bold dark:text-white">{inactiveMembers}</p>
 				</div>

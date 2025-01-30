@@ -2076,7 +2076,7 @@ export const fetchWithdrawalRequest = async (memberId: string) => {
 			createdAt: true,
 		},
 	});
-	
+
 	return withdrawalRequest;
 };
 
@@ -2443,7 +2443,7 @@ export async function fetchTotalDistributedPoints(period: DatePeriod = '') {
 	}
 }
 
-export async function fetchRedemptionRequests(period: DatePeriod = '') {
+export async function fetchRedemptionHistory(period: DatePeriod = '') {
 	try {
 		let dateFilter = {};
 
@@ -2471,16 +2471,35 @@ export async function fetchRedemptionRequests(period: DatePeriod = '') {
 			};
 		}
 
-		const redemptionCount = await db.pointTransaction.count({
+		const redemptionHistory = await db.pointTransaction.findMany({
 			where: {
 				...dateFilter
+			},
+			include: {
+				member: {
+					select: {
+						profile: {
+							select: {
+								firstName: true,
+								lastName: true,
+							}
+						},
+						memberId: true
+					}
+				},
+				reward: {
+					select: {
+						rewardName: true,
+						pointReq: true
+					}
+				}
 			}
 		});
 
-		return redemptionCount;
+		return redemptionHistory;
 	} catch (error) {
 		console.error('Error fetching redemption requests:', error);
-		return 0;
+		return [];
 	}
 }
 

@@ -3,21 +3,41 @@
 import { useEffect, useState } from 'react';
 import PointDistributionHistory from './components/PointDistributionHistory';
 import ManageRewards from './components/ManageRewards';
-import { fetchTotalDistributedPoints, fetchRedemptionRequests } from '@/utils/actions';
+import { fetchTotalDistributedPoints, fetchRedemptionHistory } from '@/utils/actions';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import RedemptionHistory from './components/RedemptionHistory';
+
+type RedemptionHistoryData = {
+  id: string;
+  member: {
+    profile: {  
+      firstName: string;
+      lastName: string;
+    };
+    memberId: string;
+  } | null;
+  reward: {
+    rewardName: string;
+    pointReq: number;
+  };
+  createdAt: Date;
+}
 
 export default function MemberLoyaltyOverview() {
   const [totalDistributedPoints, setTotalDistributedPoints] = useState(0);
-  const [redemptionRequests, setRedemptionRequests] = useState(0);
+  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistoryData[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<'' | 'today' | 'week' | 'month'>('');
   const [showManageRewards, setShowManageRewards] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('pointDistribution');
+  
 
   useEffect(() => {
     const fetchLoyaltyOverviewData = async () => {
       try {
         const totalDistributedPoints = await fetchTotalDistributedPoints(selectedPeriod)
-        const redemptionRequests = await fetchRedemptionRequests(selectedPeriod)
+        const redemptionHistory = await fetchRedemptionHistory(selectedPeriod)
         setTotalDistributedPoints(totalDistributedPoints)
-        setRedemptionRequests(redemptionRequests)
+        setRedemptionHistory(redemptionHistory)
       } catch (error) {
         console.error('Error fetching loyalty overview data:', error)
       }
@@ -31,7 +51,12 @@ export default function MemberLoyaltyOverview() {
 
   return (
     <div className="p-6 dark:bg-black">
-      {!showManageRewards ? (
+      {showManageRewards ? (
+        <>
+          <button onClick={() => setShowManageRewards(false)} className="flex items-center gap-2 mb-4"><ArrowLeftIcon className="w-4 h-4" /> Back</button>
+          <ManageRewards />
+        </>
+      ) : (
         <>
           <h1 className="text-2xl font-bold mb-4 dark:text-white">Member Loyalty Points Overview</h1>
 
@@ -49,13 +74,13 @@ export default function MemberLoyaltyOverview() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
+            <div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
               <h3 className="text-gray-600 dark:text-gray-300">Total Point Distributed</h3>
               <p className="text-2xl font-bold dark:text-white">{totalDistributedPoints}</p>
             </div>
-            <div className="p-4 bg-white dark:bg-black rounded-lg shadow dark:shadow-gray-800">
-              <h3 className="text-gray-600 dark:text-gray-300">Reward Redemption Request</h3>
-              <p className="text-2xl font-bold dark:text-white">{redemptionRequests}</p>
+            <div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
+              <h3 className="text-gray-600 dark:text-gray-300">Reward Redemption History</h3>
+              <p className="text-2xl font-bold dark:text-white">{redemptionHistory?.length}</p>
             </div>
           </div>
 
@@ -66,18 +91,35 @@ export default function MemberLoyaltyOverview() {
             Manage Rewards
           </button>
 
-          <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
-            <div className="flex gap-4">
-              <div className="py-2 px-4 border-b-2 border-[#B5A17C] text-[#B5A17C]">
-                Point Distribution History
-              </div>
-            </div>
+          <div className="flex flex-wrap gap-2 border-b overflow-x-auto pb-2 justify-left">
+            <button
+              onClick={() => setSelectedTab('pointDistribution')}
+              className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
+                selectedTab === 'pointDistribution'
+                  ? 'border-b-2 border-[#B69C71] text-[#B69C71]'
+                  : 'text-gray-500 hover:text-[#B69C71]'
+              } font-medium`}
+            >
+              Point Distribution History
+            </button>
+            <button
+              onClick={() => setSelectedTab('redemptionHistory')}
+              className={`px-3 py-2 text-sm sm:text-base sm:px-4 whitespace-nowrap ${
+                selectedTab === 'redemptionHistory'
+                  ? 'border-b-2 border-[#B69C71] text-[#B69C71]'
+                  : 'text-gray-500 hover:text-[#B69C71]'
+              }`}
+            >
+              Reward Redemption History
+            </button>
           </div>
 
-          <PointDistributionHistory />
+          {selectedTab === 'pointDistribution' ? ( 
+            <PointDistributionHistory />
+          ) : (
+            <RedemptionHistory />
+          )}
         </>
-      ) : (
-        <ManageRewards />
       )}
     </div>
   );

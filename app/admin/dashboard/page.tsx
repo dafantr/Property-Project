@@ -12,7 +12,7 @@ import { MemberRequests } from "@/app/admin/memberOverview/components/MemberRequ
 import CommissionHistory from "@/app/admin/referralCommissions/components/CommissionHistory";
 import WithdrawalRequests from "@/app/admin/referralCommissions/components/WithdrawalRequest";
 import PointDistribution from "@/app/admin/memberLoyaltyOverview/components/PointDistributionHistory";
-import RedemptionHistory from "@/app/admin/memberLoyaltyOverview/components/RedemptionRequest";
+import RedemptionHistory from "@/app/admin/memberLoyaltyOverview/components/RedemptionHistory";
 
 export default function AdminDashboard() {
 	const [selectedTab, setSelectedTab] = useState('memberList');
@@ -100,6 +100,42 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="space-y-6 p-6">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+				<h1 className="text-2xl font-bold">Admin Dashboard Overview</h1>
+				<Select defaultValue="all">
+					<SelectTrigger className="w-full sm:w-[180px]">
+						<SelectValue placeholder="Filter by Date Period" />
+					</SelectTrigger>
+					<select
+						className="w-full sm:w-auto border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
+						value={selectedPeriod}
+						onChange={(e) => setSelectedPeriod(e.target.value)}
+					>
+						<option value="all">All Time</option>
+						<option value="today">Today</option>
+						<option value="week">This Week</option>
+						<option value="month">This Month</option>
+					</select>
+				</Select>
+			</div>
+
+			{/* Statistics Cards */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
+					<h3 className="text-gray-600 dark:text-gray-300">Total Member</h3>
+					<p className="text-2xl font-bold dark:text-white">{members.length}</p>
+				</div>
+				<div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
+					<h3 className="text-gray-600 dark:text-gray-300">Referral Commission Payouts</h3>
+					<p className="text-2xl font-bold dark:text-white">{stats.referralCommission.toLocaleString()}</p>
+				</div>
+				<div className="bg-white dark:bg-black p-4 rounded-lg shadow dark:shadow-gray-800 border dark:border-gray-700">
+					<h3 className="text-gray-600 dark:text-gray-300">Loyalty Points Overview</h3>
+					<p className="text-2xl font-bold dark:text-white">{stats.loyaltyPoints.toLocaleString()}</p>
+				</div>
+          	</div>
+
 			{/* Tabs */}
 			<div className="flex flex-wrap gap-2 border-b overflow-x-auto pb-2 justify-center">
 				<button
@@ -162,44 +198,6 @@ export default function AdminDashboard() {
 				>
 					Redemption History
 				</button>
-			</div>
-
-			{/* Header Section */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-				<h1 className="text-2xl font-bold">Admin Dashboard Overview</h1>
-				<Select defaultValue="all">
-					<SelectTrigger className="w-full sm:w-[180px]">
-						<SelectValue placeholder="Filter by Date Period" />
-					</SelectTrigger>
-					<select
-						className="w-full sm:w-auto border p-2 rounded dark:bg-black dark:border-gray-700 dark:text-white"
-						value={selectedPeriod}
-						onChange={(e) => setSelectedPeriod(e.target.value)}
-					>
-						<option value="all">All Time</option>
-						<option value="today">Today</option>
-						<option value="week">This Week</option>
-						<option value="month">This Month</option>
-					</select>
-				</Select>
-			</div>
-
-			{/* Statistics Cards */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
-					<h3 className="text-gray-600 dark:text-gray-300 font-medium">Total Member</h3>
-					<p className="text-3xl font-bold mt-2 dark:text-white">{members.length}</p>
-				</div>
-				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
-					<h3 className="text-gray-600 dark:text-gray-300 font-medium">Referral Commission Payouts</h3>
-					<p className="text-3xl font-bold mt-2 dark:text-white">{stats.referralCommission.toLocaleString()}</p>
-				</div>
-				<div className="bg-white dark:bg-black rounded-lg shadow p-6">
-					<h3 className="text-gray-600 dark:text-gray-300 font-medium">
-						Loyalty Points Overview
-					</h3>
-					<p className="text-3xl font-bold mt-2 dark:text-white">{stats.loyaltyPoints.toLocaleString()}</p>
-				</div>
 			</div>
 
 			{/* Conditional Content */}
