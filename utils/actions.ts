@@ -143,28 +143,46 @@ export const updateProfileImageAction = async (
 export const createPropertyAction = async (
 	prevState: any,
 	formData: FormData
-): Promise<{ message: string }> => {
+  ): Promise<{ message: string }> => {
 	const user = await getAuthUser();
+  
 	try {
-		const rawData = Object.fromEntries(formData);
-		const file = formData.get("image") as File;
-
-		const validatedFields = validateWithZodSchema(propertySchema, rawData);
-		const validatedFile = validateWithZodSchema(imageSchema, { image: file });
-		const fullPath = await uploadImage(validatedFile.image);
-
-		await db.property.create({
-			data: {
-				...validatedFields,
-				image: fullPath,
-				profileId: user.id,
-			},
-		});
+	  const rawData = Object.fromEntries(formData);
+	  const file = formData.get("image") as File;
+	  const googleMapsUrl = rawData["googleMapsUrl"]; // Extract googleMapsUrl from formData
+  
+	  // Ensure the image is provided and validated
+	  if (!file) {
+		throw new Error("Image is required");
+	  }
+  
+	  const validatedFields = validateWithZodSchema(propertySchema, rawData);
+	  const validatedFile = validateWithZodSchema(imageSchema, { image: file });
+  
+	  // Upload the image and get the full path
+	  const fullPath = await uploadImage(validatedFile.image);
+  
+	  // Create the property in the database, including googleMapsUrl
+	  await db.property.create({
+		data: {
+		  ...validatedFields,
+		  image: fullPath,
+		  googleMapsUrl,  // Add googleMapsUrl to the data
+		  profileId: user.id,
+		},
+	  });
+  
+	  return { message: "Property created successfully!" };
 	} catch (error) {
-		return renderError(error);
+	  // Return a proper error message
+	  console.error(error); // Log the error for debugging
+	  return renderError(error); // Handle the error rendering
 	}
+  
+	// Redirect to the homepage or another page after successful creation
 	redirect("/");
-};
+  };
+  
 
 export const fetchProperties = async ({
 	search = "",
@@ -318,6 +336,7 @@ export const fetchPropertyDetails = async (id: string) => {
 
 		return {
 			...property,
+			googleMapsUrl: property.googleMapsUrl, // 🔥 Ensure this is included
 			rating: parseFloat(averageRating), // Convert to float for numerical accuracy
 			count: totalReviews,
 		};
@@ -325,6 +344,7 @@ export const fetchPropertyDetails = async (id: string) => {
 
 	return null;
 };
+
 
 export async function createReviewAction(prevState: any, formData: FormData) {
 	const user = await getAuthUser();
@@ -631,30 +651,32 @@ export const fetchRentalDetails = async (propertyId: string) => {
 };
 
 export const updatePropertyAction = async (
-	prevState: any,
-	formData: FormData
+    prevState: any,
+    formData: FormData
 ): Promise<{ message: string }> => {
-	const user = await getAuthUser();
-	const propertyId = formData.get("id") as string;
+    const user = await getAuthUser();
+    const propertyId = formData.get("id") as string;
 
-	try {
-		const rawData = Object.fromEntries(formData);
-		const validatedFields = validateWithZodSchema(propertySchema, rawData);
-		await db.property.update({
-			where: {
-				id: propertyId,
-				profileId: user.id,
-			},
-			data: {
-				...validatedFields,
-			},
-		});
+    try {
+        const rawData = Object.fromEntries(formData);
+        const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
-		revalidatePath(`/rentals/${propertyId}/edit`);
-		return { message: "Update Successful" };
-	} catch (error) {
-		return renderError(error);
-	}
+        await db.property.update({
+            where: {
+                id: propertyId,
+                profileId: user.id,
+            },
+            data: {
+                ...validatedFields,
+                googleMapsUrl: formData.get("googleMapsUrl") as string, // Add this line to include the Google Maps URL
+            },
+        });
+
+        revalidatePath(`/rentals/${propertyId}/edit`);
+        return { message: "Update Successful" };
+    } catch (error) {
+        return renderError(error);
+    }
 };
 
 export const updatePropertyImageAction = async (
