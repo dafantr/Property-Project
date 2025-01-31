@@ -575,10 +575,15 @@ export async function deleteBookingAction(prevState: { bookingId: string }) {
 
 export const fetchRentals = async () => {
 	const user = await getAuthUser();
+
+	// Get the admin ID from the environment variable
+	const adminId = process.env.ADMIN_USER_ID;
+
+	// Check if the logged-in user is an admin
+	const isAdmin = user.id === adminId; // If the user matches the admin ID
+
 	const rentals = await db.property.findMany({
-		where: {
-			profileId: user.id,
-		},
+		where: isAdmin ? {} : { profileId: user.id }, // If admin, fetch all properties
 		select: {
 			id: true,
 			name: true,
@@ -611,8 +616,8 @@ export const fetchRentals = async () => {
 
 			return {
 				...rental,
-				totalNightsSum: totalNightsSum._sum.totalNights,
-				orderTotalSum: orderTotalSum._sum.orderTotal,
+				totalNightsSum: totalNightsSum._sum.totalNights || 0,
+				orderTotalSum: orderTotalSum._sum.orderTotal || 0,
 			};
 		})
 	);
@@ -620,35 +625,48 @@ export const fetchRentals = async () => {
 	return rentalsWithBookingSums;
 };
 
+
 export async function deleteRentalAction(prevState: { propertyId: string }) {
 	const { propertyId } = prevState;
-	const user = await getAuthUser();
+	const user = await getAuthUser(); // Get the authenticated user
 
 	try {
+		// Ensure the user is an admin
+		await getAdminUser(); // This will throw an error if the user is not an admin
+
+		// Proceed with deleting the property if the user is an admin
 		await db.property.delete({
 			where: {
-				id: propertyId,
-				profileId: user.id,
+				id: propertyId, // Only need to specify the property ID for admin users
 			},
 		});
 
 		revalidatePath("/rentals");
 		return { message: "Rental deleted successfully" };
 	} catch (error) {
-		return renderError(error);
+		return renderError(error); // Handle any errors (including permission errors)
 	}
 }
+
 
 export const fetchRentalDetails = async (propertyId: string) => {
 	const user = await getAuthUser();
 
+	// Get the admin ID from the environment variable
+	const adminId = process.env.ADMIN_USER_ID;
+
+	// Check if the logged-in user is an admin
+	const isAdmin = user.id === adminId; // If the user matches the admin ID
+
 	return db.property.findUnique({
 		where: {
 			id: propertyId,
-			profileId: user.id,
+			// If the user is an admin, allow fetching any property
+			profileId: isAdmin ? undefined : user.id, // If admin, no profileId filter
 		},
 	});
 };
+
 
 export const updatePropertyAction = async (
     prevState: any,
@@ -658,13 +676,21 @@ export const updatePropertyAction = async (
     const propertyId = formData.get("id") as string;
 
     try {
+        // Get admin ID from the environment variable (or other method)
+        const adminId = process.env.ADMIN_USER_ID;
+
+        // Check if the user is an admin
+        const isAdmin = user.id === adminId;
+
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
+        // If the user is an admin, we don't filter by profileId
         await db.property.update({
             where: {
                 id: propertyId,
-                profileId: user.id,
+                // If admin, skip the profileId check; if not, use user's profileId
+                profileId: isAdmin ? undefined : user.id,
             },
             data: {
                 ...validatedFields,
@@ -672,6 +698,7 @@ export const updatePropertyAction = async (
             },
         });
 
+        // Revalidate the path to reflect updates
         revalidatePath(`/rentals/${propertyId}/edit`);
         return { message: "Update Successful" };
     } catch (error) {
@@ -679,33 +706,45 @@ export const updatePropertyAction = async (
     }
 };
 
+
 export const updatePropertyImageAction = async (
-	prevState: any,
-	formData: FormData
+    prevState: any,
+    formData: FormData
 ): Promise<{ message: string }> => {
-	const user = await getAuthUser();
-	const propertyId = formData.get("id") as string;
+    const user = await getAuthUser();
+    const propertyId = formData.get("id") as string;
 
-	try {
-		const image = formData.get("image") as File;
-		const validatedFields = validateWithZodSchema(imageSchema, { image });
-		const fullPath = await uploadImage(validatedFields.image);
+    try {
+        // Get admin ID from the environment variable (or other method)
+        const adminId = process.env.ADMIN_USER_ID;
 
-		await db.property.update({
-			where: {
-				id: propertyId,
-				profileId: user.id,
-			},
-			data: {
-				image: fullPath,
-			},
-		});
-		revalidatePath(`/rentals/${propertyId}/edit`);
-		return { message: "Property Image Updated Successful" };
-	} catch (error) {
-		return renderError(error);
-	}
+        // Check if the user is an admin
+        const isAdmin = user.id === adminId;
+
+        const image = formData.get("image") as File;
+        const validatedFields = validateWithZodSchema(imageSchema, { image });
+        const fullPath = await uploadImage(validatedFields.image);
+
+        // If the user is an admin, skip the profileId check
+        await db.property.update({
+            where: {
+                id: propertyId,
+                // If admin, skip the profileId check; if not, use the user's profileId
+                profileId: isAdmin ? undefined : user.id,
+            },
+            data: {
+                image: fullPath,
+            },
+        });
+
+        // Revalidate the path to reflect updates
+        revalidatePath(`/rentals/${propertyId}/edit`);
+        return { message: "Property Image Updated Successfully" };
+    } catch (error) {
+        return renderError(error);
+    }
 };
+
 
 export const fetchReservations = async () => {
 	const user = await getAuthUser();

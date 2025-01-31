@@ -41,7 +41,7 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
 
   const { baths, bedrooms, beds, guests, rating, count, googleMapsUrl, city } = property;
   const details = { baths, bedrooms, beds, guests };
-  const firstName = property.profile.firstName;
+  const userName = property.profile.username;
   const profileImage = property.profile.profileImage;
 
   const { userId } = auth();
@@ -72,7 +72,7 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
             <PropertyRating inPage={true} rating={rating ?? 0} count={count ?? 0} />
           </div>
           <PropertyDetails details={details} />
-          <UserInfo profile={{ firstName, profileImage }} />
+          <UserInfo profile={{ userName, profileImage }} />
           <Separator className="mt-4" />
           <Description description={property.description} />
           <Amenities amenities={property.amenities} />
