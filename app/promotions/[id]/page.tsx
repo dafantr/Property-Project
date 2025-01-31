@@ -16,7 +16,7 @@ async function PromotionDetailPage({ params }: { params: { id: string } }) {
         <header className="flex justify-between items-center mt-4">
           <h1 className="text-4xl font-bold capitalize">{promotion.subtitle}</h1>
           <div className="flex items-center gap-x-4">
-            <ShareButton name={promotion.title} propertyId={promotion.id} />
+            <ShareButton name={promotion.title} id={promotion.id} type="promotions" />
           </div>
         </header>
         <ImageContainer mainImage={promotion.media} name={promotion.title} />

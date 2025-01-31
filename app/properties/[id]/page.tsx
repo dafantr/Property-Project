@@ -59,7 +59,7 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
       <header className="flex justify-between items-center mt-4">
         <h1 className="text-4xl font-bold capitalize">{property.tagline}</h1>
         <div className="flex items-center gap-x-4">
-          <ShareButton name={property.name} propertyId={property.id} />
+          <ShareButton name={property.name} id={property.id} type="properties" />
           <FavoriteToggleButton propertyId={property.id} />
         </div>
       </header>
