@@ -14,42 +14,13 @@ import {
 import { cn } from "@/lib/utils";
 import React from "react";
 
-const components: { title: string; href: string; description: string }[] = [
-    {
-        title: "About MDV",
-        href: "#about",
-        description:
-            "Discover our vision, mission, and what makes MDV a luxury villa destination.",
-    },
-    {
-        title: "Gallery",
-        href: "#gallery",
-        description:
-            "Explore stunning visuals of our properties, facilities, and the breathtaking scenery surrounding MDV.",
-    },
-    {
-        title: "Villas",
-        href: "#villas",
-        description:
-            "Discover our exclusive villa collections, designed for comfort, elegance, and an unforgettable stay.",
-    },
-    {
-        title: "Exclusive Highlights",
-        href: "#highlights",
-        description: "Uncover the unique features and premium amenities that set MDV apart from the rest.",
-    },
-    {
-        title: "Testimony",
-        href: "#testimony",
-        description:
-            "Hear from our valued guests about their memorable experiences at MDV.",
-    },
-    {
-        title: "Contact",
-        href: "#contact",
-        description:
-            "Get in touch with us for bookings, inquiries, or personalized assistance.",
-    },
+const components: { title: string; href: string }[] = [
+    { title: "About MDV", href: "#about" },
+    { title: "Gallery", href: "#gallery" },
+    { title: "Villas", href: "#villas" },
+    { title: "Exclusive Highlights", href: "#highlights" },
+    { title: "Testimony", href: "#testimony" },
+    { title: "Contact", href: "#contact" },
 ];
 
 function NavMenu() {
@@ -65,9 +36,7 @@ function NavMenu() {
                                     key={component.title}
                                     title={component.title}
                                     href={component.href}
-                                >
-                                    {component.description}
-                                </ListItem>
+                                />
                             ))}
                         </ul>
                     </NavigationMenuContent>
@@ -77,60 +46,74 @@ function NavMenu() {
     );
 }
 
-const ListItem = React.forwardRef<
-    React.ElementRef<"a">,
-    React.ComponentPropsWithoutRef<"a">
->(({ className, title, href, children, ...props }, ref) => {
-    const router = useRouter();
-    const pathname = usePathname(); // Get the current path
+const ListItem = React.forwardRef<React.ElementRef<"a">, React.ComponentPropsWithoutRef<"a">>(
+    ({ className, title, href, ...props }, ref) => {
+        const router = useRouter();
+        const pathname = usePathname(); // Get the current path
 
-    const handleClick = async (e: React.MouseEvent) => {
-        e.preventDefault();
-
-        if (pathname !== "/") {
-            // Redirect to the home page with the hash
-            await router.push(`/${href}`);
-        }
-
-        // Use a timeout to ensure the scroll happens after the page is rendered
-        setTimeout(() => {
-            const target = document.querySelector(href || "");
-            if (target) {
-                const windowHeight = window.innerHeight;
-                const elementHeight = target.getBoundingClientRect().height;
-                const elementPosition = target.getBoundingClientRect().top + window.scrollY;
-                const offsetPosition = elementPosition - (windowHeight / 2) + (elementHeight / 2);
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth",
-                });
+        const handleClick = async (e: React.MouseEvent) => {
+            e.preventDefault();
+        
+            // Calculate offset value (e.g., 100px or any desired value)
+            const offset = 100;
+        
+            // If already on the home page, scroll to the section directly
+            if (pathname === "/") {
+                const target = document.querySelector(href);
+                if (target) {
+                    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementPosition - offset;
+        
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth",
+                    });
+                }
+            } else {
+                // If on another page, navigate to the page with the hash (smooth scroll after redirect)
+                await router.push(`/${href}`);
+                setTimeout(() => {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                        const offsetPosition = elementPosition - offset;
+        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth",
+                        });
+                    }
+                }, 500); // Delay to ensure the page is loaded before scrolling
             }
-        }, pathname !== "/" ? 500 : 0); // Add delay if navigating to another page
-    };
+        };
+        
 
-    return (
-        <li>
-            <NavigationMenuLink asChild>
-                <a
-                    ref={ref}
-                    onClick={handleClick}
-                    className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                        className
-                    )}
-                    {...props}
-                >
-                    <div className="text-sm font-medium leading-none">{title}</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        {children}
-                    </p>
-                </a>
-            </NavigationMenuLink>
-        </li>
-    );
-});
+        return (
+            <li>
+                <NavigationMenuLink asChild>
+                    <a
+                        ref={ref}
+                        onClick={handleClick}
+                        className={cn(
+                            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                            className
+                        )}
+                        {...props}
+                    >
+                        <div className="text-sm font-medium leading-none">{title}</div>
+                    </a>
+                </NavigationMenuLink>
+            </li>
+        );
+    }
+);
 
 ListItem.displayName = "ListItem";
 
-export default NavMenu;
+export default function MobileNavMenu() {
+    return (
+        <div className="sm:hidden"> {/* Hide on larger screens */}
+            <NavMenu />
+        </div>
+    );
+}

@@ -7,6 +7,7 @@ import NavMenu from "./NavMenu";
 import MemberNavbar from "./MemberNavbar";
 import AdminNavbar from "./AdminNavbar";
 import MarketingNavbar from "./MarketingNavbar";
+import GeneralNavbar from "./GeneralNavbar";
 
 function Navbar() {
 	return (
@@ -36,6 +37,7 @@ function Navbar() {
 			<MemberNavbar />
 			<MarketingNavbar />
 			<AdminNavbar />
+			<GeneralNavbar />
 		</nav>
 	);
 }
