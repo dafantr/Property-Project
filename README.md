@@ -28,4 +28,6 @@ npx shadcn@latest add navigation-menu
 
 npm install react-select
 
+npm install react-hot-toast
 
+npm install swiper@8

@@ -63,7 +63,7 @@ async function PropertyDetailsPage({ params }: { params: { id: string } }) {
           <FavoriteToggleButton propertyId={property.id} />
         </div>
       </header>
-      <ImageContainer mainImage={property.image} name={property.name} />
+      <ImageContainer images={property.image} />
 
       <section className="lg:grid lg:grid-cols-12 gap-x-12 mt-12">
         <div className="lg:col-span-8">

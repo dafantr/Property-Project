@@ -32,7 +32,7 @@ model Property {
   name          String
   tagline       String
   category      String
-  image         String
+  image         String[]
   city          String
   description   String
   price         Int

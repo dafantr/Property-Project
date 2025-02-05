@@ -143,46 +143,49 @@ export const updateProfileImageAction = async (
 export const createPropertyAction = async (
 	prevState: any,
 	formData: FormData
-  ): Promise<{ message: string }> => {
+): Promise<{ message: string }> => {
 	const user = await getAuthUser();
-  
+
 	try {
-	  const rawData = Object.fromEntries(formData);
-	  const file = formData.get("image") as File;
-	  const googleMapsUrl = rawData["googleMapsUrl"]; // Extract googleMapsUrl from formData
-  
-	  // Ensure the image is provided and validated
-	  if (!file) {
-		throw new Error("Image is required");
-	  }
-  
-	  const validatedFields = validateWithZodSchema(propertySchema, rawData);
-	  const validatedFile = validateWithZodSchema(imageSchema, { image: file });
-  
-	  // Upload the image and get the full path
-	  const fullPath = await uploadImage(validatedFile.image);
-  
-	  // Create the property in the database, including googleMapsUrl
-	  await db.property.create({
-		data: {
-		  ...validatedFields,
-		  image: fullPath,
-		  googleMapsUrl,  // Add googleMapsUrl to the data
-		  profileId: user.id,
-		},
-	  });
-  
-	  return { message: "Property created successfully!" };
+		const rawData = Object.fromEntries(formData);
+		const files = formData.getAll("image") as File[];
+		const googleMapsUrl = rawData["googleMapsUrl"];
+
+		// Ensure at least one image is provided
+		if (!files.length) {
+			throw new Error("At least one image is required");
+		}
+
+		const validatedFields = validateWithZodSchema(propertySchema, rawData);
+
+		// Upload all images and store their URLs
+		const uploadedImages = await Promise.all(
+			files.map(async (file) => {
+				const validatedFile = validateWithZodSchema(imageSchema, { image: file });
+				return await uploadImage(validatedFile.image);
+			})
+		);
+
+		// Store property with multiple images
+		await db.property.create({
+			data: {
+				...validatedFields,
+				image: uploadedImages, // Store array of image URLs
+				googleMapsUrl,
+				profileId: user.id,
+			},
+		});
+
+		return { message: "Property created successfully!" };
 	} catch (error) {
-	  // Return a proper error message
-	  console.error(error); // Log the error for debugging
-	  return renderError(error); // Handle the error rendering
+		console.error(error);
+		return renderError(error);
 	}
-  
-	// Redirect to the homepage or another page after successful creation
+
 	redirect("/");
-  };
-  
+};
+
+
 
 export const fetchProperties = async ({
 	search = "",
@@ -222,8 +225,8 @@ export const fetchProperties = async ({
 		const ratings = property.reviews.map((review) => review.rating);
 		const averageRating = ratings.length
 			? (
-					ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-			  ).toFixed(1)
+				ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+			).toFixed(1)
 			: null; // Default to null if no reviews
 
 		return {
@@ -258,8 +261,15 @@ export const toggleFavoriteAction = async (prevState: {
 	pathname: string;
 }) => {
 	const user = await getAuthUser();
+	if (!user?.id) {
+		// Handle case where user is not authenticated
+		throw new Error("User not authenticated");
+	}
+
 	const { propertyId, favoriteId, pathname } = prevState;
+
 	try {
+		// If the property is already favorited, remove it
 		if (favoriteId) {
 			await db.favorite.delete({
 				where: {
@@ -267,23 +277,29 @@ export const toggleFavoriteAction = async (prevState: {
 				},
 			});
 		} else {
+			// If not favorited, add it to the favorites
 			await db.favorite.create({
 				data: {
 					propertyId,
-					profileId: user.id,
+					profileId: user.id, // Make sure to link the favorite with the correct user
 				},
 			});
 		}
+
+		// Revalidate the page (if needed)
 		revalidatePath(pathname);
+
 		return {
 			message: favoriteId
 				? "Removed from your Favorite"
 				: "Added to your Favorite",
 		};
 	} catch (error) {
+		console.error("Error toggling favorite:", error);
 		return renderError(error);
 	}
 };
+
 
 export const fetchFavorites = async () => {
 	const user = await getAuthUser();
@@ -329,9 +345,9 @@ export const fetchPropertyDetails = async (id: string) => {
 		const averageRating =
 			totalReviews > 0
 				? (
-						property.reviews.reduce((sum, review) => sum + review.rating, 0) /
-						totalReviews
-				  ).toFixed(1)
+					property.reviews.reduce((sum, review) => sum + review.rating, 0) /
+					totalReviews
+				).toFixed(1)
 				: "0"; // Rounding to 1 decimal place
 
 		return {
@@ -667,7 +683,6 @@ export const fetchRentalDetails = async (propertyId: string) => {
 	});
 };
 
-
 export const updatePropertyAction = async (
     prevState: any,
     formData: FormData
@@ -676,75 +691,130 @@ export const updatePropertyAction = async (
     const propertyId = formData.get("id") as string;
 
     try {
-        // Get admin ID from the environment variable (or other method)
-        const adminId = process.env.ADMIN_USER_ID;
-
-        // Check if the user is an admin
-        const isAdmin = user.id === adminId;
-
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
-        // If the user is an admin, we don't filter by profileId
+        // Get existing and deleted images
+        const existingImages = formData.get("image")?.toString().split(",") || [];
+        const deletedImages = formData.get("deletedImages")?.toString().split(",") || [];
+
+        console.log("Received Data:", { existingImages, deletedImages });
+
+        // Fetch current images from the DB
+        const property = await db.property.findUnique({
+            where: { id: propertyId },
+            select: { image: true },
+        });
+
+        let updatedImages = (property?.image || []).filter(
+            (img) => !deletedImages.includes(img)
+        );
+
+        console.log("After Deletion:", updatedImages);
+
+        // Handle new image uploads
+        const newImages = formData.getAll("newImages") as File[]; // Check if "newImages" is correct
+        const uploadedImageUrls: string[] = [];
+
+        console.log("New Images to Upload:", newImages);
+
+        for (const file of newImages) {
+            if (file instanceof File) {
+                console.log("Uploading File:", file.name);
+                
+                const { data, error } = await supabase.storage
+                    .from("Property-Project")
+                    .upload(`images/${Date.now()}-${file.name}`, file, {
+                        cacheControl: "3600",
+                        upsert: false,
+                    });
+
+                if (error) {
+                    console.error("Image Upload Error:", error);
+                    continue;
+                }
+
+                const imageUrl = supabase.storage.from("Property-Project").getPublicUrl(data.path);
+                console.log("Uploaded Image URL:", imageUrl);
+                uploadedImageUrls.push(imageUrl);
+            }
+        }
+
+        // Merge updated image list
+        const finalImages = [...new Set([...updatedImages, ...uploadedImageUrls])];
+
+        console.log("Final Image List:", finalImages);
+
+        // Save updated image URLs to database
         await db.property.update({
-            where: {
-                id: propertyId,
-                // If admin, skip the profileId check; if not, use user's profileId
-                profileId: isAdmin ? undefined : user.id,
-            },
+            where: { id: propertyId },
             data: {
                 ...validatedFields,
-                googleMapsUrl: formData.get("googleMapsUrl") as string, // Add this line to include the Google Maps URL
+                image: finalImages,
             },
         });
 
-        // Revalidate the path to reflect updates
+        console.log("Database Update Successful");
+
         revalidatePath(`/rentals/${propertyId}/edit`);
+        console.log("Revalidation Triggered");
+
         return { message: "Update Successful" };
     } catch (error) {
+        console.error('Error updating property:', error);
         return renderError(error);
     }
 };
 
 
 export const updatePropertyImageAction = async (
-    prevState: any,
-    formData: FormData
-): Promise<{ message: string }> => {
-    const user = await getAuthUser();
-    const propertyId = formData.get("id") as string;
+	prevState: any,
+	formData: FormData
+): Promise<{ message: string; imageUrls: string[] }> => {
+	const user = await getAuthUser();
+	const propertyId = formData.get("id") as string;
 
-    try {
-        // Get admin ID from the environment variable (or other method)
-        const adminId = process.env.ADMIN_USER_ID;
+	try {
+		const adminId = process.env.ADMIN_USER_ID;
+		const isAdmin = user.id === adminId;
 
-        // Check if the user is an admin
-        const isAdmin = user.id === adminId;
+		const images = formData.getAll("image") as File[];
+		if (images.length === 0) {
+			return { message: "No images uploaded", imageUrls: [] };
+		}
 
-        const image = formData.get("image") as File;
-        const validatedFields = validateWithZodSchema(imageSchema, { image });
-        const fullPath = await uploadImage(validatedFields.image);
+		const imageUrls = await Promise.all(
+			images.map(async (image) => {
+				const validatedFields = validateWithZodSchema(imageSchema, { image });
+				const fullPath = await uploadImage(validatedFields.image);
+				return fullPath;
+			})
+		);
 
-        // If the user is an admin, skip the profileId check
-        await db.property.update({
-            where: {
-                id: propertyId,
-                // If admin, skip the profileId check; if not, use the user's profileId
-                profileId: isAdmin ? undefined : user.id,
-            },
-            data: {
-                image: fullPath,
-            },
-        });
+		const property = await db.property.findUnique({
+			where: { id: propertyId },
+			select: { image: true },
+		});
 
-        // Revalidate the path to reflect updates
-        revalidatePath(`/rentals/${propertyId}/edit`);
-        return { message: "Property Image Updated Successfully" };
-    } catch (error) {
-        return renderError(error);
-    }
+		const updatedImages = Array.isArray(property?.image)
+			? [...property.image, ...imageUrls]
+			: imageUrls;
+
+		// Update the property with new images
+		await db.property.update({
+			where: { id: propertyId },
+			data: {
+				image: { push: imageUrls },
+			},
+		});
+
+		revalidatePath(`/rentals/${propertyId}/edit`);
+
+		return { message: "Property Images Updated Successfully", imageUrls };
+	} catch (error) {
+		return renderError(error);
+	}
 };
-
 
 export const fetchReservations = async () => {
 	const user = await getAuthUser();
@@ -1121,7 +1191,7 @@ export const createMemberAction = async (
 	const paymentMethod = formData.get("paymentMethod") as string;
 
 	let fullPath = null;
-	if(paymentMethod === 'TRF'){
+	if (paymentMethod === 'TRF') {
 		const proofOfPayment = formData.get("image") as File;
 		const validatedFile = validateWithZodSchema(imageSchema, { image: proofOfPayment });
 		fullPath = await uploadImage(validatedFile.image);
@@ -1145,8 +1215,8 @@ export const createMemberAction = async (
 
 		const member = await fetchMember(profile.clerkId, undefined);
 
-		if(member !== null){
-			if(member.isActive === 0 && member.isDeleted === 0) {
+		if (member !== null) {
+			if (member.isActive === 0 && member.isDeleted === 0) {
 				await deleteIncompleteMember(profile.clerkId, member.memberId);
 			} else if (member.isActive === 1 && member.isDeleted === 0) {
 				return { message: "Member already exist", status: "error" };
@@ -1371,12 +1441,12 @@ export const distributeCommission = async (
 			});
 			if (booking === null) throw new Error("Booking Not Found!");
 
-			if(booking.referalCode) {
+			if (booking.referalCode) {
 				const member = await fetchMember(undefined, booking.referalCode as string);
 				if (member === null) throw new Error("Member Not Found!");
 
 				const commissionRate = await getGeneralVariable("bookingCommissionRate");
-				if(commissionRate === null){
+				if (commissionRate === null) {
 					throw new Error("Commission rate not found");
 				}
 				let commission = booking.orderTotal * (Number(commissionRate.variableValue) / 100);
@@ -1401,18 +1471,18 @@ export const distributeCommission = async (
 			if (member === null) throw new Error("Member Not Found!");
 
 			const memberTier = await fetchTierById(member.tierId);
-			if(memberTier === null) throw new Error("Tier Not Found!");
+			if (memberTier === null) throw new Error("Tier Not Found!");
 
-			if(member.parentMemberId && member.isActive === 1 && member.isDeleted === 0) {
+			if (member.parentMemberId && member.isActive === 1 && member.isDeleted === 0) {
 				const parentMember = await fetchMember(undefined, member.parentMemberId);
-				if(parentMember === null) throw new Error("Parent Member Not Found!");
+				if (parentMember === null) throw new Error("Parent Member Not Found!");
 
 				const parentMemberTier = await fetchTierById(parentMember.tierId);
-				if(parentMemberTier === null) throw new Error("Parent Tier Not Found!");
+				if (parentMemberTier === null) throw new Error("Parent Tier Not Found!");
 
-				if(parentMemberTier.tierLevel > memberTier.tierLevel) {
+				if (parentMemberTier.tierLevel > memberTier.tierLevel) {
 					let passiveCommissionRate = parentMemberTier.commission - memberTier.commission;
-					let passiveCommission =  transaction.totalPrice * (passiveCommissionRate / 100);
+					let passiveCommission = transaction.totalPrice * (passiveCommissionRate / 100);
 
 					await db.commissionDistribution.create({
 						data: {
@@ -1451,7 +1521,7 @@ export const distributeCommission = async (
 			if (member === null) throw new Error("Member Not Found!");
 
 			const closerCommissionRate = await getGeneralVariable("closerPercentage");
-			if(closerCommissionRate === null){
+			if (closerCommissionRate === null) {
 				throw new Error("Commission rate not found");
 			}
 			let closerCommission = transaction.totalPrice * (Number(closerCommissionRate.variableValue) / 100);
@@ -1613,17 +1683,17 @@ export const createMembershipCommissionTransaction = async (
 		let membershipCommissionTransaction = null;
 
 		membershipCommissionTransaction =
-		await db.membershipCommissionTransaction.create({
-			data: {
-				memberId: memberId,
-				closerId: closerCode,
-				referalCode: referalCode,
-				paymentStatus: false,
-				paymentMethod: paymentMethod,
-				proofOfPayment: proofOfPayment,
-				totalPrice: totalPrice,
-			},
-		});
+			await db.membershipCommissionTransaction.create({
+				data: {
+					memberId: memberId,
+					closerId: closerCode,
+					referalCode: referalCode,
+					paymentStatus: false,
+					paymentMethod: paymentMethod,
+					proofOfPayment: proofOfPayment,
+					totalPrice: totalPrice,
+				},
+			});
 		return membershipCommissionTransaction.id;
 	} catch (error) {
 		console.error("Error creating membership commission transaction", error);
@@ -1730,7 +1800,7 @@ export const updateMemberTier = async (memberId: string) => {
 		const nextTier = await fetchTierByLevel(tier.tierLevel + 1);
 		if (nextTier === null) throw new Error("Next tier not found");
 
-		if(downline.length >= nextTier.requiredDownline) {
+		if (downline.length >= nextTier.requiredDownline) {
 			await db.member.update({
 				where: {
 					id: member.id,
@@ -2221,7 +2291,7 @@ export const updateWithdrawalStatus = async (
 ) => {
 	try {
 		await getAdminUser(); // Ensure only admin can update status
-		
+
 		await db.$transaction(async (tx) => {
 			// Update withdrawal request and member commission in a single transaction
 			const withdrawalRequest = await tx.withdrawCommissionRequest.update({
@@ -2640,7 +2710,7 @@ export const fetchMemberData = async (memberId: string) => {
 			isActive: true,
 		}
 	});
-	if(member === null) {
+	if (member === null) {
 		throw new Error('Member not found');
 	}
 	return member;
@@ -2649,181 +2719,181 @@ export const fetchMemberData = async (memberId: string) => {
 export const fetchCitizenshipOptions = async () => {
 	const response = await fetch("https://countriesnow.space/api/v0.1/countries");
 	const data = await response.json();
-	return data.data.map((item: { country: string , iso2: string }) => ({
+	return data.data.map((item: { country: string, iso2: string }) => ({
 		value: item.iso2, // Using iso2 code (e.g., "AF", "AL")
 		label: item.country, // Using country name (e.g., "Afghanistan", "Albania")
 	}));
 };
 
 export const fetchAdminMemberDownline = async (memberId: string) => {
-  try {
-    const member = await db.member.findFirst({
-      where: {
-        OR: [
-          { memberId: memberId },
-          {
-            profile: {
-              OR: [
-                { firstName: { contains: memberId, mode: 'insensitive' } },
-                { lastName: { contains: memberId, mode: 'insensitive' } }
-              ]
-            }
-          }
-        ],
-      },
-      include: {
-        profile: true
-      }
-    });
+	try {
+		const member = await db.member.findFirst({
+			where: {
+				OR: [
+					{ memberId: memberId },
+					{
+						profile: {
+							OR: [
+								{ firstName: { contains: memberId, mode: 'insensitive' } },
+								{ lastName: { contains: memberId, mode: 'insensitive' } }
+							]
+						}
+					}
+				],
+			},
+			include: {
+				profile: true
+			}
+		});
 
-    return member;
-  } catch (error) {
-    console.error('Error fetching member:', error);
-    return null;
-  }
+		return member;
+	} catch (error) {
+		console.error('Error fetching member:', error);
+		return null;
+	}
 };
 
 export { getAdminUser };
 
 // Create Reward Action
 export const createRewardAction = async (prevState: any, formData: FormData) => {
-  await getAdminUser(); // Ensure only admin can create rewards
+	await getAdminUser(); // Ensure only admin can create rewards
 
-  try {
-    const rewardName = formData.get('name') as string;
-    const pointReq = parseInt(formData.get('points') as string);
+	try {
+		const rewardName = formData.get('name') as string;
+		const pointReq = parseInt(formData.get('points') as string);
 
-    await db.reward.create({
-      data: {
-        rewardName,
-        pointReq,
-      },
-    });
+		await db.reward.create({
+			data: {
+				rewardName,
+				pointReq,
+			},
+		});
 
-    revalidatePath('/admin/memberLoyaltyOverview');
-    return { message: 'Reward created successfully' };
-  } catch (error) {
-    return renderError(error);
-  }
+		revalidatePath('/admin/memberLoyaltyOverview');
+		return { message: 'Reward created successfully' };
+	} catch (error) {
+		return renderError(error);
+	}
 };
 
 // Delete Reward Action
 export const deleteRewardAction = async (id: string) => {
-  await getAdminUser(); // Ensure only admin can delete rewards
+	await getAdminUser(); // Ensure only admin can delete rewards
 
-  try {
-    await db.reward.delete({
-      where: { id },
-    });
+	try {
+		await db.reward.delete({
+			where: { id },
+		});
 
-    revalidatePath('/admin/memberLoyaltyOverview');
-    return { message: 'Reward deleted successfully' };
-  } catch (error) {
-    return renderError(error);
-  }
+		revalidatePath('/admin/memberLoyaltyOverview');
+		return { message: 'Reward deleted successfully' };
+	} catch (error) {
+		return renderError(error);
+	}
 };
 
 // Update Reward Action
 export const updateRewardAction = async (prevState: any, formData: FormData) => {
-  await getAdminUser(); // Ensure only admin can update rewards
+	await getAdminUser(); // Ensure only admin can update rewards
 
-  try {
-    const id = formData.get('id') as string;
-    const rewardName = formData.get('name') as string;
-    const pointReq = parseInt(formData.get('points') as string);
+	try {
+		const id = formData.get('id') as string;
+		const rewardName = formData.get('name') as string;
+		const pointReq = parseInt(formData.get('points') as string);
 
-    await db.reward.update({
-      where: { id },
-      data: {
-        rewardName,
-        pointReq,
-      },
-    });
+		await db.reward.update({
+			where: { id },
+			data: {
+				rewardName,
+				pointReq,
+			},
+		});
 
-    revalidatePath('/admin/memberLoyaltyOverview');
-    return { message: 'Reward updated successfully' };
-  } catch (error) {
-    return renderError(error);
-  }
+		revalidatePath('/admin/memberLoyaltyOverview');
+		return { message: 'Reward updated successfully' };
+	} catch (error) {
+		return renderError(error);
+	}
 };
 
 export const fetchGeneralVariables = async () => {
-  await getAdminUser(); // Ensure only admin can access
+	await getAdminUser(); // Ensure only admin can access
 
-  try {
-    const variables = await db.generalVariable.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-    return variables;
-  } catch (error) {
-    console.error('Error fetching general variables:', error);
-    throw new Error('Failed to fetch general variables');
-  }
+	try {
+		const variables = await db.generalVariable.findMany({
+			orderBy: {
+				createdAt: 'desc'
+			}
+		});
+		return variables;
+	} catch (error) {
+		console.error('Error fetching general variables:', error);
+		throw new Error('Failed to fetch general variables');
+	}
 };
 
 export const updateGeneralVariableAction = async (
-  prevState: any,
-  formData: FormData
+	prevState: any,
+	formData: FormData
 ): Promise<{ message: string; status: string }> => {
-  await getAdminUser();
+	await getAdminUser();
 
-  try {
-    const id = formData.get('id') as string;
-    const value = formData.get('value') as string;
+	try {
+		const id = formData.get('id') as string;
+		const value = formData.get('value') as string;
 
-    await db.generalVariable.update({
-      where: { id },
-      data: {
-        variableValue: value
-      }
-    });
+		await db.generalVariable.update({
+			where: { id },
+			data: {
+				variableValue: value
+			}
+		});
 
-    revalidatePath('/admin/generalVariable');
-    return { message: 'Variable updated successfully', status: 'success' };
-  } catch (error) {
-    return { message: 'Failed to update variable', status: 'error' };
-  }
+		revalidatePath('/admin/generalVariable');
+		return { message: 'Variable updated successfully', status: 'success' };
+	} catch (error) {
+		return { message: 'Failed to update variable', status: 'error' };
+	}
 };
 
 export const createGeneralVariableAction = async (
-  prevState: any,
-  formData: FormData
+	prevState: any,
+	formData: FormData
 ): Promise<{ message: string; status: string }> => {
-  await getAdminUser();
+	await getAdminUser();
 
-  try {
-    const name = formData.get('name') as string;
-    const value = formData.get('value') as string;
-    const type = formData.get('type') as string;
+	try {
+		const name = formData.get('name') as string;
+		const value = formData.get('value') as string;
+		const type = formData.get('type') as string;
 
-    await db.generalVariable.create({
-      data: {
-        variableName: name,
-        variableValue: value,
-        variableType: type
-      }
-    });
+		await db.generalVariable.create({
+			data: {
+				variableName: name,
+				variableValue: value,
+				variableType: type
+			}
+		});
 
-    revalidatePath('/admin/generalVariable');
-    return { message: 'Variable created successfully', status: 'success' };
-  } catch (error) {
-    return { message: 'Failed to create variable', status: 'error' };
-  }
+		revalidatePath('/admin/generalVariable');
+		return { message: 'Variable created successfully', status: 'success' };
+	} catch (error) {
+		return { message: 'Failed to create variable', status: 'error' };
+	}
 };
 
 export const deleteGeneralVariableAction = async (id: string): Promise<{ message: string; status: string }> => {
-  await getAdminUser();
+	await getAdminUser();
 
-  try {
-    await db.generalVariable.delete({
-      where: { id }
-    });
+	try {
+		await db.generalVariable.delete({
+			where: { id }
+		});
 
-    revalidatePath('/admin/generalVariable');
-    return { message: 'Variable deleted successfully', status: 'success' };
-  } catch (error) {
-    return { message: 'Failed to delete variable', status: 'error' };
-  }
+		revalidatePath('/admin/generalVariable');
+		return { message: 'Variable deleted successfully', status: 'success' };
+	} catch (error) {
+		return { message: 'Failed to delete variable', status: 'error' };
+	}
 };
