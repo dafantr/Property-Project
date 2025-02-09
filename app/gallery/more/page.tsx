@@ -4,16 +4,26 @@ import { fetchGalleries } from '@/utils/actions';
 import Masonry from 'react-masonry-css';
 import styles from '../../../components/home/styles/Gallery.module.css';
 
+// Define the type for the gallery item
+interface GalleryItem {
+    id: string;
+    createdAt: Date;
+    title: string;
+    media: string;
+}
+
 const GalleriesMore = () => {
-    const [galleries, setGalleries] = useState([]);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [galleries, setGalleries] = useState<GalleryItem[]>([]); // Type the galleries state
+    const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null); // Type selected image state
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchGalleries();
             // Sort galleries by 'createdAt' field (descending order for newest first)
-            const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            setGalleries(sortedData);
+            const sortedData = data.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setGalleries(sortedData); // Update state with sorted data
         };
 
         fetchData();
@@ -26,7 +36,7 @@ const GalleriesMore = () => {
         500: 1,
     };
 
-    const closeModal = () => setSelectedImage(null);
+    const closeModal = () => setSelectedImage(null); // Close modal function
 
     return (
         <Masonry

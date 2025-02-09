@@ -15,22 +15,40 @@ import {
 import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
 import GalleryLoadingTable from './loading';
 
+// Define the type for the gallery items
+interface GalleryItem {
+  id: string;
+  title: string;
+  media: string;
+  createdAt: string; // assuming createdAt is a string, you can adjust if it's a Date object
+}
+
 async function GaleriesPage() {
-  const [galeries, setGaleries] = useState([]);
+  const [galeries, setGaleries] = useState<GalleryItem[]>([]); // Type the state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadGalleries = async () => {
       try {
         const data = await fetchGalleries();
-        data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setGaleries(data);
+    
+        // Convert the 'createdAt' field to a string
+        const formattedData = data.map((gallery) => ({
+          ...gallery,
+          createdAt: gallery.createdAt.toString(), // Convert Date to string
+        }));
+    
+        // Sort galleries by 'createdAt' field (descending order for newest first)
+        formattedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+        setGaleries(formattedData);
       } catch (error) {
         console.error('Error fetching galleries:', error);
       } finally {
         setLoading(false);
       }
     };
+    
     loadGalleries();
   }, []);
 
@@ -49,7 +67,7 @@ async function GaleriesPage() {
 
   return (
     <div className="mt-16">
-      <h4 className="mb-4 capitalize">Total Images : {galeries.length}</h4>
+      <h4 className="mb-4 capitalize">Total Images: {galeries.length}</h4>
       <Table>
         <TableCaption>A list of all your galleries.</TableCaption>
         <TableHeader>

@@ -35,6 +35,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         checkOut,
         property: { image, name },
     } = booking;
+    //console.log("Images being sent to Stripe:", image);
 
     try {
         const session = await stripe.checkout.sessions.create({
@@ -48,7 +49,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
                         product_data: {
                             name: `${name}`,
-                            images: [image],
+                            images: typeof image === 'string' ? [image] : Array.isArray(image) ? image : Object.values(image),
                             description: `Treat yourself to a relaxing stay of ${totalNights} nights, starting ${formatDate(
                                 checkIn
                             )} and wrapping up ${formatDate(checkOut)}. Enjoy every moment!`,
