@@ -149,11 +149,16 @@ export const createPropertyAction = async (
 	try {
 		const rawData = Object.fromEntries(formData);
 		const files = formData.getAll("image") as File[];
-		const googleMapsUrl = rawData["googleMapsUrl"];
+		const googleMapsUrl = formData.get("googleMapsUrl") as string | null; // Explicitly cast to string or null
 
 		// Ensure at least one image is provided
 		if (!files.length) {
 			throw new Error("At least one image is required");
+		}
+
+		// Ensure googleMapsUrl is a string
+		if (typeof googleMapsUrl !== "string") {
+			throw new Error("Invalid Google Maps URL");
 		}
 
 		const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -171,7 +176,7 @@ export const createPropertyAction = async (
 			data: {
 				...validatedFields,
 				image: uploadedImages, // Store array of image URLs
-				googleMapsUrl,
+				googleMapsUrl, // Now guaranteed to be a string
 				profileId: user.id,
 			},
 		});
@@ -812,7 +817,8 @@ export const updatePropertyImageAction = async (
 
 		return { message: "Property Images Updated Successfully", imageUrls };
 	} catch (error) {
-		return renderError(error);
+		console.error("Error updating property images:", error);
+		return { message: "Failed to update property images", imageUrls: [] }; // ✅ Fix: Ensure 'imageUrls' is always returned
 	}
 };
 

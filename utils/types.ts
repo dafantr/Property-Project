@@ -3,16 +3,18 @@ export type actionFunction = (
     formData: FormData
 ) => Promise<{ message: string }>;
 
-export type PropertyCardProps = {
-    image: string;
-    id: string;
-    name: string;
-    tagline: string;
-    city: string;
-    price: number;
-    rating: number;
-    count: number;
-  };
+export interface PropertyCardProps {
+  id: string;
+  name: string;
+  tagline: string;
+  city: string;
+  price: number;
+  rating: number | null;
+  count: number;
+  reviews: { rating: number }[];
+  createdAt: string; // Ensure createdAt is a string
+  image: string | string[]; // Allow image to be a single string or array
+}
 
   export type DateRangeSelect = {
     startDate: Date;
@@ -26,12 +28,14 @@ export type PropertyCardProps = {
   };
 
   export type ExclusiveCardProps = {
-    image: string;
     id: string;
     title: string;
     subtitle: string;
     description: string;
-  };
+    createdAt: Date;
+    media: string; // This represents the image, we will map it below
+    category: string; // Ensure this is included
+};
 
   export type tier = {
     id: string;
