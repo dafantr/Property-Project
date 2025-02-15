@@ -7,15 +7,17 @@ import MorePropertiesList from "@/components/home/MorePropertiesList";
 import MorePropertiesLoading from "./loading";
 import EmptyList from "./EmptyList";
 import { useSearchParams } from "next/navigation";
+import { PropertyCardProps } from "@/utils/types"; 
 
 const MorePropertiesPage = () => {
     const searchParams = useSearchParams();
-    const searchQuery = searchParams.get("search") || ""; // Get the search query from the URL
+    const searchQuery = searchParams.get("search") || "";
 
-    const [properties, setProperties] = useState([]);
-    const [filteredProperties, setFilteredProperties] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
+    // ✅ Define the correct types
+    const [properties, setProperties] = useState<PropertyCardProps[]>([]);
+    const [filteredProperties, setFilteredProperties] = useState<PropertyCardProps[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,10 +28,16 @@ const MorePropertiesPage = () => {
                     category: selectedCategory || undefined,
                 });
 
-                const propertiesWithRatings = await Promise.all(
+                const propertiesWithRatings: PropertyCardProps[] = await Promise.all(
                     data.map(async (property) => {
                         const { rating, count } = await fetchPropertyRating(property.id);
-                        return { ...property, rating, count };
+
+                        return {
+                            ...property,
+                            createdAt: new Date(property.createdAt).toISOString(), // ✅ Fix Date to string
+                            rating: typeof rating === "number" ? rating : null, // ✅ Ensure rating is number | null
+                            category: property.category || "", // ✅ Ensure category exists
+                        };
                     })
                 );
 
@@ -45,14 +53,14 @@ const MorePropertiesPage = () => {
         fetchData();
     }, [searchQuery, selectedCategory]);
 
+    // ✅ Ensure category filtering works correctly
     const handleCategoryChange = (category: string) => {
         if (category === selectedCategory) {
             setSelectedCategory("");
             setFilteredProperties(properties);
         } else {
             setSelectedCategory(category);
-            const filtered = properties.filter((item) => item.category === category);
-            setFilteredProperties(filtered);
+            setFilteredProperties(properties.filter((item) => item.category === category));
         }
     };
 
@@ -71,7 +79,7 @@ const MorePropertiesPage = () => {
                     heading="No results."
                     message="Try finding a different property or removing some filters."
                     btnText="Clear Filters"
-                    onButtonClick={() => handleCategoryChange("")} // Clear filters
+                    onButtonClick={() => handleCategoryChange("")} // ✅ Ensure Clear Filters Works
                 />
             </div>
         );

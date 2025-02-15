@@ -14,6 +14,7 @@ export interface PropertyCardProps {
   reviews: { rating: number }[];
   createdAt: string; // Ensure createdAt is a string
   image: string | string[]; // Allow image to be a single string or array
+  category: string; // ✅ Add this line to include category
 }
 
   export type DateRangeSelect = {

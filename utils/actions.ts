@@ -193,53 +193,47 @@ export const createPropertyAction = async (
 
 
 export const fetchProperties = async ({
-	search = "",
-	category,
+    search = "",
+    category,
 }: {
-	search?: string;
-	category?: string;
+    search?: string;
+    category?: string;
 }) => {
-	const properties = await db.property.findMany({
-		where: {
-			OR: [
-				{ name: { contains: search, mode: "insensitive" } },
-				{ tagline: { contains: search, mode: "insensitive" } },
-			],
-			...(category ? { category } : {}),
-		},
-		select: {
-			id: true,
-			name: true,
-			tagline: true,
-			city: true,
-			image: true,
-			price: true,
-			createdAt: true,
-			reviews: {
-				select: {
-					rating: true,
-				},
-			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
+    const properties = await db.property.findMany({
+        where: {
+            OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { city: { contains: search, mode: "insensitive" } },
+            ],
+            ...(category ? { category } : {}),
+        },
+        select: {
+            id: true,
+            name: true,
+            tagline: true,
+            city: true,
+            price: true,
+            createdAt: true,
+            image: true,
+            category: true, // ✅ Fix: Add category
+            reviews: {
+                select: { rating: true },
+            },
+        },
+    });
 
-	return properties.map((property) => {
-		const ratings = property.reviews.map((review) => review.rating);
-		const averageRating = ratings.length
-			? (
-				ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-			).toFixed(1)
-			: null; // Default to null if no reviews
+    return properties.map((property) => {
+        const ratings = property.reviews.map((review) => review.rating);
+        const averageRating = ratings.length
+            ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+            : null;
 
-		return {
-			...property,
-			rating: averageRating ? parseFloat(averageRating) : null, // Ensure rating is null if no reviews
-			count: ratings.length,
-		};
-	});
+        return {
+            ...property,
+            rating: averageRating,
+            count: ratings.length,
+        };
+    });
 };
 
 export const fetchFavoriteId = async ({

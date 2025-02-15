@@ -1,9 +1,12 @@
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
 
-function ImageInput() {
-  const name = 'image';
-  
+interface ImageInputProps {
+  name?: string; // ✅ Make name optional
+  multiple?: boolean; // ✅ Make multiple optional
+}
+
+function ImageInput({ name = "image", multiple = false }: ImageInputProps) {
   return (
     <div className='mb-2'>
       <Label htmlFor={name} className='capitalize'>
@@ -15,7 +18,7 @@ function ImageInput() {
         type='file'
         required
         accept='image/*'
-        multiple // Allow multiple files
+        multiple={multiple} // ✅ Use multiple prop
         className='max-w-xs'
       />
     </div>

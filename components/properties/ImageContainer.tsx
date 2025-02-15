@@ -34,16 +34,15 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
   // Navigate left (previous image)
   const prevImage = () => {
     if (selectedIndex !== null) {
-      setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+      setSelectedIndex((prev) => (prev !== null ? (prev === 0 ? images.length - 1 : prev - 1) : 0));
     }
   };
-
-  // Navigate right (next image)
+  
   const nextImage = () => {
     if (selectedIndex !== null) {
-      setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+      setSelectedIndex((prev) => (prev !== null ? (prev === images.length - 1 ? 0 : prev + 1) : 0));
     }
-  };
+  };  
 
   // Navigate left (for smaller images) with infinite loop
   const prevSmallImage = () => {

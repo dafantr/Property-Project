@@ -9,9 +9,21 @@ import EmptyList from './EmptyList';
 import LoadingSkeleton from './loading';
 import MoreExclusiveList from '@/components/home/MoreExclusiveList';
 
+// ✅ Define the correct type for promotions
+interface Promotion {
+    id: string;
+    createdAt: string; // Ensure it's a string, not Date
+    title: string;
+    category: string;
+    description: string;
+    media: string;
+    subtitle: string;
+}
+
 const MorePage = () => {
-    const [promotions, setPromotions] = useState([]);
-    const [filteredPromotions, setFilteredPromotions] = useState([]);
+    // ✅ Explicitly type the state
+    const [promotions, setPromotions] = useState<Promotion[]>([]);
+    const [filteredPromotions, setFilteredPromotions] = useState<Promotion[]>([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +33,11 @@ const MorePage = () => {
             try {
                 const data = await fetchPromotions();
 
-                const sortedData = data.sort(
+                // ✅ Convert `createdAt` to a string format if necessary
+                const sortedData: Promotion[] = data.map((promotion) => ({
+                    ...promotion,
+                    createdAt: new Date(promotion.createdAt).toISOString(), // Ensure it's a string
+                })).sort(
                     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
 
@@ -39,13 +55,12 @@ const MorePage = () => {
 
     const handleCategoryChange = (category: string) => {
         if (category === selectedCategory) {
-            // If the same category is clicked, clear the search and reset filter
             setSelectedCategory('');
             setSearchQuery('');
-            setFilteredPromotions(promotions); // Show all promotions again
+            setFilteredPromotions(promotions);
         } else {
             setSelectedCategory(category);
-            filterPromotions(category, searchQuery); // Filter by the selected category
+            filterPromotions(category, searchQuery);
         }
     };
 
