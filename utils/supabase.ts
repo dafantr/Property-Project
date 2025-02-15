@@ -1,22 +1,46 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
-const bucket = 'Property-Project';
+const bucket = "Property-Project";
 
-export const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_KEY as string
-);
+// ✅ Ensure environment variables are correctly loaded
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// ✅ Throw error if variables are missing
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase environment variables");
+}
+
+// ✅ Initialize Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const uploadImage = async (image: File) => {
-  const timestamp = Date.now();
-  // const newName = `/users/${timestamp}-${image.name}`;
-  const newName = `${timestamp}-${image.name}`;
+  try {
+    const timestamp = Date.now();
+    const newName = `${timestamp}-${image.name}`;
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(newName, image, {
-      cacheControl: '3600',
-    });
-  if (!data) throw new Error('Image upload failed');
-  return supabase.storage.from(bucket).getPublicUrl(newName).data.publicUrl;
+    // ✅ Upload the image
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(newName, image, {
+        cacheControl: "3600",
+      });
+
+    if (error) {
+      console.error("Supabase Upload Error:", error);
+      throw new Error("Image upload failed");
+    }
+
+    // ✅ Get the public URL
+    const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(newName);
+
+    if (!publicData) {
+      throw new Error("Failed to retrieve public URL");
+    }
+
+    return publicData.publicUrl;
+  } catch (err) {
+    console.error("Upload Image Error:", err);
+    throw err;
+  }
 };

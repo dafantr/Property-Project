@@ -18,6 +18,9 @@ import { calculateTotals } from "./calculateTotals";
 import { formatDate } from "./format";
 import { reward, member, referralDetails, loyaltyPointDetails } from "./types";
 import { MemberActions } from "@/app/admin/memberOverview/components/MemberActions";
+import { supabase } from "./supabase"; // ✅ Import the existing Supabase client
+
+const bucket = "Property-Project";
 
 const getAuthUser = async () => {
 	const user = await currentUser();
@@ -712,7 +715,7 @@ export const updatePropertyAction = async (
         console.log("After Deletion:", updatedImages);
 
         // Handle new image uploads
-        const newImages = formData.getAll("newImages") as File[]; // Check if "newImages" is correct
+        const newImages = formData.getAll("newImages") as File[];
         const uploadedImageUrls: string[] = [];
 
         console.log("New Images to Upload:", newImages);
@@ -733,7 +736,10 @@ export const updatePropertyAction = async (
                     continue;
                 }
 
-                const imageUrl = supabase.storage.from("Property-Project").getPublicUrl(data.path);
+                // ✅ Correct way to extract the public URL
+                const { data: publicData } = supabase.storage.from("Property-Project").getPublicUrl(data.path);
+                const imageUrl = publicData.publicUrl;
+
                 console.log("Uploaded Image URL:", imageUrl);
                 uploadedImageUrls.push(imageUrl);
             }
