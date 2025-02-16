@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 const bucket = "Property-Project";
 
 // ✅ Ensure environment variables are correctly loaded
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_KEY;
 
 // ✅ Throw error if variables are missing
 if (!supabaseUrl || !supabaseAnonKey) {
