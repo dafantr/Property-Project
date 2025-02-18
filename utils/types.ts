@@ -109,7 +109,7 @@ export type LoyaltiPointsProps = {
   loyaltyPointDetails: loyaltyPointDetails[];
 }
 
-export type Downline = {
+export type DownlineType = {
   id: string;
   profile: {
     firstName: string;
@@ -119,11 +119,11 @@ export type Downline = {
   memberId: string;
   isActive: number;
   isDeleted: number;
-  downlines: Downline[];
+  downlines: DownlineType[];
 };
 
 export type DownlineProps = {
-  member: any;
+  member: DownlineType;
   level?: number;
 };
 

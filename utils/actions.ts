@@ -19,6 +19,7 @@ import { formatDate } from "./format";
 import { reward, member, referralDetails, loyaltyPointDetails } from "./types";
 import { MemberActions } from "@/app/admin/memberOverview/components/MemberActions";
 import { supabase } from "./supabase"; // ✅ Import the existing Supabase client
+import { DownlineType } from "@/utils/types";
 
 const bucket = "Property-Project";
 
@@ -1612,11 +1613,11 @@ export const fetchDownline = async (memberId: string) => {
 	});
 };
 
-export const fetchDownlines = async (memberId: string, depth: number) => {
-	return await db.member.findUnique({
-		where: { id: memberId },
-		select: createDownlineSelect(depth), // Get 5 levels of downlines
-	});
+export const fetchDownlines = async (memberId: string, depth: number): Promise<DownlineType | null> => {
+    return await db.member.findUnique({
+        where: { id: memberId },
+        select: createDownlineSelect(depth), // Ensure this function matches DownlineType[]
+    }) as DownlineType | null; // Explicitly cast the return type
 };
 
 const createDownlineSelect = (depth: number) => {

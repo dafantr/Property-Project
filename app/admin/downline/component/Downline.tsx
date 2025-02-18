@@ -1,5 +1,5 @@
 "use client"
-import { DownlineProps } from "@/utils/types";
+import { DownlineProps, DownlineType } from "@/utils/types";
 import { ChevronDown, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
 
@@ -56,12 +56,12 @@ export default function Downline({
             )}
             
             <div className="flex gap-[100px] sm:gap-[120px] md:gap-[140px] lg:gap-[160px] min-w-max px-2 sm:px-4"> {/* Increased gap */}
-                {member.downlines?.map((downline) => (
-                    <div key={downline.id} className="relative"> {/* Added margin top */}
-                        <div className="absolute top-0 left-1/2 w-px h-8 sm:h-10 md:h-12 lg:h-14 bg-[#C4A777] -translate-x-1/2" />
-                        <Downline member={downline} level={level + 1} />
-                    </div>
-                ))}
+            {member.downlines?.map((downline: DownlineType) => (
+                <div key={downline.id} className="relative">
+                    <div className="absolute top-0 left-1/2 w-px h-8 sm:h-10 md:h-12 lg:h-14 bg-[#C4A777] -translate-x-1/2" />
+                    <Downline member={downline} level={level + 1} />
+                </div>
+            ))}
             </div>
           </div>
         </>
