@@ -100,7 +100,7 @@ export interface PropertyCardProps {
     rewards: reward[];
     referralDetails: referralDetails[];
     loyaltyPointDetails: loyaltyPointDetails[];
-    downlines: Downline;
+    downlines: any;
 }
 
 export type LoyaltiPointsProps = {
@@ -123,7 +123,7 @@ export type Downline = {
 };
 
 export type DownlineProps = {
-  member: Downline;
+  member: any;
   level?: number;
 };
 
