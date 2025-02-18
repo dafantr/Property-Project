@@ -5,7 +5,6 @@ import { fetchPromotions } from '@/utils/actions';
 import EmptyList from './EmptyList';
 import type { ExclusiveCardProps } from '@/utils/types';
 import ExclusiveCardList from './ExclusiveCardList';
-import ExclusiveList from './ExclusiveList';
 
 function ExclusiveContainer({
     exclusive,
@@ -19,7 +18,7 @@ function ExclusiveContainer({
 
     useEffect(() => {
         const fetchData = async () => {
-            let data: ExclusiveCardProps[] = await fetchPromotions();
+            let data = await fetchPromotions();
 
             if (search) {
                 data = data.filter((promotion) =>
@@ -31,8 +30,15 @@ function ExclusiveContainer({
                 (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
 
-            setPromotions(data);
-            setFilteredPromotions(data); 
+            // Ensure the 'image' property is mapped correctly, and 'category' is included
+            const mappedData: ExclusiveCardProps[] = data.map((promotion) => ({
+                ...promotion,
+                image: promotion.media,  // Map 'media' to 'image'
+                category: promotion.category || 'general', // Ensure 'category' is included
+            }));
+
+            setPromotions(mappedData);
+            setFilteredPromotions(mappedData);
         };
 
         fetchData();
@@ -44,7 +50,7 @@ function ExclusiveContainer({
                 promotions.filter((promotion) => promotion.category === exclusive)
             );
         } else {
-            setFilteredPromotions(promotions); 
+            setFilteredPromotions(promotions);
         }
     }, [exclusive, promotions]);
 
@@ -66,7 +72,7 @@ function ExclusiveContainer({
 
             {/* View More Button - Always shown */}
             <div className="flex justify-end mt-4 px-4">
-            <a
+                <a
                     href="/promotions/more"
                     className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
                     style={{

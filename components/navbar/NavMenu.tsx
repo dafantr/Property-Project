@@ -54,12 +54,13 @@ const ListItem = React.forwardRef<React.ElementRef<"a">, React.ComponentPropsWit
         const handleClick = async (e: React.MouseEvent) => {
             e.preventDefault();
         
-            // Calculate offset value (e.g., 100px or any desired value)
-            const offset = 100;
+            if (!href) return; // ✅ Ensure href is defined before proceeding
+        
+            const offset = 100; // Scroll offset
         
             // If already on the home page, scroll to the section directly
             if (pathname === "/") {
-                const target = document.querySelector(href);
+                const target = href ? document.querySelector(href) : null;
                 if (target) {
                     const elementPosition = target.getBoundingClientRect().top + window.scrollY;
                     const offsetPosition = elementPosition - offset;
@@ -71,22 +72,23 @@ const ListItem = React.forwardRef<React.ElementRef<"a">, React.ComponentPropsWit
                 }
             } else {
                 // If on another page, navigate to the page with the hash (smooth scroll after redirect)
-                await router.push(`/${href}`);
-                setTimeout(() => {
-                    const target = document.querySelector(href);
-                    if (target) {
-                        const elementPosition = target.getBoundingClientRect().top + window.scrollY;
-                        const offsetPosition = elementPosition - offset;
+                if (href) {
+                    await router.push(`/${href}`);
+                    setTimeout(() => {
+                        const target = document.querySelector(href);
+                        if (target) {
+                            const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                            const offsetPosition = elementPosition - offset;
         
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: "smooth",
-                        });
-                    }
-                }, 500); // Delay to ensure the page is loaded before scrolling
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: "smooth",
+                            });
+                        }
+                    }, 500);
+                }
             }
-        };
-        
+        };        
 
         return (
             <li>

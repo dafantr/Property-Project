@@ -9,11 +9,10 @@ import { SubmitButton } from "@/components/form/Buttons";
 import ImageInputContainer from "@/components/form/ImageInputContainer";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
-//import { profile } from "console";
 
 async function ProfilePage() {
   const user = await currentUser();
-  const profile= await fetchProfile();
+  const profile = await fetchProfile();
 
   if (!user?.privateMetadata.hasProfile) {
     redirect('/profile/create');
@@ -27,7 +26,9 @@ async function ProfilePage() {
     <section>
       <h1 className="text-2xl font-semibold mb-8 capitalize">User Profile</h1>
       <div className="border p-8 rounded-md ">
+        {/* ✅ Ensure id is passed */}
         <ImageInputContainer
+          id={profile?.id}  // ✅ Pass the required id
           image={profile?.profileImage}
           name={profile?.username}
           action={updateProfileImageAction}
@@ -61,4 +62,5 @@ async function ProfilePage() {
     </section>
   );
 }
+
 export default ProfilePage;

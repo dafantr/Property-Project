@@ -58,11 +58,11 @@ function HomePage({
           heading="Exclusive Highlights"
           paragraph="Discover the exceptional moments and unique offerings that make your experience with us truly unforgettable. From personalized services to once-in-a-lifetime events, explore what sets us apart and elevates your stay to something extraordinary."
         />
-        <ExclusiveList
-          exclusive={searchParams?.exclusive}
+        <ExclusiveList 
+          exclusive={searchParams?.exclusive} 
         />
-        <ExclusiveContainer
-          exclusive={searchParams?.exclusive}
+        <ExclusiveContainer 
+          exclusive={searchParams?.exclusive} 
         />
       </div>
       <div id="testimony">

@@ -13,6 +13,7 @@ type ImageInputContainerProps = {
   name: string;
   action: actionFunction;
   text: string;
+  id: string; // ✅ Add missing id property
   children?: React.ReactNode;
 };
 

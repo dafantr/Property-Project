@@ -2,18 +2,21 @@
 
 import { categories } from "@/utils/categories";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-function CategoriesList() {
-  const searchParams = useSearchParams();
+interface CategoriesListProps {
+  category?: string;
+  search?: string;
+}
+
+function CategoriesList({ category = "", search = "" }: CategoriesListProps) {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const category = searchParams.get("category") || "";
-  const search = searchParams.get("search") || "";
-
   const handleCategoryChange = (selectedCategory: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
+    
+    if (search) params.set("search", search); // Preserve search query
 
     if (selectedCategory === category) {
       params.delete("category"); // If the same category is clicked, remove it

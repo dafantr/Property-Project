@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 	
 	const rewards = await fetchRewards();
 	if('message' in rewards) {
-		throw new Error(rewards.message);
+		throw new Error('Failed to fetch rewards');
 	}
 
 	const referralDetails = await fetchReferralDetails(member);

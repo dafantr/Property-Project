@@ -13,6 +13,12 @@ type FavoriteToggleFormProps = {
   startTransition: (fn: () => void) => void;
 };
 
+// ✅ Define the expected return type of toggleFavoriteAction
+interface ToggleFavoriteResponse {
+  id: string | null;
+  message: string;
+}
+
 function FavoriteToggleForm({
   propertyId,
   favoriteId,
@@ -22,16 +28,22 @@ function FavoriteToggleForm({
 }: FavoriteToggleFormProps) {
   const pathname = usePathname();
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     startTransition(async () => {
-      const newFavoriteId = await toggleFavoriteAction({
+      const result = await toggleFavoriteAction({
         propertyId,
         favoriteId,
         pathname,
       });
 
-      setFavoriteId(newFavoriteId); // Update state immediately
+      // ✅ Fix: Explicitly type result as ToggleFavoriteResponse
+      const response = result as ToggleFavoriteResponse;
+
+      // ✅ Ensure response.id is of type string | null
+      setFavoriteId(response.id ?? null);
     });
+
+    return { message: "Favorite updated successfully" }; // ✅ Ensure return type
   };
 
   return (

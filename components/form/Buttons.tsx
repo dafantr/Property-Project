@@ -56,7 +56,10 @@ export const CardSignInButton = () => {
   );
 };
 
-export const CardSubmitButton = ({ isFavorite }: { isFavorite: boolean }) => {
+  export const CardSubmitButton = ({
+    isFavorite,
+    isPending,  // ✅ Accept isPending
+  }: { isFavorite: boolean; isPending?: boolean }) => {
   const { pending } = useFormStatus();
   return (
     <Button

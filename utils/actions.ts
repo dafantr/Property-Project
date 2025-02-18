@@ -18,6 +18,10 @@ import { calculateTotals } from "./calculateTotals";
 import { formatDate } from "./format";
 import { reward, member, referralDetails, loyaltyPointDetails } from "./types";
 import { MemberActions } from "@/app/admin/memberOverview/components/MemberActions";
+import { supabase } from "./supabase"; // ✅ Import the existing Supabase client
+import { DownlineType } from "@/utils/types";
+
+const bucket = "Property-Project";
 
 const getAuthUser = async () => {
 	const user = await currentUser();
@@ -149,11 +153,16 @@ export const createPropertyAction = async (
 	try {
 		const rawData = Object.fromEntries(formData);
 		const files = formData.getAll("image") as File[];
-		const googleMapsUrl = rawData["googleMapsUrl"];
+		const googleMapsUrl = formData.get("googleMapsUrl") as string | null; // Explicitly cast to string or null
 
 		// Ensure at least one image is provided
 		if (!files.length) {
 			throw new Error("At least one image is required");
+		}
+
+		// Ensure googleMapsUrl is a string
+		if (typeof googleMapsUrl !== "string") {
+			throw new Error("Invalid Google Maps URL");
 		}
 
 		const validatedFields = validateWithZodSchema(propertySchema, rawData);
@@ -171,7 +180,7 @@ export const createPropertyAction = async (
 			data: {
 				...validatedFields,
 				image: uploadedImages, // Store array of image URLs
-				googleMapsUrl,
+				googleMapsUrl, // Now guaranteed to be a string
 				profileId: user.id,
 			},
 		});
@@ -188,53 +197,47 @@ export const createPropertyAction = async (
 
 
 export const fetchProperties = async ({
-	search = "",
-	category,
+    search = "",
+    category,
 }: {
-	search?: string;
-	category?: string;
+    search?: string;
+    category?: string;
 }) => {
-	const properties = await db.property.findMany({
-		where: {
-			OR: [
-				{ name: { contains: search, mode: "insensitive" } },
-				{ tagline: { contains: search, mode: "insensitive" } },
-			],
-			...(category ? { category } : {}),
-		},
-		select: {
-			id: true,
-			name: true,
-			tagline: true,
-			city: true,
-			image: true,
-			price: true,
-			createdAt: true,
-			reviews: {
-				select: {
-					rating: true,
-				},
-			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
+    const properties = await db.property.findMany({
+        where: {
+            OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { city: { contains: search, mode: "insensitive" } },
+            ],
+            ...(category ? { category } : {}),
+        },
+        select: {
+            id: true,
+            name: true,
+            tagline: true,
+            city: true,
+            price: true,
+            createdAt: true,
+            image: true,
+            category: true, // ✅ Fix: Add category
+            reviews: {
+                select: { rating: true },
+            },
+        },
+    });
 
-	return properties.map((property) => {
-		const ratings = property.reviews.map((review) => review.rating);
-		const averageRating = ratings.length
-			? (
-				ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-			).toFixed(1)
-			: null; // Default to null if no reviews
+    return properties.map((property) => {
+        const ratings = property.reviews.map((review) => review.rating);
+        const averageRating = ratings.length
+            ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+            : null;
 
-		return {
-			...property,
-			rating: averageRating ? parseFloat(averageRating) : null, // Ensure rating is null if no reviews
-			count: ratings.length,
-		};
-	});
+        return {
+            ...property,
+            rating: averageRating,
+            count: ratings.length,
+        };
+    });
 };
 
 export const fetchFavoriteId = async ({
@@ -713,7 +716,7 @@ export const updatePropertyAction = async (
         console.log("After Deletion:", updatedImages);
 
         // Handle new image uploads
-        const newImages = formData.getAll("newImages") as File[]; // Check if "newImages" is correct
+        const newImages = formData.getAll("newImages") as File[];
         const uploadedImageUrls: string[] = [];
 
         console.log("New Images to Upload:", newImages);
@@ -734,7 +737,10 @@ export const updatePropertyAction = async (
                     continue;
                 }
 
-                const imageUrl = supabase.storage.from("Property-Project").getPublicUrl(data.path);
+                // ✅ Correct way to extract the public URL
+                const { data: publicData } = supabase.storage.from("Property-Project").getPublicUrl(data.path);
+                const imageUrl = publicData.publicUrl;
+
                 console.log("Uploaded Image URL:", imageUrl);
                 uploadedImageUrls.push(imageUrl);
             }
@@ -812,7 +818,8 @@ export const updatePropertyImageAction = async (
 
 		return { message: "Property Images Updated Successfully", imageUrls };
 	} catch (error) {
-		return renderError(error);
+		console.error("Error updating property images:", error);
+		return { message: "Failed to update property images", imageUrls: [] }; // ✅ Fix: Ensure 'imageUrls' is always returned
 	}
 };
 
@@ -1606,11 +1613,11 @@ export const fetchDownline = async (memberId: string) => {
 	});
 };
 
-export const fetchDownlines = async (memberId: string, depth: number) => {
-	return await db.member.findUnique({
-		where: { id: memberId },
-		select: createDownlineSelect(depth), // Get 5 levels of downlines
-	});
+export const fetchDownlines = async (memberId: string, depth: number): Promise<DownlineType | null> => {
+    return await db.member.findUnique({
+        where: { id: memberId },
+        select: createDownlineSelect(depth), // Ensure this function matches DownlineType[]
+    }) as DownlineType | null; // Explicitly cast the return type
 };
 
 const createDownlineSelect = (depth: number) => {

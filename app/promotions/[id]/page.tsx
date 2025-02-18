@@ -19,7 +19,8 @@ async function PromotionDetailPage({ params }: { params: { id: string } }) {
             <ShareButton name={promotion.title} id={promotion.id} type="promotions" />
           </div>
         </header>
-        <ImageContainer mainImage={promotion.media} name={promotion.title} />
+        {/* ✅ Corrected the prop to pass an array */}
+        <ImageContainer images={[promotion.media]} />
 
         <section className="lg:grid lg:grid-cols-12 gap-x-12 mt-12">
           <div className="lg:col-span-8">
