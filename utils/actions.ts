@@ -542,7 +542,7 @@ export const createBookingAction = async (prevState: {
 	} catch (error) {
 		return renderError(error);
 	}
-	redirect(`/checkout?bookingId=${bookingId}`);
+	redirect(`/choosepayment?bookingId=${bookingId}`);
 };
 
 export const fetchBookings = async () => {
@@ -694,58 +694,21 @@ export const updatePropertyAction = async (
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
-        // Get existing and deleted images
-        const existingImages = formData.get("image")?.toString().split(",") || [];
-        const deletedImages = formData.get("deletedImages")?.toString().split(",") || [];
+        // Get the combined image string from the hidden input
+        const allImages = formData.get("image")?.toString() || "";
+        
+        // Split into array and filter out empty strings
+        const imageArray = allImages.split(",").filter(Boolean);
 
-        console.log("Received Data:", { existingImages, deletedImages });
+        // Get deleted images
+        const deletedImages = formData.get("deletedImages")?.toString().split(",").filter(Boolean) || [];
 
-        // Fetch current images from the DB
-        const property = await db.property.findUnique({
-            where: { id: propertyId },
-            select: { image: true },
-        });
+        // Filter out deleted images from the final array
+        const finalImages = imageArray.filter(img => !deletedImages.includes(img));
 
-        let updatedImages = (property?.image || []).filter(
-            (img) => !deletedImages.includes(img)
-        );
+        console.log("Final images to save:", finalImages);
 
-        console.log("After Deletion:", updatedImages);
-
-        // Handle new image uploads
-        const newImages = formData.getAll("newImages") as File[]; // Check if "newImages" is correct
-        const uploadedImageUrls: string[] = [];
-
-        console.log("New Images to Upload:", newImages);
-
-        for (const file of newImages) {
-            if (file instanceof File) {
-                console.log("Uploading File:", file.name);
-                
-                const { data, error } = await supabase.storage
-                    .from("Property-Project")
-                    .upload(`images/${Date.now()}-${file.name}`, file, {
-                        cacheControl: "3600",
-                        upsert: false,
-                    });
-
-                if (error) {
-                    console.error("Image Upload Error:", error);
-                    continue;
-                }
-
-                const imageUrl = supabase.storage.from("Property-Project").getPublicUrl(data.path);
-                console.log("Uploaded Image URL:", imageUrl);
-                uploadedImageUrls.push(imageUrl);
-            }
-        }
-
-        // Merge updated image list
-        const finalImages = [...new Set([...updatedImages, ...uploadedImageUrls])];
-
-        console.log("Final Image List:", finalImages);
-
-        // Save updated image URLs to database
+        // Update the database with all fields including the final image array
         await db.property.update({
             where: { id: propertyId },
             data: {
@@ -754,18 +717,13 @@ export const updatePropertyAction = async (
             },
         });
 
-        console.log("Database Update Successful");
-
         revalidatePath(`/rentals/${propertyId}/edit`);
-        console.log("Revalidation Triggered");
-
         return { message: "Update Successful" };
     } catch (error) {
         console.error('Error updating property:', error);
         return renderError(error);
     }
 };
-
 
 export const updatePropertyImageAction = async (
 	prevState: any,
