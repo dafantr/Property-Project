@@ -30,13 +30,14 @@ async function BookingsPage() {
         <TableCaption>A list of your recent bookings.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="bg-orange-500 text-white rounded-tl-lg">Property Name</TableHead>
-            <TableHead className="bg-orange-500 text-white ">City</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Nights</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Total</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Check In</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Check Out</TableHead>
-            <TableHead className="bg-orange-500 text-white rounded-tr-lg">Actions</TableHead>
+            <TableHead className="bg-primary text-white rounded-tl-lg">Property Name</TableHead>
+            <TableHead className="bg-primary text-white ">City</TableHead>
+            <TableHead className="bg-primary text-white ">Nights</TableHead>
+            <TableHead className="bg-primary text-white ">Total</TableHead>
+            <TableHead className="bg-primary text-white ">Check In</TableHead>
+            <TableHead className="bg-primary text-white ">Check Out</TableHead>
+            <TableHead className="bg-primary text-white rounded-tr-lg">Payment Status</TableHead>
+            {/* <TableHead className="bg-primary text-white rounded-tr-lg">Actions</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,8 +64,20 @@ async function BookingsPage() {
                 <TableCell>{startDate}</TableCell>
                 <TableCell>{endDate}</TableCell>
                 <TableCell>
-                  <DeleteItemButton itemId={booking.id} itemType="booking" />
+                  <span
+                    className={`
+      px-2 py-1 rounded-lg text-white
+      ${booking.paymentStatus === "COMPLETED" ? "bg-green-500" : ""}
+      ${booking.paymentStatus === "PENDING" ? "bg-yellow-500" : ""}
+      ${booking.paymentStatus === "FAILED" ? "bg-red-500" : ""}
+    `}
+                  >
+                    {booking.paymentStatus}
+                  </span>
                 </TableCell>
+                {/* <TableCell>
+                  <DeleteItemButton itemId={booking.id} itemType="booking" />
+                </TableCell> */}
               </TableRow>
             );
           })}

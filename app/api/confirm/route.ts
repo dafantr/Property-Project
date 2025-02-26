@@ -18,7 +18,7 @@ export const GET = async (req: NextRequest) => {
 
       await db.booking.update({
         where: { id: bookingId },
-        data: { paymentStatus: true },
+        data: { paymentStatus: "COMPLETED" },
       });
 
       await distributeCommission(bookingId, 'booking');

@@ -1,8 +1,6 @@
 datasource db {
-  //provider  = "postgres"
   provider = "mongodb"
   url      = env("DATABASE_URL")
-  //directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -20,7 +18,6 @@ model Profile {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   properties   Property[]
-  //Favorite     Favorite[]
   favorites    Favorite[]
   reviews      Review[]
   bookings     Booking[]
@@ -76,6 +73,12 @@ model Review {
   updatedAt  DateTime @updatedAt
 }
 
+enum PaymentStatus {
+  PENDING     // Waiting for admin confirmation
+  COMPLETED   // Payment confirmed
+  FAILED      // Payment rejected
+}
+
 model Booking {
   id            String   @id @default(uuid()) @map("_id")
   profile       Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
@@ -88,11 +91,13 @@ model Booking {
   checkOut      DateTime
   referred      Member?   @relation("BookingReferrals", fields: [referalCode], references: [memberId], onDelete: NoAction)
   referalCode   String?
-  paymentStatus Boolean  @default(false)
+  paymentStatus String @default("PENDING")
+  paymentProof  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   commissionDistribution CommissionDistribution[]
 }
+
 
 model Gallery {
   id        String   @id @default(uuid()) @map("_id")

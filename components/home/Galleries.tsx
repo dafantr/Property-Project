@@ -67,7 +67,7 @@ const Galleries = () => {
                     {/* Close Button (X) - Positioned at top right of screen */}
                     <button
                         onClick={closeModal}
-                        className="fixed top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full border border-orange-500 text-orange-600 hover:bg-orange-100 transition-all"
+                        className="fixed top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full border border-primary text-primary hover:bg-orange-100 transition-all"
                         style={{ cursor: 'pointer' }}
                     >
                         ✕

@@ -499,13 +499,6 @@ export const createBookingAction = async (prevState: {
 			return renderError("Profile not found");
 		}
 
-		await db.booking.deleteMany({
-			where: {
-				profileId: profile?.clerkId,
-				paymentStatus: false,
-			},
-		});
-
 		const { propertyId, checkIn, checkOut, referalCode } = prevState;
 		const property = await db.property.findUnique({
 			where: { id: propertyId },
@@ -554,7 +547,7 @@ export const fetchBookings = async () => {
 	const bookings = await db.booking.findMany({
 		where: {
 			profileId: profile?.clerkId,
-			paymentStatus: true,
+			paymentStatus: { in: ["PENDING", "COMPLETED"] }, // Fetch both
 		},
 		include: {
 			property: {
@@ -617,22 +610,22 @@ export const fetchRentals = async () => {
 			const totalNightsSum = await db.booking.aggregate({
 				where: {
 					propertyId: rental.id,
-					paymentStatus: true,
+					paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
 				},
 				_sum: {
 					totalNights: true,
 				},
 			});
-
+			
 			const orderTotalSum = await db.booking.aggregate({
 				where: {
 					propertyId: rental.id,
-					paymentStatus: true,
+					paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
 				},
 				_sum: {
 					orderTotal: true,
 				},
-			});
+			});			
 
 			return {
 				...rental,
@@ -774,26 +767,19 @@ export const updatePropertyImageAction = async (
 
 		return { message: "Property Images Updated Successfully", imageUrls };
 	} catch (error) {
-		console.error("Error updating property images:", error);
 		return { message: "Failed to update property images", imageUrls: [] }; // ✅ Fix: Ensure 'imageUrls' is always returned
 	}
 };
 
 export const fetchReservations = async () => {
-	const user = await getAuthUser();
-
+	//const user = await getAuthUser();
 	const reservations = await db.booking.findMany({
 		where: {
-			paymentStatus: true,
-			property: {
-				profileId: user.id,
-			},
+			paymentStatus: { in: ["PENDING", "COMPLETED"] },
 		},
-
 		orderBy: {
 			createdAt: "desc",
 		},
-
 		include: {
 			profile: {
 				select: {
@@ -807,10 +793,13 @@ export const fetchReservations = async () => {
 					name: true,
 					price: true,
 					city: true,
+					profileId: true, // Include the property owner's ID
 				},
 			},
 		},
 	});
+
+	//console.log("Logged-in User ID:", user.id);
 	return reservations;
 };
 
@@ -821,9 +810,9 @@ export const fetchStats = async () => {
 	const propertiesCount = await db.property.count();
 	const bookingsCount = await db.booking.count({
 		where: {
-			paymentStatus: true,
+			paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
 		},
-	});
+	});	
 
 	return {
 		usersCount,
@@ -840,7 +829,7 @@ export const fetchChartsData = async () => {
 
 	const bookings = await db.booking.findMany({
 		where: {
-			paymentStatus: true,
+			paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
 			createdAt: {
 				gte: sixMonthsAgo,
 			},
@@ -849,6 +838,7 @@ export const fetchChartsData = async () => {
 			createdAt: "asc",
 		},
 	});
+	
 	let bookingsPerMonth = bookings.reduce((total, current) => {
 		const date = formatDate(current.createdAt, true);
 
@@ -865,9 +855,10 @@ export const fetchChartsData = async () => {
 
 export const fetchReservationStats = async () => {
 	const user = await getAuthUser();
-	const properties = await db.property.count({
+
+	const completedBookings = await db.booking.count({
 		where: {
-			profileId: user.id,
+			paymentStatus: "COMPLETED",
 		},
 	});
 
@@ -877,14 +868,12 @@ export const fetchReservationStats = async () => {
 			totalNights: true,
 		},
 		where: {
-			property: {
-				profileId: user.id,
-			},
+			paymentStatus: "COMPLETED",
 		},
 	});
 
 	return {
-		properties,
+		properties: completedBookings, 
 		nights: totals._sum.totalNights || 0,
 		amount: totals._sum.orderTotal || 0,
 	};
@@ -2861,15 +2850,95 @@ export const deleteGeneralVariableAction = async (id: string): Promise<{ message
 	}
 };
 
-// export async function getBookingDetails(bookingId: string) {
-//     return await prisma.booking.findUnique({
-//         where: { id: bookingId },
-//         select: {
-//             name: true,
-//             images: true,
-//             description: true,
-//             orderTotal: true,
-//         },
-//     });
-// }
+export const uploadPaymentProofAction = async (formData: FormData) => {
+    const user = await getAuthUser();
+    const bookingId = formData.get("bookingId") as string;
+    const file = formData.get("image") as File;
 
+    if (!bookingId || !file) {
+        return { error: "Missing booking ID or image file." };
+    }
+
+    try {
+        // Validate file using Zod schema
+        const validatedFile = validateWithZodSchema(imageSchema, { image: file });
+
+        // Upload image and get full path URL
+        const fullPath = await uploadImage(validatedFile.image);
+
+        // Update Booking record with payment proof
+        await db.booking.update({
+            where: { id: bookingId },
+            data: { paymentProof: fullPath, paymentStatus: "PENDING" },
+        });
+
+        return redirect("/bookings"); // Redirect after successful upload
+    } catch (error) {
+        console.error("Upload error:", error);
+        return { error: "Failed to upload proof of payment." };
+    }
+};
+
+export async function fetchBookingById(id: string) {
+	try {
+	  const booking = await prisma.booking.findUnique({
+		where: { id },
+		include: {
+		  profile: true, // Include profile data
+		  property: true, // Include property data
+		},
+	  });
+  
+	  if (!booking) {
+		throw new Error("Booking not found");
+	  }
+  
+	  const { id: propertyId, name, city } = booking.property;
+	  const { username, firstName, lastName, email, profileImage } = booking.profile;
+	  const startDate = formatDate(new Date(booking.checkIn)); // Format check-in date
+	  const endDate = formatDate(new Date(booking.checkOut)); // Format check-out date
+  
+	  return {
+		id: booking.id,
+		user: {
+		  username: username,
+		  name: `${firstName} ${lastName}`,
+		  email: email,
+		  profileImage: profileImage || "/default-avatar.jpg", // Default avatar if no profile image
+		},
+		property: {
+		  id: propertyId,
+		  name: name,
+		  city: city,
+		},
+		status: booking.paymentStatus,
+		checkIn: startDate, // Return formatted check-in date
+		checkOut: endDate, // Return formatted check-out date
+		orderTotal: booking.orderTotal,
+		images: booking.paymentProof ? [booking.paymentProof] : [],
+	  };
+	} catch (error) {
+	  console.error("Error fetching booking:", error);
+	  return null;
+	}
+  }
+
+  export async function updateBookingStatus(bookingId: string, newStatus: "PENDING" | "COMPLETE"): Promise<any> {
+	try {
+	  const updatedBooking = await prisma.booking.update({
+		where: {
+		  id: bookingId, // Find the booking by its ID
+		},
+		data: {
+		  paymentStatus: newStatus, // Set the new payment status
+		},
+	  });
+  
+	  return updatedBooking; // Return the updated booking
+	} catch (error) {
+	  console.error("Error updating booking status:", error);
+	  throw error; // Throw the error to be handled by the caller
+	}
+  }
+  
+	  

@@ -17,6 +17,7 @@ const isAdminRoute = createRouteMatcher([
   '/gallery',
   '/promotions/create',
   '/promotions',
+  '/booking-detail(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
