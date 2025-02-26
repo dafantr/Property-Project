@@ -1,15 +1,34 @@
-'use client'; // Required for client-side rendering
+'use client';
 import { useState, useEffect } from 'react';
 import { fetchGalleries } from '@/utils/actions';
 
+// Define the type for the gallery items
+interface GalleryItem {
+    id: string;
+    createdAt: string; // Ensure createdAt is a string
+    title: string;
+    media: string;
+}
+
 const Galleries = () => {
-    const [galleries, setGalleries] = useState([]);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [galleries, setGalleries] = useState<GalleryItem[]>([]);
+    const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchGalleries();
-            const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const data: { id: string; createdAt: Date; title: string; media: string; }[] = await fetchGalleries();
+
+            // Convert 'createdAt' from Date to string before setting state
+            const formattedData: GalleryItem[] = data.map((gallery) => ({
+                ...gallery,
+                createdAt: gallery.createdAt.toISOString(), // Convert Date to ISO string
+            }));
+
+            // Ensure 'createdAt' is properly converted to Date before sorting
+            const sortedData = formattedData.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+
             setGalleries(sortedData);
         };
 

@@ -11,7 +11,9 @@ import { GoContainer } from 'react-icons/go';
 type Category = {
   label: CategoryLabel;
   icon: IconType;
+  url: string; // ✅ Add this line
 };
+
 
 export type CategoryLabel =
   // | 'cabin'
@@ -25,46 +27,20 @@ export type CategoryLabel =
   | 'Canggu'
   | 'Ubud';
 
-export const categories: Category[] = [
-  // {
-  //   label: 'cabin',
-  //   icon: MdCabin,
-  // },
-//   {
-//     label: 'airstream',
-//     icon: PiVan,
-//   },
-//   {
-//     label: 'tent',
-//     icon: TbTent,
-//   },
-  {
-    label: 'Canggu',
-    icon: PiWarehouse,
-  },
-  {
-    label: 'Lovina',
-    icon: TbBuildingCottage,
-  },
-//   {
-//     label: 'magic',
-//     icon: GiMushroomHouse,
-//   },
-//   {
-//     label: 'container',
-//     icon: GoContainer,
-//   },
-  // {
-  //   label: 'caravan',
-  //   icon: TbCaravan,
-  // },
-
-  // {
-  //   label: 'tiny',
-  //   icon: PiLighthouse,
-  // },
-  {
-    label: 'Ubud',
-    icon: GiWoodCabin,
-  },
-];
+  export const categories: Category[] = [
+    {
+      label: 'Canggu',
+      icon: PiWarehouse,
+      url: 'canggu', // ✅ Add URL property
+    },
+    {
+      label: 'Lovina',
+      icon: TbBuildingCottage,
+      url: 'lovina', // ✅ Add URL property
+    },
+    {
+      label: 'Ubud',
+      icon: GiWoodCabin,
+      url: 'ubud', // ✅ Add URL property
+    },
+  ];  

@@ -33,7 +33,7 @@ function CreatePromotionPage() {
               labelText='Description (10 - 1000 words)'
             />
             <ExlucisveTypeInput />
-            <ImageInput />
+            <ImageInput name='image' />
           </div>
           <SubmitButton text='create Exclusive Highlight' className='mt-5' />
         </FormContainer>

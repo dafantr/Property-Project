@@ -83,7 +83,7 @@ function ShareButton({
             <WhatsappShareButton url={shareLink} title={name}>
               <WhatsappIcon size={32} round />
             </WhatsappShareButton>
-            <FacebookShareButton url={shareLink} quote={name}>
+            <FacebookShareButton url={shareLink}>
               <FacebookIcon size={32} round />
             </FacebookShareButton>
           </div>

@@ -13,6 +13,7 @@ type ImageInputContainerProps = {
   name: string;
   action: actionFunction;
   text: string;
+  id: string; // ✅ Add missing id property
   children?: React.ReactNode;
 };
 
@@ -48,7 +49,7 @@ function ImageInputContainer(props: ImageInputContainerProps) {
         <div className='max-w-lg mt-4'>
           <FormContainer action={action}>
             {props.children}
-            <ImageInput />
+            <ImageInput name='image' />
             <SubmitButton size='sm' />
           </FormContainer>
         </div>

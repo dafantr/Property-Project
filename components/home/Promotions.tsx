@@ -1,33 +1,49 @@
-'use client'; // Required for client-side rendering
+'use client';
 import { useState, useEffect } from 'react';
 import { fetchPromotions } from '@/utils/actions';
 import Link from 'next/link';
 import Image from 'next/image';
-import { exclusiveCategories } from '@/utils/exclusiveCategories';
+
+// Define type for promotions
+interface PromotionItem {
+    id: string;
+    category: string;
+    description: string;
+    createdAt: string; // Ensure this matches the expected type
+    title: string;
+    media: string;
+    subtitle: string;
+}
 
 const Promotions = ({ exclusiveCategory }: { exclusiveCategory?: string }) => {
-    const [promotions, setPromotions] = useState([]);
+    // Explicitly set the type of state
+    const [promotions, setPromotions] = useState<PromotionItem[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
-            // Fetch all promotions first
             const data = await fetchPromotions();
+
+            // Convert `createdAt` to string before setting state
+            const formattedData: PromotionItem[] = data.map((promotion) => ({
+                ...promotion,
+                createdAt: new Date(promotion.createdAt).toISOString(), // Convert Date to string
+            }));
 
             // If a category is provided, filter promotions by category
             const filteredPromotions = exclusiveCategory
-                ? data.filter((promotion) => promotion.category === exclusiveCategory)
-                : data;
+                ? formattedData.filter((promotion) => promotion.category === exclusiveCategory)
+                : formattedData;
 
             // Sort promotions by 'createdAt' field (newest first)
             const sortedData = filteredPromotions.sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
 
             setPromotions(sortedData);
         };
 
         fetchData();
-    }, [exclusiveCategory]); // Re-fetch promotions whenever the exclusiveCategory changes
+    }, [exclusiveCategory]); // Re-fetch promotions whenever the category changes
 
     return (
         <div className="mt-5 mb-5">
@@ -56,9 +72,10 @@ const Promotions = ({ exclusiveCategory }: { exclusiveCategory?: string }) => {
                 ))}
             </section>
 
+            {/* View More Button */}
             <div className="flex justify-end mt-4 px-4">
-            <a
-                    href="/gallery/more"
+                <a
+                    href="/promotions/more"
                     className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
                     style={{
                         color: 'rgba(194, 171, 125, 1)', // Text and icon color

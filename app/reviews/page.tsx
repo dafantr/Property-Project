@@ -17,14 +17,14 @@ async function ReviewsPage() {
     <>
       <Title text='Your Reviews' />
       <section className='grid md:grid-cols-2 gap-8 mt-4 '>
-        {reviews.map((review) => {
+      {reviews.map((review) => {
           const { comment, rating } = review;
           const { name, image } = review.property;
           const reviewInfo = {
             comment,
             rating,
             name,
-            image,
+            image: Array.isArray(image) && image.length > 0 ? image[0] : '', // ✅ Use the first image or empty string
           };
           return (
             <ReviewCard key={review.id} reviewInfo={reviewInfo}>

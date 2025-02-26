@@ -17,8 +17,25 @@ import SimpleImageUpload from "@/components/form/SimpleImageUpload";
 import CitiesInput from "@/components/form/CitiesInput";
 import { FaTrash } from "react-icons/fa";
 
+interface Property {
+    id: string;
+    name: string;
+    tagline: string;
+    price: number;
+    category: string;
+    city: string;
+    googleMapsUrl: string;
+    description: string;
+    guests: number;
+    bedrooms: number;
+    beds: number;
+    baths: number;
+    amenities: string;
+    image: string[];
+}
+
 async function EditRentalPage({ params }: { params: { id: string } }) {
-    const [property, setProperty] = useState<any>(null);
+    const [property, setProperty] = useState<Property | null>(null);
     const [uploadedImages, setUploadedImages] = useState<string[]>([]); // State for uploaded images
     const [deletedImages, setDeletedImages] = useState<string[]>([]);
     const router = useRouter();
@@ -51,7 +68,7 @@ async function EditRentalPage({ params }: { params: { id: string } }) {
         if (newImageUrls.length > 0) {
             setUploadedImages((prevImages) => [...prevImages, ...newImageUrls]);
             setProperty((prev) => ({
-                ...prev,
+                ...prev!,
                 image: [...(prev?.image || []), ...newImageUrls],
             }));
         }
@@ -62,8 +79,8 @@ async function EditRentalPage({ params }: { params: { id: string } }) {
 
         // Remove from UI instantly
         setProperty((prev) => ({
-            ...prev,
-            image: prev.image?.filter((img: string) => img !== imageUrl),
+            ...prev!,
+            image: prev?.image?.filter((img: string) => img !== imageUrl) || [],
         }));
     };
 

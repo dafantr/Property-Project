@@ -3,17 +3,19 @@ import PropertiesList from './PropertiesList';
 import EmptyList from './EmptyList';
 import type { PropertyCardProps } from '@/utils/types';
 
-async function PropertiesContainer({
-  category,
-  search,
-}: {
+// ✅ Step 1: Define the interface for props
+interface PropertiesContainerProps {
   category?: string;
   search?: string;
-}) {
-  const properties: PropertyCardProps[] = await fetchProperties({
-    category,
-    search,
-  });
+}
+
+async function PropertiesContainer({ category, search }: PropertiesContainerProps) {
+  const properties: PropertyCardProps[] = (await fetchProperties({ category, search })).map(
+    (property) => ({
+      ...property,
+      createdAt: new Date(property.createdAt).toISOString(), // Convert Date to string
+    })
+  );
 
   // Sorting properties by createdAt in descending order
   const sortedProperties = properties.sort(
@@ -39,14 +41,14 @@ async function PropertiesContainer({
       {/* View More Button - Always shown */}
       <div className="flex justify-end mt-4 px-4">
         <a
-                    href="/properties/more"
-                    className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
-                    style={{
-                        color: 'rgba(194, 171, 125, 1)', // Text and icon color
-                        borderColor: 'rgba(194, 171, 125, 1)', // Border color
-                        backgroundColor: 'transparent',
-                    }}
-                >
+          href="/properties/more"
+          className="flex items-center border py-2 px-6 gap-2 rounded inline-flex hover:bg-opacity-10 transition"
+          style={{
+            color: 'rgba(194, 171, 125, 1)', // Text and icon color
+            borderColor: 'rgba(194, 171, 125, 1)', // Border color
+            backgroundColor: 'transparent',
+          }}
+        >
           <span>View More</span>
           <svg
             className="w-5 h-5"

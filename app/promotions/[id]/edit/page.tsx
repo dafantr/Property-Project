@@ -1,5 +1,5 @@
 import {
-    fetchPromotionDetails,
+    fetchPromotionDetails, // ✅ Ensure correct function is used
     updatePromotionImageAction,
     updatePromotionAction,
     getAdminUser
@@ -13,18 +13,38 @@ import ImageInputContainer from '@/components/form/ImageInputContainer';
 import CitiesInput from '@/components/form/CitiesInput';
 import ExlusiveTypeInput from '@/components/form/ExlucisveTypeInput';
 
+// ✅ Define the correct Promotion type
+interface Promotion {
+    id: string;
+    title: string;
+    subtitle: string;
+    category: string;
+    description: string;
+    media: string;
+    city?: string;
+    createdAt: string;
+}
+
 async function EditPromotionPage({ params }: { params: { id: string } }) {
     try {
-        await getAdminUser(); // This will redirect if not admin
-        const promotion = await fetchPromotionDetails(params.id);
+        await getAdminUser(); // Redirects if not admin
 
-        if (!promotion) {
+        // ✅ Fetch promotion details correctly
+        const promotionData = await fetchPromotionDetails(params.id);
+
+        if (!promotionData) {
             redirect('/');
         }
 
+        // ✅ Convert `createdAt` to a string before assigning
+        const promotion: Promotion = {
+            ...promotionData,
+            createdAt: promotionData.createdAt.toISOString(), // Convert Date to string
+        };
+
         return (
             <section>
-                <h1 className='text-2xl font-semibold mb-8 capitalize'>Edit Exlusive Highlight</h1>
+                <h1 className='text-2xl font-semibold mb-8 capitalize'>Edit Exclusive Highlight</h1>
                 <div className='border p-8 rounded-md '>
                     <ImageInputContainer
                         name={promotion.title}
@@ -50,10 +70,10 @@ async function EditPromotionPage({ params }: { params: { id: string } }) {
                             />
                             <TextAreaInput
                                 name='description'
-                                label='Description'
+                                labelText='Description'
                                 defaultValue={promotion.description}
                             />
-                            <CitiesInput defaultValue={promotion.city} />
+                            <CitiesInput defaultValue={promotion.city ?? ""} />
                             <ExlusiveTypeInput defaultValue={promotion.category} />
                             <SubmitButton text='Update' />
                         </div>
@@ -62,6 +82,7 @@ async function EditPromotionPage({ params }: { params: { id: string } }) {
             </section>
         );
     } catch (error) {
+        console.error("Error fetching promotion details:", error);
         redirect('/');
     }
 }

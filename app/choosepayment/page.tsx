@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 
 interface BookingDetails {
     name: string;
-    images: string[];
+    image: string;
     description: string;
     orderTotal: number;
 }
@@ -25,7 +25,7 @@ export default function PaymentSelectionPage() {
 
     useEffect(() => {
         if (bookingId) {
-            axios.get(`/api/booking/${bookingId}`)
+            axios.get(`/api/booking-details?bookingId=${bookingId}`)
                 .then((res) => setBookingDetails(res.data))
                 .catch((err) => console.error("Failed to fetch booking details:", err));
         }
@@ -59,7 +59,7 @@ export default function PaymentSelectionPage() {
     return (
         <div className="flex items-center justify-center px-4 py-10">
             <div className="w-full max-w-md shadow-lg rounded-lg p-6 space-y-6">
-                <h1 className="text-2xl font-bold text-center">Choose Payment Method</h1>
+            {selectedMethod !== 'transfer' && <h1 className="text-2xl font-bold text-center">Choose Payment Method</h1>}
 
                 {/* Step 1: Choose Payment Method */}
                 {!selectedMethod && (
@@ -99,28 +99,28 @@ export default function PaymentSelectionPage() {
                 )}
 
                 {/* Step 2: Bank Transfer Upload */}
-                {selectedMethod === 'transfer' && (
+                {selectedMethod === 'transfer' && bookingDetails && (
                     <div className="space-y-4">
-                        {/* Show Booking Details ONLY when Bank Transfer is selected */}
-                        {bookingDetails && (
-                            <div className="bg-gray-100 p-4 rounded-lg space-y-3 text-center">
-                                <h2 className="text-lg font-semibold">{bookingDetails.name}</h2>
-                                {bookingDetails.images.length > 0 && (
-                                    <img
-                                        src={bookingDetails.images[0]}
-                                        alt="Property"
-                                        className="w-full h-40 object-cover rounded-md"
-                                    />
-                                )}
-                                <p className="text-sm text-gray-600">{bookingDetails.description}</p>
-                            </div>
-                        )}
+                        {/* Display Booking Details */}
+                        <h2 className="text-2xl font-bold text-center">Booking Details</h2>
+                        <div className="bg-gray-100 p-4 rounded-lg space-y-3 text-center">
+                            <h2 className="text-lg font-semibold">{bookingDetails.name}</h2>
+                            {bookingDetails.image && (
+                                <img
+                                    src={bookingDetails.image}
+                                    alt="Property"
+                                    className="w-full h-40 object-cover rounded-md"
+                                />
+                            )}
+                            <p className="text-sm text-gray-600">{bookingDetails.description}</p>
+                        </div>
 
                         <h2 className="text-lg font-semibold text-center">Bank Transfer Details</h2>
                         <div className="bg-gray-100 p-4 rounded-lg text-center">
                             <p className="text-md font-medium">Bank Name: <strong>BCA</strong></p>
                             <p className="text-md font-medium">Account Number: <strong>2730125154</strong></p>
                             <p className="text-md font-medium">Account Holder: <strong>PT MDV</strong></p>
+                            <p className="text-md font-medium">Amount: <strong>IDR {bookingDetails.orderTotal.toLocaleString()}</strong></p>
                         </div>
 
                         <h2 className="text-lg font-semibold text-center">Upload Payment Proof</h2>
@@ -149,7 +149,6 @@ export default function PaymentSelectionPage() {
                         </Button>
                     </div>
                 )}
-
             </div>
         </div>
     );

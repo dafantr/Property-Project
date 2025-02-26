@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import EmptyList from '@/components/home/EmptyList';
-import { fetchPromotions } from '@/utils/actions';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import EmptyList from "@/components/home/EmptyList";
+import { fetchPromotions } from "@/utils/actions";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -11,28 +11,53 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import DeleteItemButton from '@/components/popupmessage/DeleteItemButton';
-import { IconButton } from '@/components/form/Buttons';
-import LoadingCard from './loading';
+} from "@/components/ui/table";
+import DeleteItemButton from "@/components/popupmessage/DeleteItemButton";
+import { IconButton } from "@/components/form/Buttons";
+import LoadingCard from "./loading";
 
-async function ExclusiveHighlighPage() {
-  const [promotions, setPromotions] = useState([]);
-  const [loading, setLoading] = useState(true);
+// ✅ Define TypeScript interface for Promotions
+interface Promotion {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  description: string;
+  media: string;
+  createdAt: string; // Ensure it's a string
+}
+
+function ExclusiveHighlightPage() {
+  // ✅ Define the state explicitly with type
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadPromotions = async () => {
       try {
+        setLoading(true);
         const data = await fetchPromotions();
-        // Sort promotions by 'createdAt' in descending order
-        const sortedData = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        // ✅ Convert `createdAt` from Date to string
+        const formattedData: Promotion[] = data.map((promotion: any) => ({
+          ...promotion,
+          createdAt: new Date(promotion.createdAt).toISOString(), // Ensure it's a string
+        }));
+
+        // ✅ Sort promotions by `createdAt`
+        const sortedData = formattedData.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
         setPromotions(sortedData);
       } catch (error) {
-        console.error('Error fetching promotions:', error);
+        console.error("Error fetching promotions:", error);
       } finally {
         setLoading(false);
       }
     };
+
     loadPromotions();
   }, []);
 
@@ -49,24 +74,28 @@ async function ExclusiveHighlighPage() {
   if (promotions.length === 0) {
     return (
       <EmptyList
-        heading="No rentals to display."
-        message="Don't hesitate to create an Exclusive Highlight."
+        heading="No Exclusive Highlights Available"
+        message="Start creating your exclusive highlights now!"
       />
     );
   }
 
   return (
     <div className="mt-16">
-      <h4 className="mb-4 capitalize">Total Images : {promotions.length}</h4>
+      <h4 className="mb-4 capitalize">Total Highlights: {promotions.length}</h4>
       <Table>
-        <TableCaption>A list of all your Exclusive Highlight.</TableCaption>
+        <TableCaption>A list of all your Exclusive Highlights.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="bg-primary text-white rounded-tl-lg">Media</TableHead>
+            <TableHead className="bg-primary text-white rounded-tl-lg">
+              Media
+            </TableHead>
             <TableHead className="bg-primary text-white">Title</TableHead>
             <TableHead className="bg-primary text-white">Subtitle</TableHead>
             <TableHead className="bg-primary text-white">Category</TableHead>
-            <TableHead className="bg-primary text-white rounded-tr-lg">Actions</TableHead>
+            <TableHead className="bg-primary text-white rounded-tr-lg">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -75,7 +104,15 @@ async function ExclusiveHighlighPage() {
             return (
               <TableRow key={id}>
                 <TableCell>
-                  <img src={media} alt={title} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
+                  <img
+                    src={media}
+                    alt={title}
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      objectFit: "cover",
+                    }}
+                  />
                 </TableCell>
                 <TableCell>{title}</TableCell>
                 <TableCell>{subtitle}</TableCell>
@@ -95,4 +132,4 @@ async function ExclusiveHighlighPage() {
   );
 }
 
-export default ExclusiveHighlighPage;
+export default ExclusiveHighlightPage;

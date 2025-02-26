@@ -18,7 +18,7 @@ function CreateGalleryPage() {
               type='text'
               label='Title'
             />
-            <ImageInput />
+            <ImageInput name='image' multiple />
           </div>
           <SubmitButton text='create galery' className='mt-5' />
         </FormContainer>

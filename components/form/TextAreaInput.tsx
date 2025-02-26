@@ -3,7 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 type TextAreaInputProps = {
     name: string;
-    labelText?: string;
+    labelText?: string; // ✅ Make sure this is used correctly
     defaultValue?: string;
 };
 
@@ -11,7 +11,7 @@ function TextAreaInput({ name, labelText, defaultValue }: TextAreaInputProps) {
     return (
         <div className='mb-2'>
             <Label htmlFor={name} className='capitalize'>
-                {labelText || name}
+                {labelText || name} {/* ✅ Use labelText */}
             </Label>
             <Textarea
                 id={name}
