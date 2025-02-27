@@ -7,23 +7,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/utils/format";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export default function BookingDetail({ params }: { params: { id: string } }) {
   const [booking, setBooking] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for selected image
   const [isStatusUpdating, setIsStatusUpdating] = useState<boolean>(false); // Track if status is being updated
-  const [newStatus, setNewStatus] = useState<string>(""); // State for the new status
+  const [newStatus, setNewStatus] = useState<"PENDING" | "COMPLETED">("PENDING");
   const router = useRouter();
 
   useEffect(() => {
     const getBooking = async () => {
       const data = await fetchBookingById(params.id);
-      setBooking(data);
-      setNewStatus(data.status); // Set initial status value
+      if (data) {
+        setBooking(data);
+        setNewStatus(data.status as "PENDING" | "COMPLETED");
+      } else {
+        console.error("Booking data is null");
+      }
     };
 
     getBooking();
   }, [params.id]);
+
 
   const closeModal = () => setSelectedImage(null); // Close modal function
 
@@ -39,6 +46,8 @@ export default function BookingDetail({ params }: { params: { id: string } }) {
       try {
         await updateBookingStatus(booking.id, newStatus); // Update status via API
         setBooking({ ...booking, status: newStatus }); // Update the status in the UI
+
+        router.refresh(); // 🔥 Force Next.js to refetch data
       } catch (error) {
         console.error("Error updating status:", error);
       } finally {
@@ -46,6 +55,7 @@ export default function BookingDetail({ params }: { params: { id: string } }) {
       }
     }
   };
+
 
   if (!booking) return <p>Loading...</p>;
 
@@ -147,18 +157,32 @@ export default function BookingDetail({ params }: { params: { id: string } }) {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-gray-500">Current Status</p>
-              <p className="font-medium">{booking.status}</p>
+              <p
+                className={`font-medium px-2 py-1 rounded-md w-fit ${booking.status === "COMPLETED" ? "bg-green-500 text-white" : "bg-yellow-400 text-white"
+                  }`}
+              >
+                {booking.status}
+              </p>
+
             </div>
             <div>
               <p className="text-sm text-gray-500">Change Status</p>
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="PENDING">Pending</option>
-                <option value="COMPLETED">Completed</option>
-              </select>
+              <div>
+                <Select value={newStatus} onValueChange={(value) => setNewStatus(value as "PENDING" | "COMPLETED")}>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">
+                      <span className="flex items-center gap-2 text-yellow-600">🕒 Pending</span>
+                    </SelectItem>
+                    <SelectItem value="COMPLETED">
+                      <span className="flex items-center gap-2 text-green-600">✅ Completed</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
             </div>
             <button
               onClick={handleChangeStatus}

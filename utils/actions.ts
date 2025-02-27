@@ -1765,12 +1765,10 @@ export const updateMemberTier = async (memberId: string) => {
 	}
 };
 
-export const fetchReferralDetails = async (member: member) => {
+export const fetchReferralDetails = async (member: { memberId: string }) => {
 	try {
 		const transactions = await db.commissionDistribution.findMany({
-			where: {
-				memberId: member.memberId,
-			},
+			where: { memberId: member.memberId },
 			select: {
 				id: true,
 				member: {
@@ -1787,22 +1785,28 @@ export const fetchReferralDetails = async (member: member) => {
 				type: true,
 				createdAt: true,
 				membershipCommissionTransaction: {
-					select: {
-						paymentStatus: true,
-					},
+					select: { paymentStatus: true }, 
 				},
 				booking: {
-					select: {
-						paymentStatus: true,
-					}
+					select: { paymentStatus: true }, 
 				},
 			},
 		});
 
-		return transactions;
+		const formattedTransactions = transactions.map((txn) => ({
+			...txn,
+			booking: txn.booking
+				? {
+						...txn.booking,
+						paymentStatus: txn.booking.paymentStatus === "COMPLETED", // Convert to boolean
+				  }
+				: null,
+		}));
+
+		return formattedTransactions;
 	} catch (error) {
-		console.error("Error fetching rewards:", error);
-		return { message: "Error fetching rewards" };
+		console.error("Error fetching referral details:", error);
+		return { message: error instanceof Error ? error.message : "Error fetching referral details" };
 	}
 };
 
@@ -2923,7 +2927,7 @@ export async function fetchBookingById(id: string) {
 	}
   }
 
-  export async function updateBookingStatus(bookingId: string, newStatus: "PENDING" | "COMPLETE"): Promise<any> {
+  export async function updateBookingStatus(bookingId: string, newStatus: "PENDING" | "COMPLETED"): Promise<any> {
 	try {
 	  const updatedBooking = await prisma.booking.update({
 		where: {
