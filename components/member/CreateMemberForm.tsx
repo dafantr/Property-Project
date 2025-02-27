@@ -358,7 +358,7 @@ export default function CreateMemberForm({
 								Upload Payment Proof
 								<span className="text-red-500 ml-1">*</span>
 								</label>
-								<ImageInput />
+								<ImageInput name="image" />
 								<p className="text-xs text-gray-500 dark:text-gray-400">
 								Accepted formats: JPG, PNG, JPEG (Max 5MB)
 								</p>

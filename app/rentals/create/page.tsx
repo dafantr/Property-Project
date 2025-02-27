@@ -47,7 +47,7 @@ function CreatePropertyPage() {
               placeholder="Paste the Google Maps Embed URL here"
               required
             />
-            <ImageInput />
+            <ImageInput name='image' />
           </div>
           <h3 className='text-lg mt-8 mb-4 font-medium'>
             Accommodation Details

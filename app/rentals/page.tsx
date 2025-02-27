@@ -37,11 +37,11 @@ async function RentalsPage() {
         <TableCaption>A list of all your properties.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="bg-orange-500 text-white rounded-tl-lg">Property Name</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Nightly Rate </TableHead>
-            <TableHead className="bg-orange-500 text-white ">Nights Booked</TableHead>
-            <TableHead className="bg-orange-500 text-white ">Total Income</TableHead>
-            <TableHead className="bg-orange-500 text-white rounded-tr-lg">Actions</TableHead>
+            <TableHead className="bg-primary text-white rounded-tl-lg">Property Name</TableHead>
+            <TableHead className="bg-primary text-white ">Nightly Rate </TableHead>
+            <TableHead className="bg-primary text-white ">Nights Booked</TableHead>
+            <TableHead className="bg-primary text-white ">Total Income</TableHead>
+            <TableHead className="bg-primary text-white rounded-tr-lg">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
