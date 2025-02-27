@@ -175,12 +175,14 @@ export default function ViewNewMemberModal({
 					setTimeout(() => {
 						setShowSuccessModal(false);
 						router.refresh();
+						onClose();
 					}, 2000);
 				} else if (result.status === 'error') {
 					setShowErrorModal(true);
 					setTimeout(() => {
 						setShowErrorModal(false);
 						router.refresh();
+						onClose();
 					}, 2000);
 				}
 				return { message: result.message, status: result.status };

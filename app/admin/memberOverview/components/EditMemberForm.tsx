@@ -122,12 +122,23 @@ export default function EditMemberForm({
 						defaultValue={memberData.address || ""}
 					/>
 
-					<FormInput
-						type="text"
-						name="gender"
-						label="Gender"
-						defaultValue={memberData.gender || ""}
-					/>
+					<div className="form-group">
+						<label
+							htmlFor="gender"
+							className="block mb-2 text-sm font-medium">
+							Gender
+						</label>
+						<select
+							id="gender"
+							name="gender"
+							className="w-full px-4 py-2 rounded-lg border dark:bg-black dark:border-gray-700 dark:text-white"
+                            defaultValue={memberData.gender || ''}
+							required>
+							<option value="male">Male</option>
+							<option value="female">Female</option>
+							<option value="other">Other</option>
+						</select>
+					</div>
 
 					<FormInput
 						type="email"
@@ -169,6 +180,7 @@ export default function EditMemberForm({
 						name="memberLevel"
 						label="Member Level"
 						defaultValue={memberData.tier?.tierName || ""}
+						readonly
 					/>
 
 					<FormInput
@@ -176,6 +188,7 @@ export default function EditMemberForm({
 						name="uplineId"
 						label="Upline ID"
 						defaultValue={memberData.parentMemberId || "N/A"}
+						readonly
 					/>
 
 					<div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4 justify-end">
@@ -186,7 +199,7 @@ export default function EditMemberForm({
 						</button>
 						<button
 							type="submit"
-							className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+							className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#B69C6C] text-white rounded-md hover:bg-[#A58B5B] transition-colors">
 							Apply changes
 						</button>
 					</div>

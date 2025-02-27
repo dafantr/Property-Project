@@ -20,6 +20,7 @@ import { reward, member, referralDetails, loyaltyPointDetails } from "./types";
 import { MemberActions } from "@/app/admin/memberOverview/components/MemberActions";
 import { supabase } from "./supabase"; // ✅ Import the existing Supabase client
 import { DownlineType } from "@/utils/types";
+import { AnyZodTuple } from "zod";
 
 const bucket = "Property-Project";
 
@@ -1997,6 +1998,86 @@ export const deleteMember = async (memberId: string) => {
 		});
 		revalidatePath("/cms");
 		return { message: "Member deleted successfully" };
+	} catch (error) {
+		return renderError(error);
+	}
+};
+
+export const undoDeleteMember = async (memberId: string) => {
+	try {
+		await db.member.update({
+			where: {
+				id: memberId,
+			},
+			data: {
+				isDeleted: 0,
+				isActive: 1,
+			},
+		});
+		revalidatePath("/cms");
+		return { message: "Member undeleted successfully" };
+	} catch (error) {
+		return renderError(error);
+	}
+};
+
+export const makeMarketingMember = async (memberId: string) => {
+	try {
+		const marketingTier = await fetchTierByName("Marketing");
+		if (marketingTier === null) throw new Error("Marketing tier not found");
+
+		await db.member.update({
+			where: {
+				id: memberId,
+			},
+			data: {
+				isMarketing: true,
+				tierId: marketingTier.id,
+			},
+		});
+		revalidatePath("/cms");
+		return { message: "Updated to marketing member successfully" };
+	} catch (error) {
+		return renderError(error);
+	}
+};
+
+export const removeMarketingMember = async (memberId: string) => {
+	try {
+		const downline = await fetchDownline(memberId);
+		
+		let newTier: any;
+
+		if (downline.length === 0) {
+			newTier = await fetchTierByLevel(1);
+		} else {
+			const tiers = await db.tier.findMany({
+				orderBy: {
+					tierLevel: "asc",
+				},
+			});
+	
+			for (const tier of tiers) {
+				if (downline.length >= tier.requiredDownline) {
+					newTier = tier;
+				} else {
+					break;
+				}
+			}
+		}
+		
+		await db.member.update({
+			where: {
+				id: memberId,
+				isMarketing: true,
+			},
+			data: {
+				isMarketing: false,
+				tierId: newTier.id,
+			},
+		});
+		revalidatePath("/cms");
+		return { message: "Removed from marketing member successfully" };
 	} catch (error) {
 		return renderError(error);
 	}

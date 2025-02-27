@@ -35,7 +35,7 @@ export const groupedLinks = {
     { href: '/profile', label: 'profile' },
   ],
   member: <NavLink[]>[
-    { href: '/member/create', label: 'exclusive member' },
+    { href: '/member/overview', label: 'exclusive member' },
     { href: '/member/dashboard', label: 'dashboard' },
     { href: '/member/profile', label: 'member profile' },
     { href: '/member/referrals', label: 'referrals & commissions' },
