@@ -691,21 +691,18 @@ export const updatePropertyAction = async (
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
-        // Get the combined image string from the hidden input
-        const allImages = formData.get("image")?.toString() || "";
-        
-        // Split into array and filter out empty strings
-        const imageArray = allImages.split(",").filter(Boolean);
+        // Get existing images
+        const existingImages = formData.get("image")?.toString().split(",").filter(Boolean) || [];
 
         // Get deleted images
         const deletedImages = formData.get("deletedImages")?.toString().split(",").filter(Boolean) || [];
 
-        // Filter out deleted images from the final array
-        const finalImages = imageArray.filter(img => !deletedImages.includes(img));
+        // Final images = Existing images + New uploads - Deleted images
+        const finalImages = existingImages.filter(img => !deletedImages.includes(img));
 
         console.log("Final images to save:", finalImages);
 
-        // Update the database with all fields including the final image array
+        // Update database
         await db.property.update({
             where: { id: propertyId },
             data: {
@@ -717,10 +714,11 @@ export const updatePropertyAction = async (
         revalidatePath(`/rentals/${propertyId}/edit`);
         return { message: "Update Successful" };
     } catch (error) {
-        console.error('Error updating property:', error);
+        console.error("Error updating property:", error);
         return renderError(error);
     }
 };
+
 
 export const updatePropertyImageAction = async (
 	prevState: any,
@@ -2944,5 +2942,32 @@ export async function fetchBookingById(id: string) {
 	  throw error; // Throw the error to be handled by the caller
 	}
   }
+
+  export const uploadPropertyImagesAction = async (formData: FormData) => {
+    const user = await getAuthUser();
+    const propertyId = formData.get("propertyId") as string;
+    const files = formData.getAll("images") as File[];
+
+    if (!propertyId || files.length === 0) {
+        return { error: "Missing property ID or images." };
+    }
+
+    try {
+        // Validate and upload images but DON'T update the database
+        const newImageUrls = await Promise.all(
+            files.map(async (file) => {
+                const validatedFile = validateWithZodSchema(imageSchema, { image: file }).image;
+                return uploadImage(validatedFile);
+            })
+        );
+
+        return { success: true, imageUrls: newImageUrls }; // Return images but don’t save them yet
+    } catch (error) {
+        console.error("Upload error:", error);
+        return { error: "Failed to upload property images." };
+    }
+};
+
+
   
 	  

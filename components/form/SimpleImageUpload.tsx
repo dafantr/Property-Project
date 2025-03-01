@@ -1,40 +1,49 @@
+"use client";
+
 import { useState } from "react";
-import { Button } from "../ui/button"; // Ensure you have a button component for UI consistency
-import ImageInput from "./ImageInput"; // Import ImageInput component
-import { SubmitButton } from "./Buttons"; // Import SubmitButton component
-import { type actionFunction } from "@/utils/types"; // Import actionFunction type
+import { Button } from "../ui/button";
+import ImageInput from "./ImageInput";
+import { SubmitButton } from "./Buttons";
+import { uploadPropertyImagesAction } from "@/utils/actions";
 
 type SimpleImageUploadProps = {
-    propertyId: string; 
-    onImageUpload: (newImageUrls: string[]) => void; 
+    propertyId: string;
+    onImageUpload: (newImageUrls: string[]) => void;
 };
 
 function SimpleImageUpload({ propertyId, onImageUpload }: SimpleImageUploadProps) {
     const [isFormVisible, setFormVisible] = useState(false);
-    const [isLoading, setLoading] = useState(false); 
+    const [isLoading, setLoading] = useState(false);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
         const formData = new FormData();
-        formData.append("id", propertyId);
+        formData.append("propertyId", propertyId);
 
         const imageInput = document.querySelector<HTMLInputElement>("input[name='image']");
-        if (imageInput?.files?.length) {
-            Array.from(imageInput.files).forEach((file) => {
-                formData.append("image", file);
-            });
+        if (!imageInput?.files?.length) {
+            setLoading(false);
+            return;
         }
 
-        setLoading(true); 
-
-        const newImageUrls = Array.from(imageInput?.files || []).map((file) => URL.createObjectURL(file));
-
-        onImageUpload(newImageUrls); 
-
-        setLoading(false); 
-
-        if (imageInput) {
-            imageInput.value = ''; 
+        // Append all selected images
+        for (const file of imageInput.files) {
+            formData.append("images", file);
         }
+
+        // Call the server action to upload images
+        const result = await uploadPropertyImagesAction(formData);
+
+        if (result.success) {
+            onImageUpload(result.imageUrls);
+        } else {
+            console.error(result.error);
+        }
+
+        setLoading(false);
+        setFormVisible(false);
     };
 
     return (
@@ -45,14 +54,14 @@ function SimpleImageUpload({ propertyId, onImageUpload }: SimpleImageUploadProps
 
             {isFormVisible && (
                 <div className="max-w-lg mt-4">
-                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                    <form onSubmit={handleSubmit}>
                         <ImageInput name="image" multiple />
                         <SubmitButton size="sm" />
                     </form>
                 </div>
             )}
 
-            {isLoading && <p>Loading...</p>}
+            {isLoading && <p>Uploading...</p>}
         </div>
     );
 }
