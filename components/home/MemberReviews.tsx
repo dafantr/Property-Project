@@ -1,13 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { fetchGalleries } from '@/utils/actions';
+import { fetchOverviewContent } from '@/utils/actions';
 
 // Define the type for the gallery items
 interface TestimonialItem {
     id: string;
-    createdAt: string; // Ensure createdAt is a string
     title: string;
     media: string;
+    type: string;
+    author: string | null;
+    description: string | null;
 }
 
 const MemberReviews = () => {
@@ -15,20 +17,9 @@ const MemberReviews = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const data: { id: string; createdAt: Date; title: string; media: string; }[] = await fetchGalleries();
+            const data: { id: string; title: string; media: string; type: string; author: string | null; description: string | null; }[] = await fetchOverviewContent('review');
 
-            // Convert 'createdAt' from Date to string before setting state
-            const formattedData: TestimonialItem[] = data.map((testimonial) => ({
-                ...testimonial,
-                createdAt: testimonial.createdAt.toISOString(), // Convert Date to ISO string
-            }));
-
-            // Ensure 'createdAt' is properly converted to Date before sorting
-            const sortedData = formattedData.sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-
-            setTestimonials(sortedData);
+            setTestimonials(data);
         };
 
         fetchData();
@@ -36,18 +27,18 @@ const MemberReviews = () => {
 
     return (
         <div className="mt-5 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
                 {testimonials.slice(0, 8).map((testimonial) => (
                     <div key={testimonial.id} className="group">
                         <img
                             src={testimonial.media}
                             alt={testimonial.title}
-                            className="w-full h-52 object-cover rounded-md shadow-lg cursor-pointer transform group-hover:scale-110 transition-transform duration-500"
+                            className="w-full h-72 object-cover rounded-md shadow-lg cursor-pointer transform group-hover:scale-110 transition-transform duration-500"
                         />
                         <div className="flex flex-col items-center mt-4 px-4">
-                            <p className="mt-1 text-sm underline font-bold">"Testimonial Title"</p>
-                            <p className="mt-3 text-sm">"Testimonial Description"</p>
-                            <p className="mt-1 text-sm">Testimonial Author</p>
+                            <p className="mt-1 text-sm underline font-bold">"{testimonial.title}"</p>
+                            <p className="mt-3 text-sm text-center">"{testimonial.description}"</p>
+                            <p className="mt-1 text-sm">- {testimonial.author}</p>
                         </div>
                     </div>
                 ))}

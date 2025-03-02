@@ -3025,5 +3025,49 @@ export async function fetchBookingById(id: string) {
 	  throw error; // Throw the error to be handled by the caller
 	}
   }
-  
-	  
+
+  export const createOverviewContentAction = async (prevState: any, formData: FormData) => {
+	try {
+		const title = formData.get("title") as string;
+		const media = formData.get("contentImage") as File;
+		const type = formData.get("type") as string;
+		const description = formData.get("description") as string;
+		const author = formData.get("author") as string;
+		const imageUrl = await uploadImage(media);
+
+		await db.overviewContent.create({
+			data: {
+				title : title,
+				media: imageUrl,
+				type: type,
+				description: description,
+				author: author,
+			}
+		});
+
+		return { message: "Content created successfully" , status: "success"};
+	} catch (error) {
+		return { message: "Failed to create content" , status: "error"};
+	}
+  }
+
+  export const fetchOverviewContent = async (type : string) => {
+	const overviewContent = await db.overviewContent.findMany({
+		where: {
+			type: type
+		},
+		select: {
+			id: true,
+			title: true,
+			media: true,
+			type: true,
+			author: true,
+			description: true,
+		},
+		orderBy: {
+			createdAt: 'asc'
+		}
+	});
+
+	return overviewContent;
+};

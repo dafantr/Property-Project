@@ -82,6 +82,16 @@ export default function AdminNavbar() {
 							}`}>
 						General Variable
 					</Link>
+					<Link
+						href="/admin/overviewContent"
+						className={`hover:text-[#B39665] dark:hover:text-[#C4A777] transition-colors whitespace-nowrap text-xs sm:text-sm
+							${
+								pathname?.includes("/admin/overviewContent")
+									? "text-[#B39665] dark:text-[#C4A777] font-semibold"
+									: "text-gray-600 dark:text-white"
+							}`}>
+						Overview Content
+					</Link>
 				</div>
 			</nav>
 		)

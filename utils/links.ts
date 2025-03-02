@@ -30,6 +30,7 @@ export const groupedLinks = {
     { href: '/admin/memberLoyaltyOverview', label: 'loyalty points & rewards' },
     { href: '/admin/downline', label: 'downline tree' },
     { href: '/admin/generalVariable', label: 'general variable' },
+    { href: '/admin/overviewContent', label: 'overview content' },
   ],
   profile: <NavLink[]>[
     { href: '/profile', label: 'profile' },
