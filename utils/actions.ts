@@ -389,28 +389,33 @@ export async function createReviewAction(prevState: any, formData: FormData) {
 	}
 }
 
-export async function fetchPropertyReviews(propertyId: string) {
-	const reviews = await db.review.findMany({
-		where: {
-			propertyId,
-		},
-		select: {
-			id: true,
-			rating: true,
-			comment: true,
-			profile: {
-				select: {
-					username: true,
-					profileImage: true,
+export async function fetchPropertyReviews(propertyId: string, page = 1, limit = 4) {
+	const skip = (page - 1) * limit;
+
+	const [reviews, total] = await Promise.all([
+		db.review.findMany({
+			where: { propertyId },
+			select: {
+				id: true,
+				rating: true,
+				comment: true,
+				profile: {
+					select: {
+						username: true,
+						profileImage: true,
+					},
 				},
 			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
-	return reviews;
+			orderBy: { createdAt: "desc" },
+			skip, // ✅ Skip previous pages
+			take: limit, // ✅ Fetch only `limit` reviews
+		}),
+		db.review.count({ where: { propertyId } }), // ✅ Get total reviews count
+	]);
+
+	return { reviews, total }; // ✅ Return reviews and total count
 }
+
 
 export const fetchPropertyReviewsByUser = async () => {
 	const user = await getAuthUser();
@@ -791,13 +796,12 @@ export const fetchReservations = async () => {
 					name: true,
 					price: true,
 					city: true,
-					profileId: true, // Include the property owner's ID
+					profileId: true, 
 				},
 			},
 		},
 	});
 
-	//console.log("Logged-in User ID:", user.id);
 	return reservations;
 };
 
