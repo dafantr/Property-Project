@@ -45,9 +45,16 @@ function DeleteConfirmationModal({
   );
 }
 
-export default function DeleteItemButton({ itemId, itemType }: { itemId: string; itemType: 'gallery' | 'promotion' | 'property' | 'review' | 'booking' }) {
+export default function DeleteItemButton({ 
+  itemId, 
+  itemType, 
+  onDelete, // ✅ Receive callback to update state
+}: { 
+  itemId: string; 
+  itemType: 'gallery' | 'promotion' | 'property' | 'review' | 'booking'; 
+  onDelete: () => void; // ✅ Callback function
+}) {
   const [isModalOpen, setModalOpen] = useState(false);
-  const router = useRouter();
 
   const handleDelete = async () => {
     try {
@@ -62,7 +69,8 @@ export default function DeleteItemButton({ itemId, itemType }: { itemId: string;
       } else if (itemType === 'booking') {
         await deleteBookingAction({ bookingId: itemId });
       }
-      router.refresh(); // Refresh the page to show updated data
+      
+      onDelete(); // ✅ Update UI without refresh
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -88,3 +96,4 @@ export default function DeleteItemButton({ itemId, itemType }: { itemId: string;
     </>
   );
 }
+

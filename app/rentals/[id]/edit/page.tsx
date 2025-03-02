@@ -129,8 +129,7 @@ async function EditRentalPage({ params }: { params: { id: string } }) {
                 <FormContainer action={updatePropertyAction}>
                     <input type="hidden" name="id" value={property.id} />
                     <input type="hidden" name="deletedImages" value={deletedImages.join(",")} />
-                    <input type="hidden" name="image" value={[...property.image, ...uploadedImages].join(",")} />
-
+                    <input type="hidden" name="image" value={property.image.join(",")} />
 
                     <div className="grid md:grid-cols-2 gap-8 mb-4 mt-8">
                         <FormInput

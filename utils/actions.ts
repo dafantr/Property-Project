@@ -390,28 +390,33 @@ export async function createReviewAction(prevState: any, formData: FormData) {
 	}
 }
 
-export async function fetchPropertyReviews(propertyId: string) {
-	const reviews = await db.review.findMany({
-		where: {
-			propertyId,
-		},
-		select: {
-			id: true,
-			rating: true,
-			comment: true,
-			profile: {
-				select: {
-					username: true,
-					profileImage: true,
+export async function fetchPropertyReviews(propertyId: string, page = 1, limit = 4) {
+	const skip = (page - 1) * limit;
+
+	const [reviews, total] = await Promise.all([
+		db.review.findMany({
+			where: { propertyId },
+			select: {
+				id: true,
+				rating: true,
+				comment: true,
+				profile: {
+					select: {
+						username: true,
+						profileImage: true,
+					},
 				},
 			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
-	return reviews;
+			orderBy: { createdAt: "desc" },
+			skip, // ✅ Skip previous pages
+			take: limit, // ✅ Fetch only `limit` reviews
+		}),
+		db.review.count({ where: { propertyId } }), // ✅ Get total reviews count
+	]);
+
+	return { reviews, total }; // ✅ Return reviews and total count
 }
+
 
 export const fetchPropertyReviewsByUser = async () => {
 	const user = await getAuthUser();
@@ -692,21 +697,18 @@ export const updatePropertyAction = async (
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
 
-        // Get the combined image string from the hidden input
-        const allImages = formData.get("image")?.toString() || "";
-        
-        // Split into array and filter out empty strings
-        const imageArray = allImages.split(",").filter(Boolean);
+        // Get existing images
+        const existingImages = formData.get("image")?.toString().split(",").filter(Boolean) || [];
 
         // Get deleted images
         const deletedImages = formData.get("deletedImages")?.toString().split(",").filter(Boolean) || [];
 
-        // Filter out deleted images from the final array
-        const finalImages = imageArray.filter(img => !deletedImages.includes(img));
+        // Final images = Existing images + New uploads - Deleted images
+        const finalImages = existingImages.filter(img => !deletedImages.includes(img));
 
         console.log("Final images to save:", finalImages);
 
-        // Update the database with all fields including the final image array
+        // Update database
         await db.property.update({
             where: { id: propertyId },
             data: {
@@ -718,10 +720,11 @@ export const updatePropertyAction = async (
         revalidatePath(`/rentals/${propertyId}/edit`);
         return { message: "Update Successful" };
     } catch (error) {
-        console.error('Error updating property:', error);
+        console.error("Error updating property:", error);
         return renderError(error);
     }
 };
+
 
 export const updatePropertyImageAction = async (
 	prevState: any,
@@ -794,13 +797,12 @@ export const fetchReservations = async () => {
 					name: true,
 					price: true,
 					city: true,
-					profileId: true, // Include the property owner's ID
+					profileId: true, 
 				},
 			},
 		},
 	});
 
-	//console.log("Logged-in User ID:", user.id);
 	return reservations;
 };
 
@@ -3071,3 +3073,32 @@ export async function fetchBookingById(id: string) {
 
 	return overviewContent;
 };
+
+  export const uploadPropertyImagesAction = async (formData: FormData) => {
+    const user = await getAuthUser();
+    const propertyId = formData.get("propertyId") as string;
+    const files = formData.getAll("images") as File[];
+
+    if (!propertyId || files.length === 0) {
+        return { error: "Missing property ID or images." };
+    }
+
+    try {
+        // Validate and upload images but DON'T update the database
+        const newImageUrls = await Promise.all(
+            files.map(async (file) => {
+                const validatedFile = validateWithZodSchema(imageSchema, { image: file }).image;
+                return uploadImage(validatedFile);
+            })
+        );
+
+        return { success: true, imageUrls: newImageUrls }; // Return images but don’t save them yet
+    } catch (error) {
+        console.error("Upload error:", error);
+        return { error: "Failed to upload property images." };
+    }
+};
+
+
+  
+	  
