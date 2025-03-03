@@ -2,12 +2,13 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
-  '/', 
+  '/',
   '/properties(.*)',
   '/gallery/more(.*)',
   '/promotions/more(.*)',
-  '/promotions(.*)'
+  '/promotions(.*)',
 ]);
+
 const isAdminRoute = createRouteMatcher([
   '/admin(.*)',
   '/rentals(.*)',
@@ -21,7 +22,10 @@ const isAdminRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const isAdminUser = auth().userId === process.env.ADMIN_USER_ID;
+  const adminUserIds = process.env.ADMIN_USER_ID?.split(',') || [];
+  const userId = auth().userId ?? ''; // Ensure userId is always a string
+  const isAdminUser = adminUserIds.includes(userId);
+
   if (isAdminRoute(req) && !isAdminUser) {
     return NextResponse.redirect(new URL('/', req.url));
   }

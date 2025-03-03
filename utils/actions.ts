@@ -36,9 +36,12 @@ const getAuthUser = async () => {
 
 const getAdminUser = async () => {
 	const user = await getAuthUser();
-	if (user.id !== process.env.ADMIN_USER_ID) {
+	const adminUserIds = process.env.ADMIN_USER_ID?.split(",") || [];
+
+	if (!adminUserIds.includes(user.id)) {
 		redirect("/");
 	}
+
 	return user;
 };
 
@@ -595,11 +598,11 @@ export async function deleteBookingAction(prevState: { bookingId: string }) {
 export const fetchRentals = async () => {
 	const user = await getAuthUser();
 
-	// Get the admin ID from the environment variable
-	const adminId = process.env.ADMIN_USER_ID;
+	// Get the admin IDs from the environment variable and split them into an array
+	const adminIds = process.env.ADMIN_USER_ID?.split(",") || [];
 
 	// Check if the logged-in user is an admin
-	const isAdmin = user.id === adminId; // If the user matches the admin ID
+	const isAdmin = adminIds.includes(user.id); // Check if user ID exists in the list of admins
 
 	const rentals = await db.property.findMany({
 		where: isAdmin ? {} : { profileId: user.id }, // If admin, fetch all properties
@@ -616,7 +619,7 @@ export const fetchRentals = async () => {
 			const totalNightsSum = await db.booking.aggregate({
 				where: {
 					propertyId: rental.id,
-					paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
+					paymentStatus: "COMPLETED",
 				},
 				_sum: {
 					totalNights: true,
@@ -626,7 +629,7 @@ export const fetchRentals = async () => {
 			const orderTotalSum = await db.booking.aggregate({
 				where: {
 					propertyId: rental.id,
-					paymentStatus: "COMPLETED", // Change from true to "COMPLETED"
+					paymentStatus: "COMPLETED",
 				},
 				_sum: {
 					orderTotal: true,
@@ -671,17 +674,17 @@ export async function deleteRentalAction(prevState: { propertyId: string }) {
 export const fetchRentalDetails = async (propertyId: string) => {
 	const user = await getAuthUser();
 
-	// Get the admin ID from the environment variable
-	const adminId = process.env.ADMIN_USER_ID;
+	// Get the admin IDs from the environment variable and split them into an array
+	const adminIds = process.env.ADMIN_USER_ID?.split(",") || [];
 
 	// Check if the logged-in user is an admin
-	const isAdmin = user.id === adminId; // If the user matches the admin ID
+	const isAdmin = adminIds.includes(user.id); // Check if user ID exists in the list of admins
 
 	return db.property.findUnique({
 		where: {
 			id: propertyId,
 			// If the user is an admin, allow fetching any property
-			profileId: isAdmin ? undefined : user.id, // If admin, no profileId filter
+			...(isAdmin ? {} : { profileId: user.id }), // If not admin, filter by user ID
 		},
 	});
 };
@@ -734,8 +737,9 @@ export const updatePropertyImageAction = async (
 	const propertyId = formData.get("id") as string;
 
 	try {
-		const adminId = process.env.ADMIN_USER_ID;
-		const isAdmin = user.id === adminId;
+		// Get the admin IDs from the environment variable and split them into an array
+		const adminIds = process.env.ADMIN_USER_ID?.split(",") || [];
+		const isAdmin = adminIds.includes(user.id); // Check if the user is in the list
 
 		const images = formData.getAll("image") as File[];
 		if (images.length === 0) {
@@ -752,8 +756,13 @@ export const updatePropertyImageAction = async (
 
 		const property = await db.property.findUnique({
 			where: { id: propertyId },
-			select: { image: true },
+			select: { profileId: true, image: true },
 		});
+
+		// Ensure only the owner or an admin can update the images
+		if (!isAdmin && property?.profileId !== user.id) {
+			return { message: "Unauthorized action", imageUrls: [] };
+		}
 
 		const updatedImages = Array.isArray(property?.image)
 			? [...property.image, ...imageUrls]
@@ -771,9 +780,10 @@ export const updatePropertyImageAction = async (
 
 		return { message: "Property Images Updated Successfully", imageUrls };
 	} catch (error) {
-		return { message: "Failed to update property images", imageUrls: [] }; // ✅ Fix: Ensure 'imageUrls' is always returned
+		return { message: "Failed to update property images", imageUrls: [] };
 	}
 };
+
 
 export const fetchReservations = async () => {
 	const reservations = await db.booking.findMany({
