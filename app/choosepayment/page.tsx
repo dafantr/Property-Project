@@ -1,41 +1,78 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { uploadPaymentProofAction } from '@/utils/actions';
+import axios from 'axios';
 
 interface BookingDetails {
     name: string;
     image: string;
     description: string;
     orderTotal: number;
+    propertyId: string;
 }
 
 export default function PaymentSelectionPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const bookingId = searchParams.get('bookingId');
+
     const [selectedMethod, setSelectedMethod] = useState<'stripe' | 'transfer' | null>(null);
     const [image, setImage] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+    const [timeLeft, setTimeLeft] = useState(30); // 5-minute timer (300 seconds)
+    const isDeleting = useRef(false);
 
+    // Fetch booking details including propertyId
     useEffect(() => {
         if (bookingId) {
-            fetch(`/api/booking-details?bookingId=${bookingId}`)
-                .then((res) => res.json())
-                .then((data) => setBookingDetails(data))
+            axios.get(`/api/booking-details?bookingId=${bookingId}`)
+                .then((res) => setBookingDetails(res.data))
                 .catch((err) => console.error("Failed to fetch booking details:", err));
         }
     }, [bookingId]);
 
+    // Countdown Timer Logic
+    useEffect(() => {
+        if (!selectedMethod || selectedMethod !== 'transfer') return;
+        if (timeLeft <= 0) {
+            handleTimeout();
+            return;
+        }
+
+        const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [timeLeft, selectedMethod]);
+
+    // Handle Timeout & Redirect
+    const handleTimeout = async () => {
+        if (!bookingId || isDeleting.current) return;
+        isDeleting.current = true;
+
+        alert("Payment session expired! Redirecting...");
+
+        try {
+            await axios.delete(`/api/delete-abandoned?bookingId=${bookingId}`);
+
+            // Redirect to property page if available, otherwise home
+           router.push(`/properties/${bookingDetails?.propertyId}`);
+        } catch (error) {
+            console.error("Error deleting abandoned booking:", error);
+            router.push("/"); // Fallback to home
+        }
+    };
+
+    // Handle Stripe Payment
     const handleStripePayment = () => {
         router.push(`/checkout?bookingId=${bookingId}`);
     };
 
+    // Handle Payment Proof Upload
     const handleImageUpload = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!image || !bookingId) {
@@ -54,7 +91,7 @@ export default function PaymentSelectionPage() {
             router.push("/bookings");
         } catch (error) {
             console.error("Upload failed:", error);
-            alert("Failed to upload proof of payment. Check console for details.");
+            alert("Failed to upload proof of payment.");
         } finally {
             setUploading(false);
         }
@@ -107,6 +144,12 @@ export default function PaymentSelectionPage() {
                             <p className="text-md font-medium">Amount: <strong>IDR {bookingDetails.orderTotal.toLocaleString()}</strong></p>
                         </div>
 
+                        {/* Timer Display */}
+                        <div className="text-center text-red-500 font-bold text-lg">
+                            Payment expires in: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        </div>
+
+                        {/* Upload Payment Proof */}
                         <h2 className="text-lg font-semibold text-center">Upload Payment Proof</h2>
                         <form onSubmit={handleImageUpload} className="space-y-4 mt-3">
                             <Input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} className="w-full border rounded-lg px-3 py-2" />

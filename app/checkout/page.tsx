@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const bookingId = searchParams.get('bookingId');
 
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [propertyId, setPropertyId] = useState<string | null>(null);
   const isDeleting = useRef(false);
 
