@@ -776,10 +776,13 @@ export const updatePropertyImageAction = async (
 };
 
 export const fetchReservations = async () => {
-	//const user = await getAuthUser();
 	const reservations = await db.booking.findMany({
 		where: {
-			paymentStatus: { in: ["PENDING", "COMPLETED"] },
+			// Only show reservations that are COMPLETED or have a valid proof if they are PENDING
+			OR: [
+				{ paymentStatus: "COMPLETED" },
+				{ paymentStatus: "PENDING", NOT: { paymentProof: null } },
+			],
 		},
 		orderBy: {
 			createdAt: "desc",
@@ -797,7 +800,7 @@ export const fetchReservations = async () => {
 					name: true,
 					price: true,
 					city: true,
-					profileId: true, 
+					profileId: true,
 				},
 			},
 		},
@@ -3098,6 +3101,30 @@ export async function fetchBookingById(id: string) {
         return { error: "Failed to upload property images." };
     }
 };
+
+// export async function deleteAbandonedBooking(bookingId: string) {
+// 	if (!bookingId) {
+// 	  console.error("Booking ID is required");
+// 	  return;
+// 	}
+  
+// 	try {
+// 	  const deletedBooking = await db.booking.deleteMany({
+// 		where: {
+// 		  id: bookingId,
+// 		  paymentStatus: "PENDING",
+// 		},
+// 	  });
+  
+// 	  if (deletedBooking.count === 0) {
+// 		console.warn(`No booking found with ID ${bookingId} or already paid.`);
+// 	  } else {
+// 		console.log(`Booking ${bookingId} deleted due to payment timeout.`);
+// 	  }
+// 	} catch (error) {
+// 	  console.error("Error deleting abandoned booking:", error);
+// 	}
+//   }
 
 
   
