@@ -22,7 +22,7 @@ export default function ReferralCommission({
 	const [codeCopied, setCodeCopied] = useState(false);
 	const [linkCopied, setLinkCopied] = useState(false);
 
-	const referralLink = `${process.env.NEXT_PUBLIC_URL}/sign-up?ref=${member.memberId}`;
+	const referralLink = `${process.env.NEXT_PUBLIC_APP_URL}/sign-up?ref=${member.memberId}`;
 	const referralCode = `${member.memberId}`;
 
 	const copyCodeToClipboard = () => {
