@@ -37,7 +37,8 @@ async function LinksDropdown() {
 				!["create", "my"].some((prefix) => link.label.startsWith(prefix))
 		);
 
-	const isAdminUser = userId === process.env.ADMIN_USER_ID;
+		const adminUserIds = process.env.ADMIN_USER_ID?.split(",") || [];
+		const isAdminUser = adminUserIds.includes(userId || "");		
 
 	return (
 		<DropdownMenu>
