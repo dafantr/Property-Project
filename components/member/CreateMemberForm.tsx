@@ -19,6 +19,7 @@ import ErrorModal from "@/components/ui/ErrorModal";
 import { useRouter } from "next/navigation";
 import SuccessModal from "../ui/SuccessModal";
 import ImageInput from "../form/ImageInput";
+import TermsModal from "../ui/TermsAndConditionModal";
 
 export default function CreateMemberForm({
 	profile,
@@ -38,6 +39,9 @@ export default function CreateMemberForm({
 
 	const [showErrorModal, setShowErrorModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showTermsModal, setShowTermsModal] = useState(false);
+
+	const [isChecked, setIsChecked] = useState(false);
 
 	const [totals, setTotals] = useState<RegistrationDetails>({
 		subTotal: 0,
@@ -364,6 +368,40 @@ export default function CreateMemberForm({
 								</p>
 						  	</div>
 						)}
+
+						<div className="space-y-0.5">
+							<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								id="terms"
+								checked={isChecked}
+								onChange={(e) => setIsChecked(e.target.checked)}
+								className="h-4 w-4 rounded border-gray-300 text-[#C4A777] focus:ring-[#C4A777]"
+								required
+							/>
+							<label htmlFor="terms" className="text-sm text-gray-500 dark:text-gray-400 font-bold">
+								I agree to the{' '}
+								<button 
+								type="button"
+								onClick={() => setShowTermsModal(true)}
+								className="text-[#C4A777] underline hover:text-[#B39665]"
+								>
+								Terms of Service
+								</button>
+							</label>
+							</div>
+							<p className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 ml-6">
+							By checking this box, I can confirm that i have read, understood, and agree to be bound by the{' '}
+							<button 
+								type="button"
+								onClick={() => setShowTermsModal(true)}
+								className="text-[#C4A777] underline hover:text-[#B39665]"
+							>
+								Terms of Service
+							</button>
+							{' '}of the MDV Vilas Next Step Membership Program.
+							</p>
+						</div>
 					</div>
 					<SubmitButton
 						text="Register Now"
@@ -378,6 +416,10 @@ export default function CreateMemberForm({
 
 			{showSuccessModal && (
 				<SuccessModal message="Registration successful" />
+			)}
+
+			{showTermsModal && (
+				<TermsModal setShowTermsModal={setShowTermsModal}/>
 			)}
 		</section>
 	);
