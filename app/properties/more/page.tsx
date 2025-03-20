@@ -7,15 +7,22 @@ import MorePropertiesList from "@/components/home/MorePropertiesList";
 import MorePropertiesLoading from "./loading";
 import EmptyList from "./EmptyList";
 import { useSearchParams } from "next/navigation";
-import { PropertyCardProps } from "@/utils/types"; 
+import { PropertyCardProps } from "@/utils/types";
+
+type PropertyWithRatings = PropertyCardProps & {
+    rating: number | null;
+    count: number;
+    category: string;
+    createdAt: string;
+};
 
 const MorePropertiesPage = () => {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get("search") || "";
 
     // ✅ Define the correct types
-    const [properties, setProperties] = useState<PropertyCardProps[]>([]);
-    const [filteredProperties, setFilteredProperties] = useState<PropertyCardProps[]>([]);
+    const [properties, setProperties] = useState<PropertyWithRatings[]>([]);
+    const [filteredProperties, setFilteredProperties] = useState<PropertyWithRatings[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -28,18 +35,19 @@ const MorePropertiesPage = () => {
                     category: selectedCategory || undefined,
                 });
 
-                const propertiesWithRatings: PropertyCardProps[] = await Promise.all(
+                const propertiesWithRatings: PropertyWithRatings[] = await Promise.all(
                     data.map(async (property) => {
                         const { rating, count } = await fetchPropertyRating(property.id);
-
+                
                         return {
                             ...property,
-                            createdAt: new Date(property.createdAt).toISOString(), // ✅ Fix Date to string
-                            rating: typeof rating === "number" ? rating : null, // ✅ Ensure rating is number | null
-                            category: property.category || "", // ✅ Ensure category exists
+                            createdAt: new Date(property.createdAt).toISOString(),
+                            rating: typeof rating === "number" ? rating : null,
+                            count: count ?? 0,
+                            category: property.category || "",
                         };
                     })
-                );
+                );                
 
                 setProperties(propertiesWithRatings);
                 setFilteredProperties(propertiesWithRatings);
@@ -93,9 +101,11 @@ const MorePropertiesPage = () => {
             </div>
             <section className="mt-4 gap-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
                 {filteredProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
+                    <PropertyCard key={property.id} property={property} hidePrice={false} hideDetails={true} />
                 ))}
+
             </section>
+
         </div>
     );
 };

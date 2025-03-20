@@ -224,7 +224,10 @@ export const fetchProperties = async ({
             price: true,
             createdAt: true,
             image: true,
-            category: true, // ✅ Fix: Add category
+            category: true,
+            bedrooms: true, // ✅ Add this
+            baths: true,    // ✅ Add this
+            guests: true,   // ✅ Add this
             reviews: {
                 select: { rating: true },
             },

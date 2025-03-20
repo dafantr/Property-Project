@@ -1,6 +1,6 @@
 export type actionFunction = (
-    prevState: any,
-    formData: FormData
+  prevState: any,
+  formData: FormData
 ) => Promise<{ message: string }>;
 
 export interface PropertyCardProps {
@@ -12,95 +12,98 @@ export interface PropertyCardProps {
   rating: number | null;
   count: number;
   reviews: { rating: number }[];
-  createdAt: string; // Ensure createdAt is a string
-  image: string | string[]; // Allow image to be a single string or array
-  category: string; // ✅ Add this line to include category
+  createdAt: string; 
+  image: string | string[]; 
+  category: string; 
+  bedrooms: number; 
+  baths: number; 
+  guests: number; 
 }
 
-  export type DateRangeSelect = {
-    startDate: Date;
-    endDate: Date;
-    key: string;
-  };
-
-  export type Booking = {
-    checkIn: Date;
-    checkOut: Date;
-  };
-
-  export type ExclusiveCardProps = {
-    id: string;
-    title: string;
-    subtitle: string;
-    description: string;
-    createdAt: Date;
-    media: string; // This represents the image, we will map it below
-    category: string; // Ensure this is included
+export type DateRangeSelect = {
+  startDate: Date;
+  endDate: Date;
+  key: string;
 };
 
-  export type tier = {
-    id: string;
-    tierName: string;
-    tierLevel: number;
-    commission: number;
-    requiredDownline: number;
+export type Booking = {
+  checkIn: Date;
+  checkOut: Date;
+};
+
+export type ExclusiveCardProps = {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  createdAt: Date;
+  media: string; 
+  category: string; 
+};
+
+export type tier = {
+  id: string;
+  tierName: string;
+  tierLevel: number;
+  commission: number;
+  requiredDownline: number;
+};
+
+export type member = {
+  id: string;
+  profileId: string;
+  parentMemberId: string | null;
+  parentId: string | null;
+  memberId: string;
+  createdAt: Date;
+  isActive: number;
+  commission: number;
+  point: number;
+  tierId: string;
+  citizen?: string | null;
+  dob?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  gender?: string | null;
+  bankName?: string | null;
+  bankAccNum?: string | null;
+  bankAccName?: string | null;
+  isMarketing: boolean;
+}
+
+export type profile = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export type reward = {
+  id: string;
+  rewardName: string;
+  pointReq: number;
+}
+
+export type bookingCommissionDetails = {
+  id: string;
+  profileId: string;
+  bookingId: string;
+  referalCode: string | null;
+  commission: number;
+  createdAt: Date;
+  booking: {
+    paymentStatus: boolean;
   };
+}
 
-  export type member = {
-    id: string;
-    profileId: string;
-    parentMemberId: string | null;
-    parentId: string | null;
-    memberId: string;
-    createdAt: Date;
-    isActive: number;
-    commission: number;
-    point: number;
-    tierId: string;
-    citizen?: string | null;
-    dob?: string | null;
-    phone?: string | null;
-    address?: string | null;
-    gender?: string | null;
-    bankName?: string | null;
-    bankAccNum?: string | null;
-    bankAccName?: string | null;
-    isMarketing: boolean;
-  }
-
-  export type profile = {
-    id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-  }
-
-  export type reward = {
-    id: string;
-    rewardName: string;
-    pointReq: number;
-  }
-
-  export type bookingCommissionDetails = {
-    id: string;
-    profileId: string;
-    bookingId: string;
-    referalCode: string | null;
-    commission: number;
-    createdAt: Date;
-    booking: {
-      paymentStatus: boolean;
-    };
-  }
-
-  export type dashboardMemberProps = {
-    profile: profile;
-    member: member;
-    tier: tier;
-    rewards: reward[];
-    referralDetails: referralDetails[];
-    loyaltyPointDetails: loyaltyPointDetails[];
-    downlines: any;
+export type dashboardMemberProps = {
+  profile: profile;
+  member: member;
+  tier: tier;
+  rewards: reward[];
+  referralDetails: referralDetails[];
+  loyaltyPointDetails: loyaltyPointDetails[];
+  downlines: any;
 }
 
 export type LoyaltiPointsProps = {
@@ -128,13 +131,13 @@ export type DownlineProps = {
 };
 
 export type CitizenshipOption = {
-	value: string;
-	label: string;
+  value: string;
+  label: string;
 };
 
 export type CreateMemberFormProps = {
-	profile: profile;
-	citizenshipOptions: CitizenshipOption[];
+  profile: profile;
+  citizenshipOptions: CitizenshipOption[];
 }
 
 export type ReferralCommissionProps = {
@@ -146,10 +149,10 @@ export type ReferralCommissionProps = {
 }
 
 export type UpdateMemberFormProps = {
-	profile: profile;
-	member: member;
-	tier: tier;
-	citizenshipOptions: CitizenshipOption[];
+  profile: profile;
+  member: member;
+  tier: tier;
+  citizenshipOptions: CitizenshipOption[];
 }
 
 export type RegistrationDetails = {
@@ -247,7 +250,7 @@ export type dashboardMarketingProps = {
   member: member;
   profile: profile;
   referralDetails: referralDetails[];
-	tier: tier;
+  tier: tier;
 }
 
 export type generalVariable = {
