@@ -30,8 +30,9 @@ export default function DashboardMember({
     const router = useRouter();
 
 	const [copied, setCopied] = useState(false);
+	const [linkCopied, setLinkCopied] = useState(false);
 
-	const referralLink = `${process.env.NEXT_PUBLIC_URL}/sign-up?ref=${member.memberId}`;
+	const referralLink = `${process.env.NEXT_PUBLIC_APP_URL}/sign-up?ref=${member.memberId}`;
 	const referralCode = `${member.memberId}`;
 
 	const copyToClipboard = () => {
@@ -44,7 +45,17 @@ export default function DashboardMember({
 		}, 2000);
 	};
 
-	const handleShare = async () => {
+	const copyLinkToClipboard = () => {
+		navigator.clipboard.writeText(referralLink);
+		setLinkCopied(true);
+		
+		// Reset the "Copied!" message after 2 seconds
+		setTimeout(() => {
+		setLinkCopied(false);
+		}, 2000);
+	};
+
+	  const handleLinkShare = async () => {
 		// Check if Web Share API is supported
 		if (navigator.share) {
 		  try {
@@ -153,12 +164,22 @@ export default function DashboardMember({
 							>
 							{copied ? <Check className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> : <Copy className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" />}
 						</button>
-						<button 
-							onClick={handleShare}
-							className=""
-							>
-							<Share2 className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> 
-						</button>
+					</div>
+					<div className="flex flex-col sm:flex-row gap-2">
+						<input type="text" name="referralLink" defaultValue={referralLink} className="dark:text-gray-300 w-full sm:w-80% p-2 mt-2 mb-2 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700 border border-gray-200 dark:border-zinc-700" readOnly/>
+							<button 
+								onClick={copyLinkToClipboard
+								}
+								className=""
+								>
+								{linkCopied ? <Check className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> : <Copy className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" />}
+							</button>
+							<button 
+								onClick={handleLinkShare}
+								className=""
+								>
+								<Share2 className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> 
+							</button>
 					</div>
 				</div>
 

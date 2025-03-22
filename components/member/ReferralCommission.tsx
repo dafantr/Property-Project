@@ -4,6 +4,7 @@ import { ReferralCommissionProps } from "@/utils/types";
 import { Check, Copy, Share2 } from "lucide-react";
 import { useState } from "react";
 import WithdrawalHistoryModal from "@/components/ui/WithdrawalHistoryModal";
+import FormInput from "@/components/form/FormInput";
 
 export default function ReferralCommission({
 	member,
@@ -73,7 +74,7 @@ export default function ReferralCommission({
 	  
 	return (
 		<>
-			<div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6">
 				{/* Referral & Commission Card */}
 				<div className="bg-white dark:bg-zinc-800 p-4 md:p-6 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
 					<h2 className="text-lg md:text-xl font-semibold mb-4 dark:text-white">Referral & Commission Overview</h2>
@@ -88,7 +89,7 @@ export default function ReferralCommission({
 							</button>
 						</div>
 						<div className="flex flex-col sm:flex-row gap-2">
-						<p className="dark:text-gray-300">{referralLink}</p>
+						<input type="text" name="referralLink" defaultValue={referralLink} className="dark:text-gray-300 w-full sm:w-80% p-2 mt-2 mb-2 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700 border border-gray-200 dark:border-zinc-700" readOnly/>
 							<button 
 								onClick={copyLinkToClipboard
 								}
@@ -103,7 +104,7 @@ export default function ReferralCommission({
 								<Share2 className="h-4 w-4 text-[#B39665] hover:text-[#C4A777] transition-colors" /> 
 							</button>
 						</div>
-						<p className="dark:text-gray-300">{tier.tierName || 'noTier'}</p>
+						<p className="dark:text-gray-300">Membership Level : {tier.tierName || 'noTier'}</p>
 						<p className="dark:text-gray-300">Membership Referral Commission: {tier.commission}%</p>
 						<p className="dark:text-gray-300">Booking Referral Commission: {generalVariable.variableValue}%</p>
 					</div>
